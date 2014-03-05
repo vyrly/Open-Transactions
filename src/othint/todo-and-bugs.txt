@@ -1,0 +1,36 @@
+
+====================================================================
+BUGS IMPORTANT
+====================================================================
+
+
+====================================================================
+BUGS MISC
+====================================================================
+
+====================================================================
+TODO
+====================================================================
+
+* debug: configurable debug level (from autostart)
+* debug: testcases should use this debug level
+* implement more commands for othint + execution
+* new_tree
+* genereate help/usage page using new_tree
+* split main.cpp
+
+
+====================================================================
+TODO OT
+====================================================================
+
+* Error. If program was ended whit ^Z. In next instance of othint function  OTAPI_Wrap::AppInit()
+return true but init is not successed
+
+====================================================================
+IDEAS - possible TODO
+====================================================================
+
+* leave otclid service in background and make other clients use that one to skip loading time (init/wallet open time)
+
+

@@ -1,0 +1,118 @@
+
+This are instructions for the new, modern building.
+Why: Very fast builds, debug, clang seems better compiler (speed,memory) generating better code (fast; C++11)
+How: Use ~/local/ script that wraps and calls ccache + user-local newer clang and debug code
+State: This functionality is now (2013-10) under development, see
+github https://github.com/rfree/Open-Transactions/ for unofficial version by rfree (me).
+
+
+1. Dependencies build and installation
+2. Open Transaction build
+3. Main build
+4. Fast rebuilding
+
+1.
+a)
+Install dependencies:
+	# apt-get install wget git libtool make cmake pkg-config automake hurd-dev install libboost-all-dev libzmq-dev libmsgpack-dev libssl-dev protobuf-compiler libprotobuf-dev
+
+b) clang and ccache installation
+
+Install ccache:
+
+	# apt-get install ccache
+
+As user we recommend to build from sources clang compiler in some new version
+e.g. at least clang 3.3 (as of 2013-10). We would advice to build it per-user, using PREFIX=$HOME/.local/ when configuring
+
+On debian 7 good setup is to system-wide install clang from repository (3.2)
+and user-local build clang 3.3:
+
+	# apt-get install clang
+
+	$ mkdir ~/llvm && cd ~/llvm
+
+Download sources:
+	$ wget http://www.llvm.org/releases/3.3/cfe-3.3.src.tar.gz
+	$ wget http://www.llvm.org/releases/3.3/cfe-3.3.src.tar.gz.sig
+	$ wget http://www.llvm.org/releases/3.3/llvm-3.3.src.tar.gz
+	$ wget http://www.llvm.org/releases/3.3/llvm-3.3.src.tar.gz.sig
+
+Verify downloads:
+	$ sha512sum *gz
+	06773f43f7d3529f06edb029f7de398f06a700a0f2476e00c4727e70c291028221bfac23625dfd2c220d6ac91a21670848187a934b99a21801c695127371afcc  cfe-3.3.src.tar.gz
+	1b7f7c5e907a68f642dcbe48fdff9585cb1504022bc9d386f310ebe5d25103d0d5f7cf0abf19e0e3fd666970160a98c90033754e2b79b2fac0cf866c984f8038  llvm-3.3.src.tar.gz
+
+Packages should be signed with key with fingerprint: C135 49BB 82A1 7681 BF71  43C2 B446 8DF4 E95C 63DC
+	$ gpg --keyserver pgp.mit.edu --recv-keys E95C63DC
+	$ gpg --verify cfe-3.3.src.tar.gz.sig
+	$ gpg --verify llvm-3.3.src.tar.gz.sig
+Verification output should look like:
+	gpg: Signature made Thu 13 Jun 2013 10:01:48 CEST using RSA key ID E95C63DC
+	gpg: Good signature from "Bill Wendling <wendling@apple.com>"
+	gpg: WARNING: This key is not certified with a trusted signature!
+	gpg:          There is no indication that the signature belongs to the owner.
+	Primary key fingerprint: C135 49BB 82A1 7681 BF71  43C2 B446 8DF4 E95C 63DC
+
+Unpack and prepare to build:
+	$ tar -xzf llvm-3.3.src.tar.gz
+	$ tar -xzf cfe-3.3.src.tar.gz
+	$ mv cfe-3.3.src llvm-3.3.src/tools/clang
+	$ mkdir build
+	$ cd build
+
+Build:
+	If compiling with clang - must pass full path to compiler
+	$ CC=/usr/bin/clang CXX=/usr/bin/clang++ ../llvm-3.3.src/configure --prefix=$HOME/.local
+	$ make -j2
+	$ make install
+
+Add to ~/.profile to use clang with ccache:
+	# set PATH so it includes user's .local root bin if it exists
+	if [ -d "$HOME/.local/bin" ] ; then
+		PATH="$HOME/.local/bin:$PATH"
+	fi
+	export CPP="clang -E"; export CC="ccache clang"; export CXX="ccache clang++"
+	#
+
+to avoid logging out and then logging back in again:
+	$ source ~/.profile
+
+c) Build and install chaiscript
+	$ cd ~
+fetch chaiscript
+	$ git clone git://github.com/ChaiScript/ChaiScript.git
+
+build chaiscript
+	$ cd ChaiScript
+	$ cmake . -DCMAKE_INSTALL_PREFIX=$HOME/.local
+	$ make
+	$ make test
+	$ make install
+	$ cd ..
+
+setenv variable PKG_CONFIG_PATH
+	$ export PKG_CONFIG_PATH=$HOME/.local/lib/pkgconfig:$PKG_CONFIG_PATH
+
+2. Build and install Open Transactions:
+	$ git clone git://github.com/rfree/Open-Transactions.git
+	$ cd Open-Transactions
+	$ autoreconf -vif -Wall
+
+	$ ./configure --prefix=$HOME/.local
+	$ make
+	$ make install
+
+
+!!!Don't use steps below (BROKEN)!!!
+
+Run our script utils/compiler-wrapper/install.sh (or you will be asked to
+run it when building. It will install the wrapper in $HOME/.local/bin as
+compile-cxx and other scripts.
+
+3. For main build use
+!!!IMPORTANT!!! Don't use wrapper (broken)
+./cmd/build.sh 0
+
+4. Fast recompilations are done with e.g.
+./cmd/build.sh 200
