@@ -79,7 +79,7 @@ Add to ~/.profile to use clang with ccache:
 to avoid logging out and then logging back in again:
 	$ source ~/.profile
 
-c) Build and install chaiscript
+c) Build and install chaiscript. ChaiScript_5_0_CPP_11 needs to be build with gcc (clang is uncompatible)
 	$ cd ~
 fetch chaiscript
 	$ git clone git://github.com/ChaiScript/ChaiScript.git
@@ -88,7 +88,7 @@ build chaiscript
 	$ cd ChaiScript
 	$ git checkout ChaiScript_5_0_CPP_11
 	$ git clean -fxd
-	$ cmake . -DCMAKE_INSTALL_PREFIX=$HOME/.local
+	$ CC=gcc CXX=g++ cmake . -DCMAKE_INSTALL_PREFIX=$HOME/.local
 	$ make
 	$ make test
 	$ make install
