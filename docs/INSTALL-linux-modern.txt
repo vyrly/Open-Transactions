@@ -68,12 +68,13 @@ Build:
 	$ make install
 
 Add to ~/.profile to use clang with ccache:
+--------------------------------------------------------------------------
 	# set PATH so it includes user's .local root bin if it exists
 	if [ -d "$HOME/.local/bin" ] ; then
 		PATH="$HOME/.local/bin:$PATH"
 	fi
 	export CPP="clang -E"; export CC="ccache clang"; export CXX="ccache clang++"
-	#
+--------------------------------------------------------------------------
 
 to avoid logging out and then logging back in again:
 	$ source ~/.profile
@@ -85,6 +86,8 @@ fetch chaiscript
 
 build chaiscript
 	$ cd ChaiScript
+	$ git checkout ChaiScript_5_0_CPP_11
+	$ git clean -fxd
 	$ cmake . -DCMAKE_INSTALL_PREFIX=$HOME/.local
 	$ make
 	$ make test
@@ -97,9 +100,9 @@ setenv variable PKG_CONFIG_PATH
 2. Build and install Open Transactions:
 	$ git clone git://github.com/rfree/Open-Transactions.git
 	$ cd Open-Transactions
-	$ autoreconf -vif -Wall
-
-	$ ./configure --prefix=$HOME/.local
+	$ ./autogen.sh
+	
+	$ ./configure --prefix=$HOME/.local --with-script=chai5 --enable-cxx11 --disable-cxxtr1 --disable-boost
 	$ make
 	$ make install
 
