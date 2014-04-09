@@ -40,22 +40,15 @@ if (LOCAL_EDITLINE)
 	find_package(EditlineLocal)
 	if (EDITLINE_FOUND)
 		include_directories(${EDITLINE_INCLUDE_DIR})
-		target_link_libraries (othint ${EDITLINE_LIBRARY})
+		target_link_libraries (othint ${EDITLINE_LIBRARIES})
 	endif (EDITLINE_FOUND)
 else ()
 	find_package(Editline)
 	if (EDITLINE_FOUND)
 		include_directories(${EDITLINE_INCLUDE_DIR})
-		target_link_libraries (othint ${EDITLINE_LIBRARY})
+		target_link_libraries (othint ${EDITLINE_LIBRARIES})
 	endif (EDITLINE_FOUND)
 endif(LOCAL_EDITLINE)
-
-# TODO search for chaiscript
-
-# TODO should this be needed in order to use boost? (we need boost for chai currently)
-FIND_PACKAGE( Boost 1.49 COMPONENTS thread REQUIRED )
-INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
-TARGET_LINK_LIBRARIES( othint ${Boost_LIBRARIES} )
 
 # Find libraries and headers for OT
 
@@ -63,7 +56,7 @@ if (LOCAL_OT)
 	find_package(OTLocal REQUIRED)
 	if (OTLocal_FOUND)
 		include_directories(${OTLocal_INCLUDE_DIR})
-		target_link_libraries (othint ${OTLocal_LIBRARY})
+		target_link_libraries (othint ${OTLocal_LIBRARIES})
 	endif (OTLocal_FOUND)
 endif(LOCAL_OT)
 

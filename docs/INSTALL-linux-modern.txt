@@ -67,7 +67,7 @@ Build:
 	$ make -j2
 	$ make install
 
-Add to ~/.profile to use clang with ccache:
+Add to ~/.profile to use clang with ccache in next steps:
 --------------------------------------------------------------------------
 	# set PATH so it includes user's .local root bin if it exists
 	if [ -d "$HOME/.local/bin" ] ; then
@@ -79,21 +79,6 @@ Add to ~/.profile to use clang with ccache:
 to avoid logging out and then logging back in again:
 	$ source ~/.profile
 
-c) Build and install chaiscript. ChaiScript_5_0_CPP_11 needs to be build with gcc (clang is uncompatible)
-	$ cd ~
-fetch chaiscript
-	$ git clone git://github.com/ChaiScript/ChaiScript.git
-
-build chaiscript
-	$ cd ChaiScript
-	$ git checkout ChaiScript_5_0_CPP_11
-	$ git clean -fxd
-	$ CC=gcc CXX=g++ cmake . -DCMAKE_INSTALL_PREFIX=$HOME/.local
-	$ make
-	$ make test
-	$ make install
-	$ cd ..
-
 setenv variable PKG_CONFIG_PATH
 	$ export PKG_CONFIG_PATH=$HOME/.local/lib/pkgconfig:$PKG_CONFIG_PATH
 
@@ -101,8 +86,8 @@ setenv variable PKG_CONFIG_PATH
 	$ git clone git://github.com/rfree/Open-Transactions.git
 	$ cd Open-Transactions
 	$ ./autogen.sh
-	
-	$ ./configure --prefix=$HOME/.local --with-script=chai5 --enable-cxx11 --disable-cxxtr1 --disable-boost
+
+	$ ./configure --prefix=$HOME/.local
 	$ make
 	$ make install
 
