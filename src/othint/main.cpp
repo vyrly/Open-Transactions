@@ -452,13 +452,13 @@ cLogger::cLogger() : mStream(NULL), mLevel(90) { mStream = & std::cout; }
 
 
 std::string cLogger::icon(int level) const {
-	if (level >= 100) return "@@";
-	if (level >=  90) return "!!";
-	if (level >=  70) return "##";
-	if (level >=  50) return "ii";
-	if (level >=  40) return "d ";
-	if (level >=  30) return "  ";
-	if (level >=  20) return "  ";
+	if (level >= 100) return "!!!!";
+	if (level >=  90) return "!!! ";
+	if (level >=  70) return "WARN";
+	if (level >=  50) return "Info";
+	if (level >=  40) return "Dbg ";
+	if (level >=  30) return "dbg ";
+	if (level >=  20) return "dbg ";
 	return "  ";
 }
 
