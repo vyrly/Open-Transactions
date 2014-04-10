@@ -14,7 +14,7 @@ otcli - is ot new cli - Open Transactions NEW Command Line Interface
 ========================================================================
 USING
 ------------------------------------------------------------------------
-run "make run" or execute the binary ./othint
+run "make run" or execute the binary ./othint --complete-shell
 
 Now you are in interactive shell called
 newcli (Open Transactions NEW Command-Line Interface)
@@ -35,15 +35,8 @@ Dependencies:
 
 Dependencies installation (Debian):
 	* Download OpenTransactions and build it, using instructions from  ../../docs/INSTALL-linux-modern.txt or other suitable
-	* Checklist, in ~ .local you should have files like:
-		$ find  /home/opentransactions/.local/lib/ | grep libot
-			/home/opentransactions/.local/lib/libot.so.0
-			/home/opentransactions/.local/lib/libot.a
-			/home/opentransactions/.local/lib/libotapi.so
-			/home/opentransactions/.local/lib/libotapi.la
-			etc.
 	* Get, build and install latest editline locally (editline in debian 7 has bugs)
-		$ wget http://thrysoee.dk/editline/libedit-20130712-3.1.tar.gz
+		$ wget http://thrysoee.dk/editline/libedit-20130712-3.1.tar.gzf
 		$ tar -xzf libedit-20130712-3.1.tar.gz
 		$ cd libedit-20130712-3.1
 		$ ./configure --prefix=$HOME/.local
@@ -57,7 +50,7 @@ Or Qt gui:
 
 Build with default configuration:
 
-	$ cmake .
+	$ cmake
 	$ make
 
 With locally installed editline and compiler wrapper:
