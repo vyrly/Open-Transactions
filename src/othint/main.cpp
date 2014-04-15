@@ -775,8 +775,8 @@ msg send     # error: missing required options
 msg send <mynym>     # error: missing required options
 #----------------Errors------------------#
 
-[*] - done
-[/] - in progress
+[*] - works
+[/] - wip
 
 #------List of all included commands-----#
 account			# can display active (default) account
@@ -1090,51 +1090,46 @@ namespace nUse {
 		}
 
 		~cUseOT() {
-			if(OTAPI_loaded)
-
-		OTAPI_Wrap::AppCleanup(); // UnInit OTAPI
+			if (OTAPI_loaded) OTAPI_Wrap::AppCleanup(); // UnInit OTAPI
 		}
 
 		bool Init() {
 			if (OTAPI_error) return false;
 			if (OTAPI_loaded) return true;
-
 			try {
+				if (!OTAPI_Wrap::AppInit()) {// Init OTAPI
+					_erro("Error while init OTAPI thrown an UNKNOWN exception!");
+					return false; // <--- RET
+				}
 
-					if (!OTAPI_Wrap::AppInit()) {// Init OTAPI
-						_erro("Error while init OTAPI thrown an UNKNOWN exception!");
-						return false; // <--- RET
-					}
+				_info("Trying to load wallet: ");
+				//if not pWrap it means that AppInit is not successed
+				OTAPI_Wrap *pWrap = OTAPI_Wrap::It();
+				if (!pWrap) {
+					OTAPI_error = true;
+					_erro("Error while init OTAPI (1)");
+					return false;
+				}
 
-					_info("Trying to load wallet: ");
-					//if not pWrap it means that AppInit is not successed
-					OTAPI_Wrap *pWrap = OTAPI_Wrap::It();
-					if (!pWrap) {
-						OTAPI_error = true;
-						_erro("Error while init OTAPI");
-						return false;
-					}
-
-					if(OTAPI_Wrap::LoadWallet())
-					_info("wallet was loaded ");
-					else
-					_erro("Error while loading wallet ");
+				if(OTAPI_Wrap::LoadWallet()) {
+					_info("wallet was loaded.");
 					OTAPI_loaded = true;
-				}
-				catch(const std::exception &e) {
-				_erro("Error while OTAPI init " << e.what());
+				}	else _erro("Error while loading wallet.");
+			}
+			catch(const std::exception &e) {
+				_erro("Error while OTAPI init (2) - " << e.what());
 				return false;
-				}
-				catch(...) {
+			}
+			catch(...) {
 				_erro("Error while OTAPI init thrown an UNKNOWN exception!");
+				OTAPI_error = true;
 				return false;
-				}
-		return OTAPI_loaded;
+			}
+			return OTAPI_loaded;
 		}
 
 		const std::vector<std::string> getNymsMy() {
-			if(!Init())
-			return vector<std::string> {};
+			if(!Init())	return vector<std::string> {};
 
 			if (!mNymsMy_loaded) {
 				try {
@@ -1164,6 +1159,19 @@ namespace nUse {
 				string nymName_ = OTAPI_Wrap::GetNym_Name (nymID);
 				if (nymName_ == nymName)
 					return nymID;
+			}
+			return "";
+		}
+
+		const string getNymInfo(const string & nymName) {
+			if(!Init())
+			return "";
+
+			for(int i = 0 ; i < OTAPI_Wrap::GetNymCount ();i++){
+				string nymID = OTAPI_Wrap::GetNym_ID (i);
+				string nymName_ = OTAPI_Wrap::GetNym_Name (nymID);
+				if (nymName_ == nymName)
+					return nymName_ + " - " + nymID;
 			}
 			return "";
 		}
@@ -1410,7 +1418,7 @@ namespace nUse {
 			return false;
 		}
 
-		void checkNym(const string & hisNymID){
+		void checkNym(const string & hisNymID){ // wip
 			if(!Init())
 				return;
 
@@ -1873,7 +1881,7 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 	}
 
 	if (topic=="market") {
-		return WordsThatMatch(  current_word  ,  vector<string>{"ls", "[BLANK]"} ) ;
+		return WordsThatMatch(  current_word  ,  vector<string>{"ls"} ) ;
 	}
 
 	if (topic=="mint") {
@@ -1948,25 +1956,14 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 
 	} // msg
 
-	if (topic=="msguard") { // testing!
-		if (full_words<2) { // we work on word2 - the action:
-			return WordsThatMatch(  current_word  , vector<string>{"info","start","stop"} ); // <-- TODO
-		}
-		if (full_words<3) { // we work on word3 - var1
-			if (action=="start") {
-				return WordsThatMatch(  current_word  ,  vector<string>{"eth0","eth1","eth2","usb1","usb2"} );
-			}
-		}
-	}
-
 	if (topic=="nym") {
 		if (full_words<2) { // we work on word2 - the action:
-			return WordsThatMatch(  current_word  ,  vector<string>{"check", "edit", "export", "import", "info", "ls", "new", "refresh", "register", "rm", "[BLANK]"} ) ;
+			return WordsThatMatch(  current_word  ,  vector<string>{"check", "edit", "export", "import", "info", "ls", "new", "refresh", "register", "rm"} ) ;
 		}
 		if (full_words<3) { // we work on word3 - cmdArgs.at(0)
 
 			if (action=="ls") {
-				nOT::nUtil::DisplayVectorEndl(cout, nOT::nUse::useOT.getNymsMy()); // <====== Execute
+				nOT::nUtil::DisplayVectorEndl(cout, nOT::nUse::useOT.getNymsMy(), "\n"); // <====== Execute
 			}
 
 			if (action=="new") {
@@ -1974,25 +1971,29 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 				return vector<string>{""};
 			}
 			if (action=="rm") {
-				return WordsThatMatch(  current_word  ,  vector<string>{"name", "<nymID>"} );//TODO Suitable changes to this part - propably after merging with otlib
+				return WordsThatMatch( current_word  ,  nOT::nUse::useOT.getNymsMy() );//TODO Suitable changes to this part - propably after merging with otlib
 			}
 			if (action=="info") {
-				return WordsThatMatch(  current_word  ,  vector<string>{"<nymID>"} );//TODO Suitable changes to this part - propably after merging with otlib
+				return WordsThatMatch( current_word  ,  nOT::nUse::useOT.getNymsMy() );//TODO Suitable changes to this part - propably after merging with otlib
 			}
 			if (action=="edit") {
-				return WordsThatMatch(  current_word  ,  vector<string>{"<nymID>"} );//TODO Suitable changes to this part - propably after merging with otlib
+				return WordsThatMatch( current_word  ,  nOT::nUse::useOT.getNymsMy() );//TODO Suitable changes to this part - propably after merging with otlib
 			}
 			if (action=="register") {
-				return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.getNymsMy());//TODO server name
+				return WordsThatMatch( current_word  ,  nOT::nUse::useOT.getNymsMy() );//TODO server name
 			}
 			if (action=="check") { // TODO interactive input
 				nOT::nUtil::DisplayStringEndl(cout, "Type NymID to check"); // <====== Execute
 				return vector<string>{""};
 			}
 		}
+
 		if (full_words<4) { // we work on word4 - var2
 			if (action=="new") {
 				nOT::nUse::useOT.createNym(cmdArgs.at(0)); // <====== Execute
+			}
+			if (action=="info") {
+				nOT::nUtil::DisplayStringEndl( cout, nOT::nUse::useOT.getNymInfo(cmdArgs.at(0)) ); // <====== Execute
 			}
 			if (action=="register") {
 				nOT::nUse::useOT.registerNym(cmdArgs.at(0)); // <====== Execute
@@ -2034,13 +2035,13 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 
 		if (full_words<3) { // we work on word3 - var1
 			if (action=="encode") { // text to encode
-				nOT::nUtil::DisplayStringEndl( cout, "Paste text to be encoded:");
+				nOT::nUtil::DisplayStringEndl( cout, "Paste text to be encoded:" ); // <====== Execute
 				nOT::nUtil::DisplayStringEndl( cout, nOT::nUse::useOT.encodeText(nOT::nUtil::GetMultiline())); // <====== Execute
 				return vector<string>{""};
 			}
 
 			if (action=="decode") { // text to decode
-				nOT::nUtil::DisplayStringEndl( cout, "Paste text to be decoded:");
+				nOT::nUtil::DisplayStringEndl( cout, "Paste text to be decoded:" ); // <====== Execute
 				nOT::nUtil::DisplayStringEndl( cout, nOT::nUse::useOT.decodeText(nOT::nUtil::GetMultiline()) ); // <====== Execute
 				return vector<string>{""};
 			}
@@ -2064,20 +2065,21 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 			}
 
 			if (action=="encrypt") {
-				nOT::nUtil::DisplayStringEndl( cout,"Paste text to be encrypted:" );
+				nOT::nUtil::DisplayStringEndl( cout,"Paste text to be encrypted:" ); // <====== Execute
 				nOT::nUtil::DisplayStringEndl( cout, nOT::nUse::useOT.encryptText(cmdArgs.at(0), nOT::nUtil::GetMultiline())); // <====== Execute
 				return vector<string>{""};
 			}
 
 			if (action=="decrypt") {
+				nOT::nUtil::DisplayStringEndl( cout,"Paste text to be decrypted:" ); // <====== Execute
 				nOT::nUtil::DisplayStringEndl( cout, nOT::nUse::useOT.decryptText(cmdArgs.at(0), nOT::nUtil::GetMultiline())); // <====== Execute
 				return vector<string>{""};
 			}
 		}
 
 		if (full_words<5) { // we work on word5 - var3
-			if (action=="encrypt") { // if plain text is passed as argument
-				nOT::nUtil::DisplayStringEndl( cout, "Paste text to be encrypted:");
+			if (action=="encrypt") { // if plain text is passed as argument (don't implemented for decrypt action because of multiline encrytped block)
+				nOT::nUtil::DisplayStringEndl( cout, "Paste text to be encrypted:"); // <====== Execute
 				nOT::nUtil::DisplayStringEndl( cout, nOT::nUse::useOT.encryptText(cmdArgs.at(0), cmdArgs.at(1))); // <====== Execute
 				return vector<string>{""};
 			}
@@ -2099,11 +2101,8 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 class cInteractiveShell {
 	public:
 		cInteractiveShell();
-		void run();
 		void runOnce(const string line);
-		void runReadline();
 		void runEditline();
-
 	protected:
 		bool dbg;
 };
@@ -2112,26 +2111,10 @@ cInteractiveShell::cInteractiveShell()
 :dbg(false)
 { }
 
-
-void cInteractiveShell::run() { //FIXME
-	while(1) {
-		std::string line;
-		cout << "\n\nCommand: Press ENTER to show auto-completion for the command. Type q or quit (and press ENTER) to quit." << endl;
-		cout << "commandline-part> " << std::flush;
-		getline(cin,line);
-		if (line == "q") break;
-		if (line == "quit") break;
-		std::string cmdline;
-		cmdline = "ot " + line;
-		nOT::nTests::testcase_complete_1(cmdline);
-	}
-}
-
-
-void cInteractiveShell::runOnce(const string line) {
-		nOT::nOTHint::cHintManager hint;
-		vector<string> out = hint.AutoCompleteEntire(line);
-		nOT::nUtil::DisplayVectorEndl(std::cout, out);
+void cInteractiveShell::runOnce(const string line) { // used with bash autocompletion
+	nOT::nOTHint::cHintManager hint;
+	vector<string> out = hint.AutoCompleteEntire(line);
+	nOT::nUtil::DisplayVectorEndl(std::cout, out);
 }
 
 extern bool my_rl_wrapper_debug; // external
@@ -2148,25 +2131,6 @@ bool my_rl_wrapper_debug; // external
 // { strdup("foo") , NULL } - 1 record array
 // { strdup("foo") , strdup("bar", NULL } - 2 record array
 
-// return all completions, in [null-term-cstr] format (we allocate, caller deallocates this memory)
-static char** completionReadlineWrapper( const char * sofar , int start,  int end) {
-	// code moved/merged with completionReadlineWrapper1
-	// char** matches = (char **)NULL;
-	return NULL;
-
-	/*
-	typedef char *p_char;
-	char **cmd = (char**)malloc(sizeof(p_char) * (completions_size + 1));
-	decltype(completions_size) pos = 0;
-	for (auto rec : completions) {
-		if (dbg) cerr << " to pos=" << pos << " [ " << rec << " ] "  <<endl;
-		cmd[pos] = strdup( rec.c_str() );
-		++pos;
-	}
-	cmd[completions_size] = NULL; // to the last element. array is up to completions_size+1 indeed.
-	return cmd;
-	*/
-}
 
 // When readline will call us to complete "ot m" then our function will be called with number=0,
 // then it should cache possibilities of endings "msg" "mint" "msguard", and return 0th (first) one.
@@ -2177,7 +2141,7 @@ static char** completionReadlineWrapper( const char * sofar , int start,  int en
 // arrays, or recalculate on change)
 
 
-static char* completionReadlineWrapper1(const char *sofar , int number) {
+static char* completionReadlineWrapper(const char *sofar , int number) {
 	bool dbg = my_rl_wrapper_debug || 1;
 	if (dbg) _dbg3("\nsofar="<<sofar<<" number="<<number<<" rl_line_buffer="<<rl_line_buffer<<endl);
 	string line;
@@ -2203,47 +2167,10 @@ static char* completionReadlineWrapper1(const char *sofar , int number) {
 	return strdup( completions.at(number).c_str() ); // caller must free() this memory
 }
 
-/* TODO remove
-// http://www.delorie.com/gnu/docs/readline/rlman_28.html
-void cInteractiveShell::runReadline() {
-	char *buf = NULL;
-	my_rl_wrapper_debug = dbg;
-	// rl_attempted_completion_function = completionReadlineWrapper;
-	// rl_completion_entry_function = completionReadlineWrapper1;
-	rl_bind_key('\t',rl_complete);
-	while((buf = readline("commandline-part> "))!=NULL) { // <--- readline()
-		std::string word;
-		if (buf) word=buf; // if not-null buf, then assign
-		if (buf) { free(buf); buf=NULL; }
-		// do NOT use buf variable below.
-
-		if (dbg) cout << "Word was: " << word << endl;
-		std::string cmd;
-		if (rl_line_buffer) cmd = rl_line_buffer; // save the full command into string
-		if (dbg) cout << "Command was: " << cmd << endl;
-
-		if (cmd=="quit") break;
-		if (cmd=="q") break;
-
-		if (cmd.length()) {
-			add_history(cmd.c_str()); // TODO (leaks memory...) but why
-		}
-		cout << "Command was: " << cmd << endl;
-
-		cout << "Auto completion for (" << cmd << ") is: ";
-		nOT::nTests::testcase_complete_1(cmd);
-		cout << endl;
-
-		// ... TODO run it
-	}
-	if (buf) { free(buf); buf=NULL; }
-	clear_history(); // http://cnswww.cns.cwru.edu/php/chet/readline/history.html#IDX11
-}
-*/
 char ** completion (const char* text, int start, int end __attribute__((__unused__))){
 	char **matches;
 	matches = (char **)NULL;
-	matches = rl_completion_matches (text, completionReadlineWrapper1);
+	matches = rl_completion_matches (text, completionReadlineWrapper);
 	return (matches);
 }
 
@@ -2397,13 +2324,8 @@ int nOT::nTests::main_main(int argc, char **argv) {
 		else if (arg=="--complete-one") {
 			string v;  bool ok=1;  try { v=args.at(nr+1); } catch(...) { ok=0; } //
 			if (ok) {
-				cout  << args.at(nr+1) << endl;
 				nOT::nOTHint::cInteractiveShell shell;
 				shell.runOnce(v);
-			/*if(!)	{
-					_dbg3("Bad runOnce() for arguments '"<<arg<<"'");
-					status = 1;
-				}*/
 			}
 			else {
 				_dbg3("Missing variables for command line argument '"<<arg<<"'");
