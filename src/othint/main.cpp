@@ -200,29 +200,21 @@ File format of sources: identation with \t char, which we assume is 2 spaces wid
 #include <iterator>
 #include <stdexcept>
 
-//for the super advanced trim ;) FIXME - is trimming in use?
-#include <algorithm>
-#include <functional>
-#include <cctype>
-#include <locale>
+//for the super advanced trim ;) TODO remove? - trim not in use
+//#include <algorithm>
+//#include <functional>
+//#include <cctype>
+//#include <locale>
 
-#include <string.h>
+#include <cstring>
 
 // OT - like in Moneychanger
 #ifdef _WIN32 //TODO CmakeLists
 	#include <otapi/OTAPI.h>
 	#include <otapi/OT_ME.h>
-	#include <otlib/OTLog.h>
-	#include <otlib/OTPaths.h>
-	#include <otlib/OTPassword.h>
-	#include <otlib/OTAsymmetricKey.h>
 #else
 	#include <opentxs/OTAPI.h>
 	#include <opentxs/OT_ME.h>
-	#include <opentxs/OTLog.h>
-	#include <opentxs/OTPaths.h>
-	#include <opentxs/OTPassword.h>
-	#include <opentxs/OTAsymmetricKey.h>
 #endif
 
 // Editline. Check 'git checkout linenoise' to see linenoise version.
@@ -527,15 +519,14 @@ bool CheckIfBegins(const std::string & beggining, const std::string & all) {
 	}
 }
 
-
 std::string cEscapeFromSpace(const std::string &s) {
 	std::ostringstream  newStr;
-				for(int i = 0; i < s.length();i++) {
-								if(s[i] ==32)
-								 newStr<<"\\"<< " ";
-								 else
-								 newStr<<s[i];
-								}
+	for(int i = 0; i < s.length();i++) {
+		if(s[i] == 32)
+			newStr << "\\" << " ";
+		else
+			newStr << s[i];
+	}
 	return newStr.str();
 }
 
@@ -562,39 +553,39 @@ std::string GetLastCharIf(const std::string & str) { // TODO unicode?
 	return std::string( 1 , str.at( s - 1) );
 }
 
-// TODO --- Vvvv  and #include
-// trim from start
-std::string &ltrim_in_place(std::string &s) {
-	s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
-	return s;
-}
+/* TODO: not in use, remove?
+		// trim from start
+		std::string &ltrim_in_place(std::string &s) {
+			s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
+			return s;
+		}
 
-// trim from end
-std::string &rtrim_in_place(std::string &s) {
-	s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
-	return s;
-}
+		// trim from end
+		std::string &rtrim_in_place(std::string &s) {
+			s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
+			return s;
+		}
 
-/*// trim from both ends
-std::string &trim_in_place(std::string &s) {
-	return ltrim(rtrim(s));
-}*/
+		// trim from both ends
+		//std::string &trim_in_place(std::string &s) {
+		//	return ltrim(rtrim(s));
+		//}
 
-std::string rtrim(const std::string &s) {
-	string scopy = s;
-	rtrim_in_place(scopy);
-	return scopy;
-}
-// TODO ltrim trim
+		std::string rtrim(const std::string &s) {
+			string scopy = s;
+			rtrim_in_place(scopy);
+			return scopy;
+		}
+*/
 
 std::string cEscapeString(const std::string &s) {
 	std::ostringstream  newStr;
-				for(int i = 0; i < s.length();i++) {
-								if(s[i] >=32 && s[i] <= 126)
-												newStr<<s[i];
-												else
-												newStr<<"\\"<< (int) s[i];
-								}
+		for(int i = 0; i < s.length();i++) {
+			if(s[i] >=32 && s[i] <= 126)
+				newStr<<s[i];
+			else
+				newStr<<"\\"<< (int) s[i];
+			}
 
 	return newStr.str();
 }
