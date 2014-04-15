@@ -440,7 +440,7 @@ void cLogger::setDebugLevel(int level) {
 	if (!note_before) _note("Setting debug level to "<<level);
 }
 
-cLogger::cLogger() : mStream(NULL), mLevel(90) { mStream = & std::cout; }
+cLogger::cLogger() : mStream(NULL), mLevel(20) { mStream = & std::cout; }
 
 
 std::string cLogger::icon(int level) const {
@@ -773,8 +773,8 @@ msg send <mynym>     # error: missing required options
 account			# can display active (default) account
 *account ls			# list all accounts
 *account new			# make new account with UI
-*account new <assetID>			# make new account by giving only <assetID>...
-*account new <assetID> <accountName>			#... and <accountName>
+*account new <assetName>			# make new account by giving only <assetID>...
+*account new <assetName> <accountName>			#... and <accountName>
 account refresh			#	refresh database of private accounts' list
 *account rm <accountName>			# delete account
 *account mv <oldAccountName>	<newAccountName>		# rename account
@@ -1738,7 +1738,6 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 			}
 			if (action=="ls") {
 				nOT::nUtil::DisplayVectorEndl( cout, nOT::nUse::useOT.getAccounts() ); // <====== Execute
-				return vector<string>{""};
 			}
 			if (action=="refresh") {
 				return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.getNymsMy() ) ;
@@ -2134,31 +2133,34 @@ bool my_rl_wrapper_debug; // external
 
 static char* completionReadlineWrapper(const char *sofar , int number) {
 	bool dbg = my_rl_wrapper_debug || 1;
-	if (dbg) _dbg3("\nsofar="<<sofar<<" number="<<number<<" rl_line_buffer="<<rl_line_buffer<<endl);
+	if (dbg) _dbg3("sofar="<<sofar<<" number="<<number<<" rl_line_buffer="<<rl_line_buffer<<endl);
 	string line;
 	if (rl_line_buffer) line = rl_line_buffer;
 	line = line.substr(0, rl_point); // Complete from cursor position
 	nOT::nOTHint::cHintManager hint;
 	static vector <string> completions;
 	if (number == 0) {
-		_dbg3("Start autocomplete");
+		_dbg3("Start autocomplete (during first callback, number="<<number<<")");
 		completions = hint.AutoCompleteEntire(line); // <--
+		nOT::nUtil::DisplayVectorEndl(cout, completions); //TODO: display in debug
+		_dbg3("Done autocomplete (during first callback, number="<<number<<")");
 	}
+
 	auto completions_size = completions.size();
 	if (!completions_size) {
-		_dbg3("Stop autocomplete: no matchng words found");
+		_dbg3("Stop autocomplete: no matching words found because completions_size="<<completions_size);
 		return NULL; // <--- RET
 	}
 	if (dbg) _dbg3( "completions_size=" << completions_size << endl);
-	if (number==completions_size){ // stop
-		_dbg3("Stop autocomplete");
+	if (number==completions_size) { // stop
+		_dbg3("Stop autocomplete because we are at last callback number="<<number<<" completions_size="<<completions_size);
 		return NULL;
 	}
-	_dbg3(">|" + completions.at(number) + "|<");
+	_dbg3("Current completion number="<<number<<" is: [" + completions.at(number) + "]");
 	return strdup( completions.at(number).c_str() ); // caller must free() this memory
 }
 
-char ** completion (const char* text, int start, int end __attribute__((__unused__))){
+char ** completion(const char* text, int start, int end __attribute__((__unused__))){
 	char **matches;
 	matches = (char **)NULL;
 	matches = rl_completion_matches (text, completionReadlineWrapper);
@@ -2271,7 +2273,7 @@ int main(int argc, char **argv) {
 	}*/
 
 	try {
-		//nOT::nTests::testcase_run_all_tests();
+		nOT::nTests::testcase_run_all_tests();
 	}
 	catch(const std::exception &e) {
 		_erro("\n*** The testcases code thrown an exception: " << e.what());
@@ -2319,7 +2321,7 @@ int nOT::nTests::main_main(int argc, char **argv) {
 				shell.runOnce(v);
 			}
 			else {
-				_dbg3("Missing variables for command line argument '"<<arg<<"'");
+				_erro("Missing variables for command line argument '"<<arg<<"'");
 				status = 1;
 			}
 		}
@@ -2458,7 +2460,7 @@ bool testcase_complete_1(const string &sofar) {
 	for(auto rec:out)	{
 		out[i] = cSpaceFromEscape(rec);
 		i++;
-		}
+	}
 	//nOT::nUtil::DisplayVector(std::cout, out); // FIXME polluting in testcase
 
 
@@ -2524,28 +2526,24 @@ bool helper_testcase_run_main_with_arguments(const cTestCaseCfg &testCfg , vecto
 	typedef char * char_p;
 	char_p * argv  = new char_p[argc]; // C++ style new[]
 
-
-
 	bool dbg = testCfg.debug;   auto &err = testCfg.ossErr;
-	if (dbg) err << "Testing " << __FUNCTION__ << " with " << argc << " argument(s): ";
+	if (dbg) err << "Testing " << __FUNCTION__ << " with " << argc << " argument(s): "  << endl;
 
 	size_t nr=0;
 	for(auto rec:tab) {
 		argv[nr] = strdup(rec.c_str()); // C style strdup/free
-		if( dbg) { _dbg3("argv " << argv[nr]);}
+		//if( dbg) {err << "argv " << argv[nr];}
 
 		++nr;
-		if( dbg) {_dbg3(rec); };
+		if( dbg) {err << rec; };
 	}
 	if (dbg) err << endl;
 
 	bool ok=true;
 	try {
-			ok = main_main(argc, argv)==0 ; // ... ok? TODO
+		ok = main_main(argc, argv) == 0 ; // ... ok? TODO
 
-			if (!ok) err << "BAD TEST " << __FUNCTION__ << " with " << argc << " argument(s): ";
-
-
+		if (!ok) err << "BAD TEST " << __FUNCTION__ << " with " << argc << " argument(s): ";
 	}
 	catch(const std::exception &e) {
 		ok=false;
@@ -2558,29 +2556,59 @@ bool helper_testcase_run_main_with_arguments(const cTestCaseCfg &testCfg , vecto
 
 // Separate functions for failing tests:
 bool testcase_run_main_args_fail1(const cTestCaseCfg &testCfg) {
-	bool ok=true; const string programName="othint";
-	if (!	helper_testcase_run_main_with_arguments(testCfg, vector<string>{} ) ) ok=false;
-	return ok;
-}
-
-// All this tests should succeed:
-bool testcase_run_main_args(const cTestCaseCfg &testCfg) {
 	bool ok=true;
-
 	const string programName="othint";
 
-	if (!	helper_testcase_run_main_with_arguments(testCfg, vector<string>{programName,"--complete-one", "ot accunt new game\\ toke_ns TEST_CASE"} ) ) ok=false;
-
-	if (!	helper_testcase_run_main_with_arguments(testCfg, vector<string>{programName,"--complete-one", "ot accunt rm TEST_CA_SE"} ) ) ok=false;
-
-	if (!	helper_testcase_run_main_with_arguments(testCfg, vector<string>{programName,"--complete-one", "ot msg sen"} ) ) ok=false;
+	if (!	helper_testcase_run_main_with_arguments(testCfg, vector<string>{programName,"--complete-one", "ot "} ) ) ok=false;
 	if (!	helper_testcase_run_main_with_arguments(testCfg, vector<string>{programName,"--complete-one"} ) ) ok=false;
-//	if (!	helper_testcase_run_main_with_arguments(testCfg, vector<string>{programName} ) ) ok=false;
+	if (!	helper_testcase_run_main_with_arguments(testCfg, vector<string>{programName} ) ) ok=false;
 
 	return ok;
 }
 
-// All this tests should succeed:
+//All this tests should succeed:
+bool testcase_run_main_args(const cTestCaseCfg &testCfg) {
+	bool ok=true;
+	const string programName="othint";
+
+	if (!	helper_testcase_run_main_with_arguments(testCfg, vector<string>{programName,"--complete-one", "ot account new game\\ toke_ns TEST_CASE"} ) ) ok=false;
+	if (!	helper_testcase_run_main_with_arguments(testCfg, vector<string>{programName,"--complete-one", "ot account rm TEST_CA_SE"} ) ) ok=false;
+	if (!	helper_testcase_run_main_with_arguments(testCfg, vector<string>{programName,"--complete-one", "ot msg sen"} ) ) ok=false;
+
+	return ok;
+}
+
+bool testcase_account(const cTestCaseCfg &testCfg) {
+	bool ok=true;
+/* TODO: check output
+	map<string , vector<string> > const cases {
+		 { "ot account ls", { ,  } }
+		,{ "ot account new game\\ toke_ns TEST_CASE", { ,  } }
+		,{ "ot account mv TEST_CASE TEST_CASE_MOVED", { ,  } }
+		,{ "ot account refresh", { ,  } }
+		,{ "ot account rm TEST_CASE_MOVED", { ,  } }
+	}
+	for(auto rec:out)
+
+	nOT::nOTHint::cHintManager hint;
+	vector<string> out = hint.AutoCompleteEntire(line);
+	int i = 0;
+	for(auto rec:out)	{
+		out[i] = cSpaceFromEscape(rec);
+		i++;
+	}
+	nOT::nUtil::DisplayVectorEndl(std::cout, out);
+
+	*/
+	const string programName="othint";
+	if (!	helper_testcase_run_main_with_arguments(testCfg, vector<string>{programName,"--complete-one", "ot account new game\\ toke_ns TEST_CASE"} ) ) ok=false;
+	if (!	helper_testcase_run_main_with_arguments(testCfg, vector<string>{programName,"--complete-one", "ot account ls"} ) ) ok=false;
+	if (!	helper_testcase_run_main_with_arguments(testCfg, vector<string>{programName,"--complete-one", "ot account mv"} ) ) ok=false;
+	if (!	helper_testcase_run_main_with_arguments(testCfg, vector<string>{programName,"--complete-one", "ot account refresh"} ) ) ok=false;
+	if (!	helper_testcase_run_main_with_arguments(testCfg, vector<string>{programName,"--complete-one", "ot account rm TEST_CA_SE"} ) ) ok=false;
+	return ok;
+}
+
 bool testcase_run_cEscapeString(const cTestCaseCfg &testCfg) {
 	bool ok=true;
 	std::string test = "TestTest";
@@ -2627,6 +2655,7 @@ bool testcase_run_all_tests() { // Can only run bool(*)(void) functions (to run 
 	AddFunction(testcase_cxx11_memory);
 	AddFunction(testcase_run_main_args);
 	AddFunction(testcase_run_cEscapeString);
+	AddFunction(testcase_account);
 
 	AddFunctionMustFail(testcase_fail1); // only for testing of this test code
 	AddFunctionMustFail(testcase_fail2); // only for testing of this test code
@@ -2669,9 +2698,9 @@ bool testcase_run_all_tests() { // Can only run bool(*)(void) functions (to run 
 		//cout << "All tests completed successfully." << endl;
 	}
 	else {
-		_dbg3( "*** Some tests were not completed! (" << failure_details.str() << ")");
+		cerr << "*** Some tests were not completed! (" << failure_details.str() << ")" << endl;
 	}
-	_dbg3("=== test cases, unit tests - done =====================================");
+		cerr << "=== test cases, unit tests - done =====================================" << endl;
 
 	return number_errors==0;
 }
