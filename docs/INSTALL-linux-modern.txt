@@ -33,21 +33,28 @@ and user-local build clang 3.3:
 	$ mkdir ~/llvm && cd ~/llvm
 
 Download sources:
-	$ wget http://www.llvm.org/releases/3.3/cfe-3.3.src.tar.gz
-	$ wget http://www.llvm.org/releases/3.3/cfe-3.3.src.tar.gz.sig
-	$ wget http://www.llvm.org/releases/3.3/llvm-3.3.src.tar.gz
-	$ wget http://www.llvm.org/releases/3.3/llvm-3.3.src.tar.gz.sig
+$execute:
+	wget http://www.llvm.org/releases/3.3/cfe-3.3.src.tar.gz
+	wget http://www.llvm.org/releases/3.3/cfe-3.3.src.tar.gz.sig
+	wget http://www.llvm.org/releases/3.3/llvm-3.3.src.tar.gz
+	wget http://www.llvm.org/releases/3.3/llvm-3.3.src.tar.gz.sig
 
 Verify downloads:
-	$ sha512sum *gz
+$execute:
+	sha512sum *gz
+
+should give:
 	06773f43f7d3529f06edb029f7de398f06a700a0f2476e00c4727e70c291028221bfac23625dfd2c220d6ac91a21670848187a934b99a21801c695127371afcc  cfe-3.3.src.tar.gz
 	1b7f7c5e907a68f642dcbe48fdff9585cb1504022bc9d386f310ebe5d25103d0d5f7cf0abf19e0e3fd666970160a98c90033754e2b79b2fac0cf866c984f8038  llvm-3.3.src.tar.gz
 
 Packages should be signed with key with fingerprint: C135 49BB 82A1 7681 BF71  43C2 B446 8DF4 E95C 63DC
-	$ gpg --keyserver pgp.mit.edu --recv-keys E95C63DC
-	$ gpg --verify cfe-3.3.src.tar.gz.sig
-	$ gpg --verify llvm-3.3.src.tar.gz.sig
+$execute:
+	gpg --keyserver pgp.mit.edu --recv-keys E95C63DC
+	gpg --verify cfe-3.3.src.tar.gz.sig
+	gpg --verify llvm-3.3.src.tar.gz.sig
+
 Verification output should look like:
+$execute:
 	gpg: Signature made Thu 13 Jun 2013 10:01:48 CEST using RSA key ID E95C63DC
 	gpg: Good signature from "Bill Wendling <wendling@apple.com>"
 	gpg: WARNING: This key is not certified with a trusted signature!
@@ -55,17 +62,18 @@ Verification output should look like:
 	Primary key fingerprint: C135 49BB 82A1 7681 BF71  43C2 B446 8DF4 E95C 63DC
 
 Unpack and prepare to build:
-	$ tar -xzf llvm-3.3.src.tar.gz
-	$ tar -xzf cfe-3.3.src.tar.gz
-	$ mv cfe-3.3.src llvm-3.3.src/tools/clang
-	$ mkdir build
-	$ cd build
+$execute:
+	tar -xzf llvm-3.3.src.tar.gz
+	tar -xzf cfe-3.3.src.tar.gz
+	mv cfe-3.3.src llvm-3.3.src/tools/clang
+	mkdir build
+	cd build
 
 Build:
 	If compiling with clang - must pass full path to compiler
-	$ CC=/usr/bin/clang CXX=/usr/bin/clang++ ../llvm-3.3.src/configure --prefix=$HOME/.local
-	$ make -j2
-	$ make install
+	CC=/usr/bin/clang CXX=/usr/bin/clang++ ../llvm-3.3.src/configure --prefix=$HOME/.local
+	make -j2
+	make install
 
 Add to ~/.profile to use clang with ccache in next steps:
 --------------------------------------------------------------------------
