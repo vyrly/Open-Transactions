@@ -36,12 +36,12 @@ Dependencies:
 Dependencies installation (Debian):
 	* Download OpenTransactions and build it, using instructions from  ../../docs/INSTALL-linux-modern.txt or other suitable
 	* Get, build and install latest editline locally (editline in debian 7 has bugs)
-		$ wget http://thrysoee.dk/editline/libedit-20130712-3.1.tar.gzf
-		$ tar -xzf libedit-20130712-3.1.tar.gz
-		$ cd libedit-20130712-3.1
-		$ ./configure --prefix=$HOME/.local
-		$ make
-		$ make install
+		wget http://thrysoee.dk/editline/libedit-20130712-3.1.tar.gz
+		tar -xzf libedit-20130712-3.1.tar.gz
+		cd libedit-20130712-3.1
+		./configure --prefix=$HOME/.local
+		make
+		make install
 
 If want to use ccmake (curses gui):
 	# aptitude install cmake-curses-gui

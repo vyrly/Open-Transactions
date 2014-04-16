@@ -1,7 +1,7 @@
 # Find OT lib and include directories
 message(STATUS "Looking for OT locally.")
 find_path(OTLocal_INCLUDE_DIR
-	NAMES OTAPI.h
+	NAMES OTAPI.hpp
 	PATHS "$ENV{HOME}/.local/include/opentxs"
 	)
 
