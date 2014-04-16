@@ -315,7 +315,7 @@ Commandline-Functor(s) are expressions that are expected to have certain value, 
 Consider following command line:
 	ot msg send mynym hisnym [ccnym]
 	ot msg send $get_mynym $get_somenym [$get_somenym_o]
-get_mynym is a Cmdfunc, and this one for example links to cUse::getNymsMy
+get_mynym is a Cmdfunc, and this one for example links to cUse::nymsGetMy
 
 They are defined in code in order to have following functions:
 - othint - completion, e.g. mynym provides list of possible your nyms
@@ -600,6 +600,7 @@ void Assert(bool result, const std::string &stamp) {
 }
 
 std::string GetMultiline(string endLine = "~"){
+	nOT::nUtil::DisplayStringEndl( cout, "Please enter multiple lines of input to be encoded, followed by ~ on a blank line:" );
 	std::string result(""); // Taken from OT_CLI_ReadUntilEOF
 	while (true){
 		std::string input_line("");
@@ -660,7 +661,7 @@ vector<T> & operator+=(vector<T> &a, const vector<T> &b) {
 namespace nOT {
 namespace nNewcli {
 
-// list of thigs from libraries that we pull into namespace nOT::nNewcli
+// list of things from libraries that we pull into namespace nOT::nNewcli
 using std::string;
 using std::vector;
 using std::list;
@@ -866,7 +867,7 @@ older opentxs commands:
 acceptall	acceptinbox	acceptinvoices	acceptmoney
 acceptpayments	acceptreceipts	accepttransfers	addasset
 addserver	addsignature	balance		buyvoucher
-cancel		changepw	checknym	clearexpired
+cancel		changepw	nymCheck	clearexpired
 clearrecords	confirm		credentials	decode
 decrypt		delmail		deloutmail	deposit
 discard		editacct	editasset	editnym
@@ -881,7 +882,7 @@ outmail		outpayment	pass_decrypt	pass_encrypt
 paydividend	payinvoice	payments	propose
 records		refresh		refreshacct	refreshnym
 register	revokecred	sendcash	sendcheque
-sendinvoice	sendmsg		sendvoucher	showaccounts
+sendinvoice	msgSend		sendvoucher	showaccounts
 showacct	showassets	showbasket	showcred
 showincoming	showmarkets	showmint	showmyoffers
 shownym		shownyms	showoffers	showoutgoing
@@ -1121,7 +1122,7 @@ namespace nUse {
 			return OTAPI_loaded;
 		}
 
-		const std::vector<std::string> getNymsMy() {
+		const std::vector<std::string> nymsGetMy() {
 			if(!Init())	return vector<std::string> {};
 
 			if (!mNymsMy_loaded) {
@@ -1143,7 +1144,7 @@ namespace nUse {
 		return mNymsMy_str;
 		}
 
-		const string getNymIdByName(const string & nymName) {
+		const string nymGetIdByName(const string & nymName) {
 			if(!Init())
 			return "";
 
@@ -1156,7 +1157,7 @@ namespace nUse {
 			return "";
 		}
 
-		const string getNymInfo(const string & nymName) {
+		const string nymGetInfo(const string & nymName) {
 			if(!Init())
 			return "";
 
@@ -1169,11 +1170,11 @@ namespace nUse {
 			return "";
 		}
 
-		const std::vector<std::string> getAccounts() {
-
+		const std::vector<std::string> accountsGet() {
 			if(!Init())
 			return vector<std::string> {};
 
+			_dbg3("Retrieving accounts names");
 			vector<std::string> accounts;
 			for(int i = 0 ; i < OTAPI_Wrap::GetAccountCount ();i++) {
 				accounts.push_back(OTAPI_Wrap::GetAccountWallet_Name ( OTAPI_Wrap::GetAccountWallet_ID (i)));
@@ -1181,10 +1182,11 @@ namespace nUse {
 			return accounts;
 		}
 
-		const nUtil::vector<std::string> getAccountIDs() {
+		const nUtil::vector<std::string> accountGetIds() {
 			if(!Init())
 			return vector<std::string> {};
 
+			_dbg3("Retrieving accounts ID's");
 			vector<std::string> accountsIDs;
 			for(int i = 0 ; i < OTAPI_Wrap::GetAccountCount ();i++) {
 				accountsIDs.push_back(OTAPI_Wrap::GetAccountWallet_ID (i));
@@ -1192,7 +1194,7 @@ namespace nUse {
 			return accountsIDs;
 		}
 
-		const std::string getAccountId(const std::string & accountName) {
+		const std::string accountGetId(const std::string & accountName) {
 			if(!Init())
 			return "";
 
@@ -1203,7 +1205,7 @@ namespace nUse {
 			return "";
 		}
 
-		const std::vector<std::string> getAssets() {
+		const std::vector<std::string> assetsGetNames() {
 			if(!Init())
 			return vector<std::string> {};
 
@@ -1214,7 +1216,7 @@ namespace nUse {
 			return assets;
 		}
 
-		const std::string getAssetId(const std::string & assetName) {
+		const std::string assetGetId(const std::string & assetName) {
 			if(!Init())
 			return "";
 
@@ -1225,13 +1227,13 @@ namespace nUse {
 			return "";
 		}
 
-		const std::string SetAccountWallet_NameByName(const std::string & oldAccountName, const std::string & newAccountName) {
+		const std::string accountRename(const std::string & oldAccountName, const std::string & newAccountName) {
 
-				SetAccountWallet_Name (getAccountId(oldAccountName), newAccountName);
+				accountSetName (accountGetId(oldAccountName), newAccountName);
 			return "";
 		}
 
-		const std::string SetAccountWallet_Name(const std::string & accountID, const std::string & NewAccountName) { //TODO: passing to function: const std::string & nymName, const std::string & signerNymName,
+		const std::string accountSetName(const std::string & accountID, const std::string & NewAccountName) { //TODO: passing to function: const std::string & nymName, const std::string & signerNymName,
 			if(!Init())
 			return "";
 
@@ -1239,13 +1241,13 @@ namespace nUse {
 			return "";
 		}
 
-		void createAssetAccount(const std::string & assetName, const std::string & newAccountName) {
+		void accountCreate(const std::string & assetName, const std::string & newAccountName) {
 			if(!Init())
 			return ;
 
 			OT_ME madeEasy;
 			string strResponse;
-			strResponse = madeEasy.create_asset_acct(mServerID, mUserID, getAssetId(assetName));
+			strResponse = madeEasy.create_asset_acct(mServerID, mUserID, assetGetId(assetName));
 
 			// -1 error, 0 failure, 1 success.
 			if (1 != madeEasy.VerifyMessageSuccess(strResponse))
@@ -1263,12 +1265,12 @@ namespace nUse {
 			}
 
 			// Set the Name of the new account.
-			SetAccountWallet_Name(strID,newAccountName);
+			accountSetName(strID,newAccountName);
 
 			cout << "Account " << newAccountName << "(" << strID << ")" << " created successfully." << endl;
 		}
 
-		void createNym(const std::string & nymName) {
+		void nymCreate(const std::string & nymName) {
 			if(!Init())
 			return ;
 
@@ -1290,7 +1292,7 @@ namespace nUse {
 			_info("Nym " << nymName << "(" << strID << ")" << " created successfully.");
 		}
 
-		void registerNym(const std::string & nymName) {
+		void nymRegister(const std::string & nymName) {
 			if(!Init())
 			return ;
 
@@ -1298,7 +1300,7 @@ namespace nUse {
 
 			_warn("Checking for default server only");
 
-			string nymID = getNymIdByName(nymName);
+			string nymID = nymGetIdByName(nymName);
 
 			bool isReg = OTAPI_Wrap::IsNym_RegisteredAtServer(nymID, mServerID);
 
@@ -1312,30 +1314,30 @@ namespace nUse {
 				cout << "Nym " << nymName << "(" << nymID << ")" << " was already registered" << endl;
 		}
 
-		void registerNym(const std::string & nymName, const std::string & serverName) {
+		void nymRegister(const std::string & nymName, const std::string & serverName) {
 			if(!Init())
 			return ;
 			//TODO: Add servers naming???
 		}
 
-		std::string deleteAssetAccount(const std::string & accountName) { ///<
+		std::string accountDelete(const std::string & accountName) { ///<
 			if(!Init())
 			return "";
 
-			if(!OTAPI_Wrap::Wallet_CanRemoveAccount (getAccountId(accountName))) {
+			if(!OTAPI_Wrap::Wallet_CanRemoveAccount (accountGetId(accountName))) {
 				// inBox and OutBox must be get from server because without it account not work properly
 				// example if you can't delete account without inbox and outbox
-				int32_t  inBoxInt = OTAPI_Wrap::getInbox 	(mServerID,mUserID,getAccountId(accountName));
-				int32_t outBoxInt = OTAPI_Wrap::getOutbox 	(mServerID,mUserID,getAccountId(accountName));
+				int32_t  inBoxInt = OTAPI_Wrap::getInbox 	(mServerID,mUserID,accountGetId(accountName));
+				int32_t outBoxInt = OTAPI_Wrap::getOutbox 	(mServerID,mUserID,accountGetId(accountName));
 			}
 
-			if(OTAPI_Wrap::deleteAssetAccount(mServerID, mUserID, getAccountId(accountName))==-1)
+			if(OTAPI_Wrap::deleteAssetAccount(mServerID, mUserID, accountGetId(accountName))==-1)
 				return "Error while deleting account";
 			else
 				return "";
 		}
 
-		const vector<string> getServers() { ///< Get all servers name
+		const vector<string> serversGet() { ///< Get all servers name
 			if(!Init())
 			return vector<string> {};
 
@@ -1346,7 +1348,7 @@ namespace nUse {
 			return servers;
 		}
 
-		const vector<string> getMessages() { ///< Get all messages from all Nyms.
+		const vector<string> msgGetAll() { ///< Get all messages from all Nyms.
 			if(!Init())
 			return vector<string> {};
 
@@ -1368,7 +1370,7 @@ namespace nUse {
 			return vector<string> {};
 		}
 
-		const vector<string> getNymMessages(const string & nym_Name) { ///< Get all messages from Nym.
+		const vector<string> msgGetForNym(const string & nym_Name) { ///< Get all messages from Nym.
 			if(!Init())
 				return vector<string> {};
 
@@ -1384,7 +1386,7 @@ namespace nUse {
 			return vector<string> {};
 		}
 
-		void sendMsg(const string & msg) { ///< Get all messages from Nym.
+		void msgSend(const string & msg) { ///< Get all messages from Nym.
 			if(!Init())
 				return;
 			OT_ME madeEasy;
@@ -1400,18 +1402,18 @@ namespace nUse {
 			_info("Message was sent successfully.");
 		}
 
-		void removeMailByIndex(const string &){
+		void removeMailByIndex(const string &){ //Change name of the function
 			//bool OTAPI_Wrap::Nym_RemoveMailByIndex (const std::string & NYM_ID, const int32_t & nIndex)
 		}
 
-		bool checkNymName(const string & nymName){
-			vector<string> v = getNymsMy();
+		bool nymCheckByName(const string & nymName){
+			vector<string> v = nymsGetMy();
 			if (std::find(v.begin(), v.end(), nymName) != v.end())
 				return true;
 			return false;
 		}
 
-		void checkNym(const string & hisNymID){ // wip
+		void nymCheck(const string & hisNymID){ // wip
 			if(!Init())
 				return;
 
@@ -1426,21 +1428,21 @@ namespace nUse {
 			_info("Successfully downloaded user public key.");
 		}
 
-		bool checkAssetName(const string & assetName){
-			vector<string> v = getAssets();
+		bool assetCheckIfExists(const string & assetName){
+			vector<string> v = assetsGetNames();
 			if (std::find(v.begin(), v.end(), assetName) != v.end())
 				return true;
 			return false;
 		}
 
-		bool checkAccountName(const string & accountName){
-			vector<string> v = getAccounts();
+		bool accountCheckIfExists(const string & accountName){
+			vector<string> v = accountsGet();
 			if (std::find(v.begin(), v.end(), accountName) != v.end())
 				return true;
 			return false;
 		}
 
-		const string encodeText(const string & plainText) {
+		const string textEncode(const string & plainText) {
 			if(!Init())
 				return "";
 
@@ -1450,7 +1452,7 @@ namespace nUse {
 			return encodedText;
 		}
 
-		const string decodeText(const string & encodedText) {
+		const string textDecode(const string & encodedText) {
 			if(!Init())
 				return "";
 
@@ -1460,19 +1462,19 @@ namespace nUse {
 			return plainText;
 		}
 
-		const string encryptText(const string & recipientNymName, const string & plainText) {
+		const string textEncrypt(const string & recipientNymName, const string & plainText) {
 			if(!Init())
 				return "";
 			string encryptedText;
-			encryptedText = OTAPI_Wrap::Encrypt(getNymIdByName(recipientNymName), plainText);
+			encryptedText = OTAPI_Wrap::Encrypt(nymGetIdByName(recipientNymName), plainText);
 			return encryptedText;
 		}
 
-		const string decryptText(const string & recipientNymName, const string & encryptedText) {
+		const string textDecrypt(const string & recipientNymName, const string & encryptedText) {
 			if(!Init())
 				return "";
 			string plainText;
-			plainText = OTAPI_Wrap::Decrypt(getNymIdByName(recipientNymName), encryptedText);
+			plainText = OTAPI_Wrap::Decrypt(nymGetIdByName(recipientNymName), encryptedText);
 			return plainText;
 		}
 	};
@@ -1731,31 +1733,31 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 
 	if (topic=="account") {
 
-		if (full_words<2) { // we work on word2 - the action:
+		if (full_words<2) { // word2 - the action:
 			return WordsThatMatch(  current_word  ,  vector<string>{"new", "ls", "refresh", "rm", "mv"} ) ;
 		}
-		if (full_words<3) { // we work on word3 (cmdArgs.at(0))
-			if (action=="new") { // asset name
-				return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.getAssets() ) ;
+		if (full_words<3) { // word3 (cmdArgs.at(0))
+			if (action=="new") {
+				return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.assetsGetNames() ) ;
 			}
 			if (action=="ls") {
-				nOT::nUtil::DisplayVectorEndl( cout, nOT::nUse::useOT.getAccounts() ); // <====== Execute
+				nOT::nUtil::DisplayVectorEndl( cout, nOT::nUse::useOT.accountsGet() ); // <====== Execute
 				return vector<string>{};
 			}
 			if (action=="refresh") {
-				return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.getNymsMy() ) ;
+				return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.nymsGetMy() ) ;
 			}
 			if (action=="rm") {
-				return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.getAccounts() ) ;
+				return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.accountsGet() ) ;
 			}
 			if (action=="mv") {
-				return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.getAccounts() ) ;
+				return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.accountsGet() ) ;
 			}
 		}
 
-		if (full_words<4) { // we work on word4 (cmdArgs.at(1)) account name
+		if (full_words<4) { // word4 (cmdArgs.at(1))
 			if (action=="new") {
-				if (nOT::nUse::useOT.checkAssetName(cmdArgs.at(0))){ // check if asset exists
+				if (nOT::nUse::useOT.assetCheckIfExists(cmdArgs.at(0))){
 					return vector<string>{};
 				}
 				else {
@@ -1764,39 +1766,39 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 				}
 			}
 			if (action=="rm") {
-				if (nOT::nUse::useOT.checkAccountName(cmdArgs.at(0))){ // check if account exists
-					return vector<string>{nOT::nUse::useOT.deleteAssetAccount(cmdArgs.at(0))};
+				if (nOT::nUse::useOT.accountCheckIfExists(cmdArgs.at(0))){
+					return vector<string>{nOT::nUse::useOT.accountDelete(cmdArgs.at(0))};
 				}
 				else {
-					std::cerr <<"no account with this name ";
+					std::cout << "No account with this name: "  << (cmdArgs.at(0)) << endl;
 					return vector<string>{};
 				}
 			}
 			if (action=="mv") {
-				std::cerr <<"type new account name";
+				std::cout <<"Pass new account name";
 				return vector<string>{};
 			}
 		}
 
-		if (full_words<5) { // Execute commands!
+		if (full_words<5) { // word5 (cmdArgs.at(2))
 			if (action=="new") {
-				if (!nOT::nUse::useOT.checkAccountName(cmdArgs.at(1))){ // unique name
-					nOT::nUse::useOT.createAssetAccount(cmdArgs.at(0), cmdArgs.at(1)); // <====== Execute
+				if (!nOT::nUse::useOT.accountCheckIfExists(cmdArgs.at(1))){ // make sure that the name is unique
+ 					nOT::nUse::useOT.accountCreate(cmdArgs.at(0), cmdArgs.at(1)); // <====== Execute
 					return vector<string>{};
 				}
 				else {
-					std::cerr <<"name " <<cmdArgs.at(1) << " already exists, choose other name ";
+					std::cout << "Name " << cmdArgs.at(1) << " exists, choose another name ";
 					return vector<string>{};
 				}
 
 			}
 			if (action=="mv") {
-				if (!nOT::nUse::useOT.checkAccountName(cmdArgs.at(1))){ // unique name
-					nOT::nUse::useOT.SetAccountWallet_NameByName(cmdArgs.at(0), cmdArgs.at(1)); // <====== Execute
+				if (!nOT::nUse::useOT.accountCheckIfExists(cmdArgs.at(1))){ // make sure that the name is unique
+					nOT::nUse::useOT.accountRename(cmdArgs.at(0), cmdArgs.at(1)); // <====== Execute
 					return vector<string>{};
 				}
 				else {
-					std::cerr <<"New account name already exists, choose other name ";
+					std::cout << "Name " << cmdArgs.at(1) << " exists, choose another name ";
 					return vector<string>{};
 				}
 			}
@@ -1830,7 +1832,7 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 		}
 		if (full_words<3) { // we work on word3 - cmdArgs.at(0) - asset name
 			if (action=="ls") {
-				return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.getAssets() ) ;
+				return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.assetsGetNames() ) ;
 			}
 			else if (action=="new") {
 				std::cerr << "Type name of asset" << endl;
@@ -1889,14 +1891,14 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 
 		if (full_words<3) { // we work on word3 - var1 - sender name
 			if (action=="ls") {
-				//return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.getNymsMy() ) ;
-				nOT::nUse::useOT.getMessages(); // <====== Execute
+				//return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.nymsGetMy() ) ;
+				nOT::nUse::useOT.msgGetAll(); // <====== Execute
 				return vector<string>{};
 			}
 			if (action=="send") {
-				//nOT::nUse::useOT.sendMsg();
+				//nOT::nUse::useOT.msgSend();
 				//return vector<string>{};
-				return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.getNymsMy() );
+				return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.nymsGetMy() );
 			}
 			if (action=="mv") {
 				return WordsThatMatch(  current_word  ,  vector<string>{"Where-to?"} ); // in mail box... will there be other directories?
@@ -1908,8 +1910,8 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 
 		if (full_words<4) { // we work on word4 - var2 -  recipient name
 			if (action=="ls") {
-				if (nOT::nUse::useOT.checkNymName(cmdArgs.at(0))){
-					nOT::nUse::useOT.getMessages(); // <====== Execute
+				if (nOT::nUse::useOT.nymCheckByName(cmdArgs.at(0))){
+					nOT::nUse::useOT.msgGetAll(); // <====== Execute
 					return vector<string>{};
 				}
 				else {
@@ -1918,8 +1920,8 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 				}
 			}
 			if (action=="send") {
-				if (nOT::nUse::useOT.checkNymName(cmdArgs.at(0))){
-					return WordsThatMatch(  current_word  , nOT::nUse::useOT.getNymsMy() );
+				if (nOT::nUse::useOT.nymCheckByName(cmdArgs.at(0))){
+					return WordsThatMatch(  current_word  , nOT::nUse::useOT.nymsGetMy() );
 				}
 				else {
 					std::cerr << "Can't find that nym: " << cmdArgs.at(0);
@@ -1930,7 +1932,7 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 
 		if (full_words<5) { // we work on word5 - var3
 			if (action=="send") {
-				if (nOT::nUse::useOT.checkNymName(cmdArgs.at(1))){
+				if (nOT::nUse::useOT.nymCheckByName(cmdArgs.at(1))){
 					return vector<string>{}; // ready for message
 				}
 				else {
@@ -1942,7 +1944,7 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 
 		if (full_words<6) { // we work on word6
 			if (action=="send") { // message text
-				nOT::nUse::useOT.sendMsg(cmdArgs.at(2)); // <====== Execute
+				nOT::nUse::useOT.msgSend(cmdArgs.at(2)); // <====== Execute
 				return vector<string>{};
 			}
 		}
@@ -1957,7 +1959,7 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 		if (full_words<3) { // we work on word3 - cmdArgs.at(0)
 
 			if (action=="ls") {
-				nOT::nUtil::DisplayVectorEndl(cout, nOT::nUse::useOT.getNymsMy(), "\n"); // <====== Execute
+				nOT::nUtil::DisplayVectorEndl(cout, nOT::nUse::useOT.nymsGetMy(), "\n"); // <====== Execute
 				return vector<string>{};
 			}
 
@@ -1966,16 +1968,16 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 				return vector<string>{};
 			}
 			if (action=="rm") {
-				return WordsThatMatch( current_word  ,  nOT::nUse::useOT.getNymsMy() );//TODO Suitable changes to this part - propably after merging with otlib
+				return WordsThatMatch( current_word  ,  nOT::nUse::useOT.nymsGetMy() );//TODO Suitable changes to this part - propably after merging with otlib
 			}
 			if (action=="info") {
-				return WordsThatMatch( current_word  ,  nOT::nUse::useOT.getNymsMy() );//TODO Suitable changes to this part - propably after merging with otlib
+				return WordsThatMatch( current_word  ,  nOT::nUse::useOT.nymsGetMy() );//TODO Suitable changes to this part - propably after merging with otlib
 			}
 			if (action=="edit") {
-				return WordsThatMatch( current_word  ,  nOT::nUse::useOT.getNymsMy() );//TODO Suitable changes to this part - propably after merging with otlib
+				return WordsThatMatch( current_word  ,  nOT::nUse::useOT.nymsGetMy() );//TODO Suitable changes to this part - propably after merging with otlib
 			}
 			if (action=="register") {
-				return WordsThatMatch( current_word  ,  nOT::nUse::useOT.getNymsMy() );//TODO server name
+				return WordsThatMatch( current_word  ,  nOT::nUse::useOT.nymsGetMy() );//TODO server name
 			}
 			if (action=="check") { // TODO interactive input
 				nOT::nUtil::DisplayStringEndl(cout, "Type NymID to check"); // <====== Execute
@@ -1985,19 +1987,19 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 
 		if (full_words<4) { // we work on word4 - var2
 			if (action=="new") {
-				nOT::nUse::useOT.createNym(cmdArgs.at(0)); // <====== Execute
+				nOT::nUse::useOT.nymCreate(cmdArgs.at(0)); // <====== Execute
 				return vector<string>{};
 			}
 			if (action=="info") {
-				nOT::nUtil::DisplayStringEndl( cout, nOT::nUse::useOT.getNymInfo(cmdArgs.at(0)) ); // <====== Execute
+				nOT::nUtil::DisplayStringEndl( cout, nOT::nUse::useOT.nymGetInfo(cmdArgs.at(0)) ); // <====== Execute
 				return vector<string>{};
 			}
 			if (action=="register") {
-				nOT::nUse::useOT.registerNym(cmdArgs.at(0)); // <====== Execute
+				nOT::nUse::useOT.nymRegister(cmdArgs.at(0)); // <====== Execute
 				return vector<string>{};
 			}
 			if (action=="check") {
-				nOT::nUse::useOT.checkNym(cmdArgs.at(0)); // <====== Execute
+				nOT::nUse::useOT.nymCheck(cmdArgs.at(0)); // <====== Execute
 				return vector<string>{};
 			}
 		}
@@ -2021,7 +2023,7 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 
 		if (full_words<3) { // we work on word3 - var1
 			if (action=="ls") {
-				return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.getServers() ) ;
+				return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.serversGet() ) ;
 			}
 		}
 
@@ -2034,29 +2036,27 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 
 		if (full_words<3) { // we work on word3 - var1
 			if (action=="encode") { // text to encode
-				nOT::nUtil::DisplayStringEndl( cout, "Paste text to be encoded:" ); // <====== Execute
-				nOT::nUtil::DisplayStringEndl( cout, nOT::nUse::useOT.encodeText(nOT::nUtil::GetMultiline())); // <====== Execute
+				nOT::nUtil::DisplayStringEndl( cout, nOT::nUse::useOT.textEncode(nOT::nUtil::GetMultiline())); // <====== Execute
 				return vector<string>{};
 			}
 
 			if (action=="decode") { // text to decode
-				nOT::nUtil::DisplayStringEndl( cout, "Paste text to be decoded:" ); // <====== Execute
-				nOT::nUtil::DisplayStringEndl( cout, nOT::nUse::useOT.decodeText(nOT::nUtil::GetMultiline()) ); // <====== Execute
+				nOT::nUtil::DisplayStringEndl( cout, nOT::nUse::useOT.textDecode(nOT::nUtil::GetMultiline()) ); // <====== Execute
 				return vector<string>{};
 			}
 
 			if (action=="encrypt") { // recipient Nym Name
-				return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.getNymsMy());
+				return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.nymsGetMy());
 			}
 
 			if (action=="decrypt") { // recipient Nym Name
-				return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.getNymsMy());
+				return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.nymsGetMy());
 			}
 		}
 
 		if (full_words<4) { // we work on word4 - var2
 			if (action=="encode") {
-				nOT::nUtil::DisplayStringEndl( cout, nOT::nUse::useOT.encodeText(cmdArgs.at(0))); // <====== Execute
+				nOT::nUtil::DisplayStringEndl( cout, nOT::nUse::useOT.textEncode(cmdArgs.at(0))); // <====== Execute
 				return vector<string>{};
 			}
 
@@ -2065,22 +2065,19 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 			}
 
 			if (action=="encrypt") {
-				nOT::nUtil::DisplayStringEndl( cout,"Paste text to be encrypted:" ); // <====== Execute
-				nOT::nUtil::DisplayStringEndl( cout, nOT::nUse::useOT.encryptText(cmdArgs.at(0), nOT::nUtil::GetMultiline())); // <====== Execute
+				nOT::nUtil::DisplayStringEndl( cout, nOT::nUse::useOT.textEncrypt(cmdArgs.at(0), nOT::nUtil::GetMultiline())); // <====== Execute
 				return vector<string>{};
 			}
 
 			if (action=="decrypt") {
-				nOT::nUtil::DisplayStringEndl( cout,"Paste text to be decrypted:" ); // <====== Execute
-				nOT::nUtil::DisplayStringEndl( cout, nOT::nUse::useOT.decryptText(cmdArgs.at(0), nOT::nUtil::GetMultiline())); // <====== Execute
+				nOT::nUtil::DisplayStringEndl( cout, nOT::nUse::useOT.textDecrypt(cmdArgs.at(0), nOT::nUtil::GetMultiline())); // <====== Execute
 				return vector<string>{};
 			}
 		}
 
 		if (full_words<5) { // we work on word5 - var3
 			if (action=="encrypt") { // if plain text is passed as argument (don't implemented for decrypt action because of multiline encrytped block)
-				nOT::nUtil::DisplayStringEndl( cout, "Paste text to be encrypted:"); // <====== Execute
-				nOT::nUtil::DisplayStringEndl( cout, nOT::nUse::useOT.encryptText(cmdArgs.at(0), cmdArgs.at(1))); // <====== Execute
+				nOT::nUtil::DisplayStringEndl( cout, nOT::nUse::useOT.textEncrypt(cmdArgs.at(0), cmdArgs.at(1))); // <====== Execute
 				return vector<string>{};
 			}
 		}
@@ -2788,7 +2785,7 @@ void exampleOfOT() {
 
 		/*std::string ASSET_ID = OTAPI_Wrap::GetAssetType_ID (0);
 		//CREATE ACCOUNT
-		OTAPI_Wrap::createAssetAccount(SERVER_ID,USER_ID,ASSET_ID);
+		OTAPI_Wrap::accountCreate(SERVER_ID,USER_ID,ASSET_ID);
 	*/
 
 	}
