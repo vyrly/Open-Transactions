@@ -28,6 +28,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
 
 file(GLOB othint_SRC # All files in directory:
 	"*.h"
+	"linenoise/*.c"
 	"*.hpp"
 	"*.cpp"
 )

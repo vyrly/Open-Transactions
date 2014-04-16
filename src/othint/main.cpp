@@ -217,6 +217,10 @@ File format of sources: identation with \t char, which we assume is 2 spaces wid
 	#include <opentxs/OT_ME.h>
 #endif
 
+extern "C" {
+	#include "linenoise/linenoise.h"
+}
+
 // Editline. Check 'git checkout linenoise' to see linenoise version.
 #ifndef CFG_USE_EDITLINE // should we use editline?
 	#define CFG_USE_EDITLINE 1 // default
@@ -440,7 +444,7 @@ void cLogger::setDebugLevel(int level) {
 	if (!note_before) _note("Setting debug level to "<<level);
 }
 
-cLogger::cLogger() : mStream(NULL), mLevel(20) { mStream = & std::cout; }
+cLogger::cLogger() : mStream(NULL), mLevel(60) { mStream = & std::cout; }
 
 
 std::string cLogger::icon(int level) const {
@@ -1613,7 +1617,6 @@ vector<string> cHintManager::AutoComplete(const string &sofar_str) const { // th
 	return possible;
 }
 
-
 vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bool show_all) const {
 /*
 	nOT::nNewcli::cNew newcli;
@@ -1630,15 +1633,12 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 
 	string esc ("\\ ");
 
-
 	string newEsc = "#x#";
 	// change Escape on new unique substring
 	while(sofar_str_tmp.find(esc)!=std::string::npos) {
 		sofar_str_tmp.replace(sofar_str_tmp.find(esc),esc.length(),newEsc);
 		if (dbg) { _dbg3("sofar_str_tmp "<< sofar_str_tmp);}
 	}
-
-
 
 	std::istringstream iss(sofar_str_tmp);
 
@@ -2100,6 +2100,7 @@ class cInteractiveShell {
 		cInteractiveShell();
 		void runOnce(const string line);
 		void runEditline();
+		void runLinenoise();
 	protected:
 		bool dbg;
 };
@@ -2205,6 +2206,32 @@ void cInteractiveShell::runEditline() {
 	clear_history(); // http://cnswww.cns.cwru.edu/php/chet/readline/history.html#IDX11
 }
 
+void completionLinenoise(const char *buf, linenoiseCompletions *lc) {
+	string line(buf);
+	nOT::nOTHint::cHintManager hint;
+	vector <string> completions;
+	completions = hint.AutoCompleteEntire(line); // <--
+	for ( auto word : completions){
+		linenoiseAddCompletion(lc, word.c_str());
+	}
+}
+
+void cInteractiveShell::runLinenoise() {
+	char *line;
+
+	linenoiseSetMultiLine(5);
+	linenoiseSetCompletionCallback(completionLinenoise);
+	linenoiseHistoryLoad("history"); /* Load the history at startup */
+	while((line = linenoise("> ")) != NULL) {
+		if (line[0] != '\0') {
+				printf("echo: '%s'\n", line);
+				linenoiseHistoryAdd(line);
+				linenoiseHistorySave("history"); /* Save every new entry */
+		}
+		free(line);
+	}
+}
+
 }; // namespace nOTHint
 }; // namespace nOT
 // ########################################################################
@@ -2280,7 +2307,7 @@ int main(int argc, char **argv) {
 	}*/
 
 	try {
-		nOT::nTests::testcase_run_all_tests();
+		//nOT::nTests::testcase_run_all_tests();
 	}
 	catch(const std::exception &e) {
 		_erro("\n*** The testcases code thrown an exception: " << e.what());
@@ -2319,7 +2346,7 @@ int nOT::nTests::main_main(int argc, char **argv) {
 	for(auto arg: args) {
 		if (arg=="--complete-shell") {
 			nOT::nOTHint::cInteractiveShell shell;
-			shell.runEditline();
+			shell.runLinenoise();
 		}
 		else if (arg=="--complete-one") {
 			string v;  bool ok=1;  try { v=args.at(nr+1); } catch(...) { ok=0; } //
