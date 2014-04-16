@@ -14,7 +14,7 @@ github https://github.com/rfree/Open-Transactions/ for unofficial version by rfr
 1.
 a)
 Install dependencies:
-	# apt-get install wget git libtool make cmake pkg-config automake hurd-dev install libboost-all-dev libzmq-dev libmsgpack-dev libssl-dev protobuf-compiler libprotobuf-dev
+	# apt-get install wget git libtool make cmake pkg-config automake libboost-all-dev libzmq-dev libmsgpack-dev libssl-dev protobuf-compiler libprotobuf-dev
 
 b) clang and ccache installation
 

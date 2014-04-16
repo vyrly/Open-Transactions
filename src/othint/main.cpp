@@ -823,13 +823,15 @@ msguard stop
 *nym 			# can display active (default) nym
 *nym ls			# list of all nyms
 nym new			# make new nym with UI (it should ask potential user to give the name
-*nym new <name>			# make new nym by giving name without UI
+*nym new <nymName>			# make new nym by giving name without UI
 nym rm <name>			# remove nym with such <name>
 nym rm <nymID>		# remove nym with such <nymID>
 nym info <nymID>		# show information about such <nymID>
 nym edit <nymID>		# allows to edit information about such <nymID>
-*nym register <nymID>	# register this specific <nymID> on default server
+*nym register <nymName>	# register nym defined by nymName on default server
+nym register <nymID>	# register nym defined by nymID on default server
 /nym register <nymID> <serverID>	# register this specific <nymID> to specific <serverID> server
+
 nym import		# import saved (somewhere?) nyms
 nym export		# export nyms to (outerspace) :) ?
 *nym check <nymID>			# returns Public Key of this <nymID> nym
@@ -2091,7 +2093,7 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 	/*if (topic=="wallet") {
 		return WordsThatMatch(  current_word  ,  vector<string>{"status"} ) ;
 	}*/
-
+	return vector<string>{};
 	//throw std::runtime_error("Unable to handle following completion: sofar_str='" + ToStr(sofar_str) + "' in " + OT_CODE_STAMP);
 }
 
@@ -2109,6 +2111,7 @@ cInteractiveShell::cInteractiveShell()
 { }
 
 void cInteractiveShell::runOnce(const string line) { // used with bash autocompletion
+	nOT::nUtil::current_logger.setDebugLevel(100);
 	nOT::nOTHint::cHintManager hint;
 	vector<string> out = hint.AutoCompleteEntire(line);
 	nOT::nUtil::DisplayVectorEndl(std::cout, out);
@@ -2280,7 +2283,7 @@ int main(int argc, char **argv) {
 	}*/
 
 	try {
-		nOT::nTests::testcase_run_all_tests();
+		//nOT::nTests::testcase_run_all_tests();
 	}
 	catch(const std::exception &e) {
 		_erro("\n*** The testcases code thrown an exception: " << e.what());
