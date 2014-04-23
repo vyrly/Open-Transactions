@@ -15,15 +15,15 @@ if (CHECK_COMPILER_VERSION)
 	if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 			# require at least gcc 4.7
 			if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.7)
-					message(FATAL_ERROR "GCC version must be at least 4.7!")
+					message(FATAL_ERROR "GCC version must be at least 4.7! See README.txt section named FATAL_ERROR_COMPILER")
 			endif()
 	elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 			# require at least clang 3.3
 			if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.3)
-					message(FATAL_ERROR "Clang version must be at least 3.3!")
+					message(FATAL_ERROR "Clang version must be at least 3.3! See README.txt section named FATAL_ERROR_COMPILE")
 			endif()
 	else ()
-			message(WARNING "You are using an unsupported compiler! Compilation has only been tested with Clang and GCC.")
+			message(FATAL_ERROR "You are using an unsupported compiler! Compilation has only been tested with Clang and GCC. See README.txt section name FATAL_ERROR_COMPILE")
 	endif ()
 endif ()
 

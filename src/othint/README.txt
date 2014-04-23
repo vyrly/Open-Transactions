@@ -52,6 +52,9 @@ export CC="ccache $HOME/.local/bin/clang" ; export CXX="ccache $HOME/.local/bin/
 read details in global documentation: Open-Transactions/docs/INSTALL-linux-modern.txt
 do not forget to reload ~/.profile and delete cmake cache after changes.
 
+If use a not-tested compiler and get error FATAL_ERROR_COMPILER, then see change cmake options
+to ignore this error and try to continue anyway. See cmake settings below.
+
 ---------------------------------------
 2) Build otcli - dependencies
 - System libs, tools
@@ -79,8 +82,8 @@ Build with default configuration:
 	make
 
 If you need to tweak cmake build options e.g. some library path
-or if your compiler is triggering false warning and you want to 
-disable that,
+or if you get FATAL_ERROR_COMPILER and you want to skip compiler
+check and try to compiler anyway then:
 
 ON LINUX/UNIX: (e.g. Debian)
 you can make it from command line:
@@ -96,6 +99,11 @@ ON OTHER SYSTEMS (e.g. Windows)
 follow system specific way to choose/use given compiler.
 
 TODO @vyrly - Windows cmake + MSVC short description.
+
+More about FATAL_ERROR_COMPILER:
+to disable this check, you can use
+	cmake  -DCHECK_COMPILER_VERSION=OFF . 
+or use the gui tools to switch it.
 
 ========================================================================
 MORE
