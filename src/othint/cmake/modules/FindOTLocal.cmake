@@ -1,13 +1,13 @@
 # Find OT lib and include directories
 message(STATUS "Looking for OT locally.")
 find_path(OTLocal_INCLUDE_DIR
-	NAMES OTAPI.h
-	PATHS "$ENV{HOME}/.local/include/opentxs"
+	NAMES "otapi/OTAPI.hpp" "otlib/OTLib.hpp"
+	HINTS "${CMAKE_PREFIX_PATH}/include/opentxs" "${CMAKE_PREFIX_PATH}/include"
 	)
 
 find_library(OTLocal_LIBRARY
-	NAMES otapi
-	PATHS "$ENV{HOME}/.local/lib"
+	NAMES otapi otlib
+	HINTS "${CMAKE_PREFIX_PATH}/lib" "${CMAKE_PREFIX_PATH}/lib/x64/Release"
 	)
 
 if (OTLocal_LIBRARY AND OTLocal_INCLUDE_DIR )

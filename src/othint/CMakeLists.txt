@@ -33,17 +33,24 @@ file(GLOB othint_SRC # All files in directory:
 )
 
 add_executable(othint ${othint_SRC})
+if (UNIX)
+	set(CMAKE_PREFIX_PATH "$ENV{HOME}/.local")
+endif(UNIX)
+if (WIN32)
+	set(CMAKE_PREFIX_PATH "C:/OT/Open-Transactions")
+	include_directories(${CMAKE_PREFIX_PATH}/include/otlib)
+endif(WIN32)
 
 # Find libraries and headers for Editline
 
 if (LOCAL_EDITLINE)
-	find_package(EditlineLocal)
+	find_package(EditlineLocal REQUIRED)
 	if (EDITLINE_FOUND)
 		include_directories(${EDITLINE_INCLUDE_DIR})
 		target_link_libraries (othint ${EDITLINE_LIBRARIES})
 	endif (EDITLINE_FOUND)
 else ()
-	find_package(Editline)
+	find_package(Editline REQUIRED)
 	if (EDITLINE_FOUND)
 		include_directories(${EDITLINE_INCLUDE_DIR})
 		target_link_libraries (othint ${EDITLINE_LIBRARIES})
@@ -59,6 +66,8 @@ if (LOCAL_OT)
 		target_link_libraries (othint ${OTLocal_LIBRARIES})
 	endif (OTLocal_FOUND)
 endif(LOCAL_OT)
+
+
 
 # make run
 add_custom_target(run
