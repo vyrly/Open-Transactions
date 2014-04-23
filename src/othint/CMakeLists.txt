@@ -6,9 +6,28 @@ project (otcli)
 option(LOCAL_EDITLINE "Use local Editline library ($HOME/.local)" ON) # Always ON because of bugs in Debian libedit package!
 option(WITH_WRAPPER "Build with wrapper" OFF)
 option(LOCAL_OT "Build with locally installed ot" ON)
+option(CHECK_COMPILER_VERSION "Check if current compiler version is suported" ON)
+
+# Check compiler version
+
+# TODO Check MSVC
+if (CHECK_COMPILER_VERSION)
+	if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+			# require at least gcc 4.7
+			if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.7)
+					message(FATAL_ERROR "GCC version must be at least 4.7!")
+			endif()
+	elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+			# require at least clang 3.3
+			if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.3)
+					message(FATAL_ERROR "Clang version must be at least 3.3!")
+			endif()
+	else ()
+			message(WARNING "You are using an unsupported compiler! Compilation has only been tested with Clang and GCC.")
+	endif ()
+endif ()
 
 # Set variables
-
 
 set(CMAKE_SKIP_BUILD_RPATH  FALSE) # Always include RPATH to the binary
 

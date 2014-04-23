@@ -602,10 +602,10 @@ void Assert(bool result, const std::string &stamp) {
 	if (!result) throw std::runtime_error("Assert failed at "+stamp);
 }
 
-std::string GetMultiline(string endLine = "~"){
+std::string GetMultiline(string endLine = "~") {
 	nOT::nUtil::DisplayStringEndl( cout, "Please enter multiple lines of input to be encoded, followed by ~ on a blank line:" );
 	std::string result(""); // Taken from OT_CLI_ReadUntilEOF
-	while (true){
+	while (true) {
 		std::string input_line("");
 		if (std::getline(std::cin, input_line, '\n'))
 		{
@@ -1134,7 +1134,7 @@ namespace nUse {
 				mNymsMy.clear();
 				mNymsMy_str.clear();
 
-				for(int i = 0 ; i < OTAPI_Wrap::GetNymCount ();i++){
+				for(int i = 0 ; i < OTAPI_Wrap::GetNymCount ();i++) {
 					std::string nym_ID = OTAPI_Wrap::GetNym_ID (i);
 					std::string nym_Name = OTAPI_Wrap::GetNym_Name (nym_ID);
 
@@ -1151,7 +1151,7 @@ namespace nUse {
 			if(!Init())
 			return "";
 
-			for(int i = 0 ; i < OTAPI_Wrap::GetNymCount ();i++){
+			for(int i = 0 ; i < OTAPI_Wrap::GetNymCount ();i++) {
 				string nymID = OTAPI_Wrap::GetNym_ID (i);
 				string nymName_ = OTAPI_Wrap::GetNym_Name (nymID);
 				if (nymName_ == nymName)
@@ -1164,7 +1164,7 @@ namespace nUse {
 			if(!Init())
 			return "";
 
-			for(int i = 0 ; i < OTAPI_Wrap::GetNymCount ();i++){
+			for(int i = 0 ; i < OTAPI_Wrap::GetNymCount ();i++) {
 				string nymID = OTAPI_Wrap::GetNym_ID (i);
 				string nymName_ = OTAPI_Wrap::GetNym_Name (nymID);
 				if (nymName_ == nymName)
@@ -1355,18 +1355,18 @@ namespace nUse {
 			if(!Init())
 			return vector<string> {};
 
-			for(int i = 0 ; i < OTAPI_Wrap::GetNymCount ();i++){
+			for(int i = 0 ; i < OTAPI_Wrap::GetNymCount ();i++) {
 				string nym_ID = OTAPI_Wrap::GetNym_ID (i);
 				string nym_Name = OTAPI_Wrap::GetNym_Name (nym_ID);
 				cout << "===" << nym_Name << "(" << nym_ID << ")"  << "===" << endl;
 				cout << "INBOX" << endl;
 				cout << "id\tfrom\t\tcontent:" << endl;
-				for(int i = 0 ; i < OTAPI_Wrap::GetNym_MailCount (nym_ID);i++){
+				for(int i = 0 ; i < OTAPI_Wrap::GetNym_MailCount (nym_ID);i++) {
 					cout << i+1<< "\t" << nym_Name << "\t" << OTAPI_Wrap::GetNym_MailContentsByIndex (nym_ID,i) << endl;
 				}
 				cout << "OUTBOX" << endl;
 				cout << "id\tto\t\tcontent:" << endl;
-				for(int i = 0 ; i < OTAPI_Wrap::GetNym_OutmailCount (nym_ID);i++){
+				for(int i = 0 ; i < OTAPI_Wrap::GetNym_OutmailCount (nym_ID);i++) {
 					cout << i+1<< "\t" << nym_Name << "\t" << OTAPI_Wrap::GetNym_OutmailContentsByIndex (nym_ID,i) << endl;
 				}
 			}
@@ -1379,11 +1379,11 @@ namespace nUse {
 
 			//string nym_Name = OTAPI_Wrap::GetNym_Name (nymID);
 			//cout <<"mid\tfrom\t\tcontent inbox:"<< endl;
-			//for(int i = 0 ; i < OTAPI_Wrap::GetNym_MailCount (nymID);i++){
+			//for(int i = 0 ; i < OTAPI_Wrap::GetNym_MailCount (nymID);i++) {
 				//cout << i+1<< "\t"<< OTAPI_Wrap::GetNym_Name(nymID)<<"\t" << OTAPI_Wrap::GetNym_MailContentsByIndex (nymID,i);
 			//}
 			//cout << endl << "mid\tto\t\tcontent outbox:" << endl;
-			//for(int i = 0 ; i < OTAPI_Wrap::GetNym_OutmailCount (nymID);i++){
+			//for(int i = 0 ; i < OTAPI_Wrap::GetNym_OutmailCount (nymID);i++) {
 				//cout << i+1<< "\t"<< OTAPI_Wrap::GetNym_Name(nymID)<<"\t" << OTAPI_Wrap::GetNym_OutmailContentsByIndex (nymID,i);
 			//}
 			return vector<string> {};
@@ -1405,18 +1405,18 @@ namespace nUse {
 			_info("Message was sent successfully.");
 		}
 
-		void removeMailByIndex(const string &){ //Change name of the function
+		void removeMailByIndex(const string &) { //Change name of the function
 			//bool OTAPI_Wrap::Nym_RemoveMailByIndex (const std::string & NYM_ID, const int32_t & nIndex)
 		}
 
-		bool nymCheckByName(const string & nymName){
+		bool nymCheckByName(const string & nymName) {
 			vector<string> v = nymsGetMy();
 			if (std::find(v.begin(), v.end(), nymName) != v.end())
 				return true;
 			return false;
 		}
 
-		void nymCheck(const string & hisNymID){ // wip
+		void nymCheck(const string & hisNymID) { // wip
 			if(!Init())
 				return;
 
@@ -1431,14 +1431,14 @@ namespace nUse {
 			_info("Successfully downloaded user public key.");
 		}
 
-		bool assetCheckIfExists(const string & assetName){
+		bool assetCheckIfExists(const string & assetName) {
 			vector<string> v = assetsGetNames();
 			if (std::find(v.begin(), v.end(), assetName) != v.end())
 				return true;
 			return false;
 		}
 
-		bool accountCheckIfExists(const string & accountName){
+		bool accountCheckIfExists(const string & accountName) {
 			vector<string> v = accountsGet();
 			if (std::find(v.begin(), v.end(), accountName) != v.end())
 				return true;
@@ -1760,7 +1760,7 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 
 		if (full_words<4) { // word4 (cmdArgs.at(1))
 			if (action=="new") {
-				if (nOT::nUse::useOT.assetCheckIfExists(cmdArgs.at(0))){
+				if (nOT::nUse::useOT.assetCheckIfExists(cmdArgs.at(0))) {
 					return vector<string>{};
 				}
 				else {
@@ -1769,7 +1769,7 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 				}
 			}
 			if (action=="rm") {
-				if (nOT::nUse::useOT.accountCheckIfExists(cmdArgs.at(0))){
+				if (nOT::nUse::useOT.accountCheckIfExists(cmdArgs.at(0))) {
 					return vector<string>{nOT::nUse::useOT.accountDelete(cmdArgs.at(0))};
 				}
 				else {
@@ -1785,7 +1785,7 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 
 		if (full_words<5) { // word5 (cmdArgs.at(2))
 			if (action=="new") {
-				if (!nOT::nUse::useOT.accountCheckIfExists(cmdArgs.at(1))){ // make sure that the name is unique
+				if (!nOT::nUse::useOT.accountCheckIfExists(cmdArgs.at(1))) { // make sure that the name is unique
  					nOT::nUse::useOT.accountCreate(cmdArgs.at(0), cmdArgs.at(1)); // <====== Execute
 					return vector<string>{};
 				}
@@ -1796,7 +1796,7 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 
 			}
 			if (action=="mv") {
-				if (!nOT::nUse::useOT.accountCheckIfExists(cmdArgs.at(1))){ // make sure that the name is unique
+				if (!nOT::nUse::useOT.accountCheckIfExists(cmdArgs.at(1))) { // make sure that the name is unique
 					nOT::nUse::useOT.accountRename(cmdArgs.at(0), cmdArgs.at(1)); // <====== Execute
 					return vector<string>{};
 				}
@@ -1913,7 +1913,7 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 
 		if (full_words<4) { // we work on word4 - var2 -  recipient name
 			if (action=="ls") {
-				if (nOT::nUse::useOT.nymCheckByName(cmdArgs.at(0))){
+				if (nOT::nUse::useOT.nymCheckByName(cmdArgs.at(0))) {
 					nOT::nUse::useOT.msgGetAll(); // <====== Execute
 					return vector<string>{};
 				}
@@ -1923,7 +1923,7 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 				}
 			}
 			if (action=="send") {
-				if (nOT::nUse::useOT.nymCheckByName(cmdArgs.at(0))){
+				if (nOT::nUse::useOT.nymCheckByName(cmdArgs.at(0))) {
 					return WordsThatMatch(  current_word  , nOT::nUse::useOT.nymsGetMy() );
 				}
 				else {
@@ -1935,7 +1935,7 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 
 		if (full_words<5) { // we work on word5 - var3
 			if (action=="send") {
-				if (nOT::nUse::useOT.nymCheckByName(cmdArgs.at(1))){
+				if (nOT::nUse::useOT.nymCheckByName(cmdArgs.at(1))) {
 					return vector<string>{}; // ready for message
 				}
 				else {
@@ -2170,7 +2170,7 @@ static char* completionReadlineWrapper(const char *sofar , int number) {
 	return strdup( completions.at(number).c_str() ); // caller must free() this memory
 }
 
-char ** completion(const char* text, int start, int end __attribute__((__unused__))){
+char ** completion(const char* text, int start, int end __attribute__((__unused__))) {
 	char **matches;
 	matches = (char **)NULL;
 	matches = rl_completion_matches (text, completionReadlineWrapper);
@@ -2479,7 +2479,7 @@ bool testcase_complete_1(const string &sofar) {
 	return ok;
 }
 
-bool testcase_complete_1_wrapper(){
+bool testcase_complete_1_wrapper() {
 	return nOT::nTests::testcase_complete_1(gVar1);
 }
 
@@ -2738,7 +2738,7 @@ void exampleOfOT() {
 			std::cout << std::endl<<"server count: " << OTAPI_Wrap::GetServerCount () << std::endl;
 			std::cout << "list of servers: " << std::endl;
 
-			for(int i = 0 ; i < OTAPI_Wrap::GetServerCount ();i++){
+			for(int i = 0 ; i < OTAPI_Wrap::GetServerCount ();i++) {
 					SERVER_ID = OTAPI_Wrap::GetServer_ID (i);
 					std::string Name = OTAPI_Wrap::GetServer_Name (SERVER_ID);
 					std::cout << Name<< "\t\t\tid "<<  SERVER_ID  << std::endl;
@@ -2763,22 +2763,22 @@ void exampleOfOT() {
 	std::cout << std::endl<<"nym count: " << OTAPI_Wrap::GetNymCount () << std::endl;
 
 	std::cout << "list of nyms: " << std::endl;
-	for(int i = 0 ; i < OTAPI_Wrap::GetNymCount ();i++){
+	for(int i = 0 ; i < OTAPI_Wrap::GetNymCount ();i++) {
 			std::string nym_ID = OTAPI_Wrap::GetNym_ID (i);
 			std::string nym_Name = OTAPI_Wrap::GetNym_Name (nym_ID);
 			std::cout << nym_Name<< "\t\t\tid "<<  nym_ID  << std::endl;
 
 			std::cout <<" inbox mail count for nym:"<<OTAPI_Wrap::GetNym_MailCount(nym_ID) << std::endl;
-			for(int i = 0 ; i < OTAPI_Wrap::GetNym_MailCount (nym_ID);i++){
+			for(int i = 0 ; i < OTAPI_Wrap::GetNym_MailCount (nym_ID);i++) {
 					std::cout << std::endl<< "inbox mail numer "<< i+1<<std::endl << OTAPI_Wrap::GetNym_MailContentsByIndex (nym_ID,i)<<std::endl;
 					}
 
 			std::cout <<" outbox mail count for nym:"<<OTAPI_Wrap::GetNym_OutmailCount(nym_ID) << std::endl;
-			for(int i = 0 ; i < OTAPI_Wrap::GetNym_OutmailCount (nym_ID);i++){
+			for(int i = 0 ; i < OTAPI_Wrap::GetNym_OutmailCount (nym_ID);i++) {
 					std::cout << std::endl<< "outbox mail numer "<< i+1<<std::endl << OTAPI_Wrap::GetNym_OutmailContentsByIndex (nym_ID,i)<<std::endl;
 					}
 			std::cout <<"RevokedCred for nym:"<<OTAPI_Wrap::GetNym_RevokedCredCount(nym_ID) << std::endl;
-			for(int i = 0 ; i < OTAPI_Wrap::GetNym_RevokedCredCount (nym_ID);i++){
+			for(int i = 0 ; i < OTAPI_Wrap::GetNym_RevokedCredCount (nym_ID);i++) {
 					std::cout << std::endl<< "RevokedCred numer "<< i+1<<std::endl << OTAPI_Wrap::GetNym_RevokedCredID (nym_ID,i)<<std::endl;
 					}
 			std::cout <<"Statistic for nym:" <<OTAPI_Wrap::GetNym_Stats(nym_ID);
