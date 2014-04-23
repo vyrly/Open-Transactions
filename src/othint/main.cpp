@@ -1389,16 +1389,18 @@ namespace nUse {
 			return vector<string> {};
 		}
 
-		void msgSend(const string & msg) { ///< Get all messages from Nym.
+		void msgSend(const string & nymSender, const string & nymRecipient, const string & msg) { ///< Send message from Nym1 to Nym2
 			if(!Init())
 				return;
+			_dbg1(nymGetIdByName(nymSender));
+			_dbg1(nymGetIdByName(nymRecipient));
 			OT_ME madeEasy;
-			string strResponse = madeEasy.send_user_msg ( mServerID, mUserID, mUserID, msg);
+			string strResponse = madeEasy.send_user_msg ( mServerID, nymGetIdByName(nymSender), nymGetIdByName(nymRecipient), msg);
 
 			// -1 error, 0 failure, 1 success.
 			if (1 != madeEasy.VerifyMessageSuccess(strResponse))
 			{
-				_erro("Failed trying to create Account at Server.");
+				_erro("Failed trying to send the message");
 				return;
 			}
 
@@ -1947,7 +1949,7 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 
 		if (full_words<6) { // we work on word6
 			if (action=="send") { // message text
-				nOT::nUse::useOT.msgSend(cmdArgs.at(2)); // <====== Execute
+				nOT::nUse::useOT.msgSend(cmdArgs.at(0), cmdArgs.at(1), cmdArgs.at(2)); // <====== Execute
 				return vector<string>{};
 			}
 		}

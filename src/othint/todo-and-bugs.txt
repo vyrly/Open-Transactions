@@ -8,6 +8,7 @@ BUGS IMPORTANT
 BUGS MISC
 ====================================================================
 
+* ot msg send - in OUTBOX - 'to' parameter is accually from
 * editline is not detected as missing (in cmake)
 * cmake wrongly detects the .hpp files only .h files
 * ... and also cmake detects dirs so that main.cpp must skip the dir name in #include... (see git diff of this message for details)
@@ -30,6 +31,8 @@ TODO OT
 
 * Error. If program was ended whit ^Z. In next instance of othint function  OTAPI_Wrap::AppInit()
 return true but init is not successed
+* nym must be registered to send him a message
+
 
 ====================================================================
 IDEAS - possible TODO
