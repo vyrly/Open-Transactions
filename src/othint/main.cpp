@@ -210,8 +210,8 @@ File format of sources: identation with \t char, which we assume is 2 spaces wid
 
 // OT - like in Moneychanger
 #ifdef _WIN32 //TODO CmakeLists
-	#include <otapi/OTAPI.h>
-	#include <otapi/OT_ME.h>
+	#include <otapi/OTAPI.hpp>
+	#include <otapi/OT_ME.hpp>
 #else
 	#include <opentxs/OTAPI.h>
 	#include <opentxs/OT_ME.h>
@@ -223,11 +223,11 @@ File format of sources: identation with \t char, which we assume is 2 spaces wid
 #endif
 
 #if CFG_USE_EDITLINE
-	#ifdef __unix__
+	//#ifdef __unix__
 		#include <editline/readline.h>
-	#else // not unix
+	//#else // not unix
 		// TODO: do support MinGWEditline for windows)
-	#endif // not unix
+	//#endif // not unix
 #endif // not use editline
 
 // OTNewcliCmdline

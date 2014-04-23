@@ -1,11 +1,12 @@
 # Find Editline/Ncurses lib and include directories
 message(STATUS "Looking for Editline locally.")
-find_path(EDITLINE_INCLUDE_DIR editline/readline.h
-	 "${CMAKE_PREFIX_PATH}/include"
+find_path(EDITLINE_INCLUDE_DIR 
+	NAMES "editline/readline.h"
+	HINTS "${CMAKE_PREFIX_PATH}/include"
 	)
 
 find_library(EDITLINE_LIBRARY
-	NAMES edit
+	NAMES edit_static
 	HINTS "${CMAKE_PREFIX_PATH}/lib" "${CMAKE_PREFIX_PATH}/lib/x64/Release"
 	)
 if (UNIX)
@@ -20,9 +21,11 @@ if (UNIX)
 	else ()
 		set(EDITLINE_FOUND "NO")
 	endif ()
-else ()
+endif ()
+
+if (WIN32)
 	if (EDITLINE_LIBRARY AND EDITLINE_INCLUDE_DIR)
-		set(EDITLINE_LIBRARIES ${EDITLINE_LIBRARY} ${NCURSES_LIBRARY})
+		set(EDITLINE_LIBRARIES ${EDITLINE_LIBRARY})
 		set(EDITLINE_FOUND "YES")
 	else ()
 		set(EDITLINE_FOUND "NO")
@@ -30,12 +33,12 @@ else ()
 endif ()
 
 if (EDITLINE_FOUND)
-	if (NOT EDITLINE_FIND_QUIETLY)
+	#if (NOT EDITLINE_FIND_QUIETLY)
 		message(STATUS "Editline include directory: ${EDITLINE_INCLUDE_DIR}")
 		message(STATUS "Editline libraries found: ${EDITLINE_LIBRARIES}")
-	endif ()
+	#endif ()
 else ()
-	if (EDITLINE_FIND_REQUIRED)
+	if (EditlineLocal_FIND_REQUIRED)
 		message(FATAL_ERROR "Could not find required Editline libraries")
 	endif ()
 endif ()
