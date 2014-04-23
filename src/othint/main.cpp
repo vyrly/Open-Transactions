@@ -199,9 +199,9 @@ File format of sources: identation with \t char, which we assume is 2 spaces wid
 #include <sstream>
 #include <iterator>
 #include <stdexcept>
+#include <algorithm> // find
 
 //for the super advanced trim ;) TODO remove? - trim not in use
-//#include <algorithm>
 //#include <functional>
 //#include <cctype>
 //#include <locale>
@@ -209,7 +209,7 @@ File format of sources: identation with \t char, which we assume is 2 spaces wid
 #include <cstring>
 
 // OT - like in Moneychanger
-#ifdef _WIN32 
+#ifdef _WIN32
 	// TODO CmakeLists
 	// TODO: return to otapi/OTAPI.hpp (when cmake is corrected to find the right path)
 	#include <OTAPI.hpp>
