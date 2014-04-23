@@ -36,9 +36,12 @@ BUILDING
 
 How to building/compile otcli from source code:
 
+0) Fast full rebuild
 1) Build otcli - choosing compiler
 2) Build otcli - dependencies
 3) Build otcli - main
+
+0) If you system was already configured then just do ./full-rebuild.sh ; Else:
 
 ---------------------------------------
 1) Build othint - choosing compiler
