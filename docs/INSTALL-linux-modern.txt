@@ -78,7 +78,7 @@ Build:
 --------------------------------------------------------------------------
 Selecting compiler for Open-Transactions:
 
-On Linux/Unix, edit ~/.profile to use given compiler, by prepending following settings to that file:
+On Linux/Unix, edit ~/.bashrc to use given compiler, by prepending following settings to that file:
 
 # use user's local clang/llvm compiler - recommended especially for building subproject "otcli" (see otcli/README.txt)
 	export CC="ccache $HOME/.local/bin/clang" ; export CXX="ccache $HOME/.local/bin/clang++" ; export CPP="$HOME/.local/bin/clang -E"
@@ -99,7 +99,7 @@ in the directory where you will be running cmake, and then run cmake (e.g. "cmak
 
 For above change to take effect you need to log out and again log in to user account
 or instead:
-	$ source ~/.profile
+	$ source ~/.bashrc
 
 setenv variable PKG_CONFIG_PATH
 	$ export PKG_CONFIG_PATH=$HOME/.local/lib/pkgconfig:$PKG_CONFIG_PATH

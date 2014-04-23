@@ -47,10 +47,10 @@ Maybe some older versions could work too, or other compiler with good enough C++
 Even if Open-Transactions main project builded correctly, it is possible that you will need
 to set up newer compiler for this otcli sub-project.
 
-Common solution is to install llvm 3.3 or higher locally (in ~/.local/) and then in ~/.profile append:
+Common solution is to install llvm 3.3 or higher locally (in ~/.local/) and then in ~/.bashrc append:
 export CC="ccache $HOME/.local/bin/clang" ; export CXX="ccache $HOME/.local/bin/clang++" ; export CPP="$HOME/.local/bin/clang -E"
 read details in global documentation: Open-Transactions/docs/INSTALL-linux-modern.txt
-do not forget to reload ~/.profile and delete cmake cache after changes.
+do not forget to reload ~/.bashrc (or start new bash) and delete cmake cache after changes.
 
 If use a not-tested compiler and get error FATAL_ERROR_COMPILER, then see change cmake options
 to ignore this error and try to continue anyway. See cmake settings below.
