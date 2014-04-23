@@ -1,4 +1,11 @@
 
+
+*** If you are a user then start with reading README.txt instead. ***
+
+This file here is primarly for core developers of otcli 
+(how ever it could include some information that you can find interesting too).
+
+
 === GIT BRANCH ===
 
 branch pr-xxx - pull request
