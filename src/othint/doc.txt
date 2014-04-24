@@ -5,6 +5,23 @@
 This file here is primarly for core developers of otcli 
 (how ever it could include some information that you can find interesting too).
 
+=== TEST CASE ===
+
+A: ot nym add alice 
+A: ot nym register alice
+S: server: will register this nick as aaa12345 for example
+B: ot msg sendfrom bob aaa12345
+B: ot refresh
+S: server: will now store the message
+A: ot refresh
+A: ot msg ls
+
+=== IDEAS TO DISCUSS ===
+
+Other format - more readable:
+B: ot msg send to alice
+B: ot msg send to alice from bob amount 51343 asset xgold1 
+B: ot msg sendfrom bob alice
 
 === GIT BRANCH ===
 
