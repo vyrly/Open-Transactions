@@ -1317,7 +1317,24 @@ namespace nUse {
 			_dbg1(nymGetIdByName(nymSender));
 			_dbg1(nymGetIdByName(nymRecipient));
 			OT_ME madeEasy;
-			string strResponse = madeEasy.send_user_msg ( mServerID, nymGetIdByName(nymSender), nymGetIdByName(nymRecipient), msg);
+			string sender, recipient;
+			if (nymSender.at(0) == '%') {
+				sender = nymSender.substr(1);
+			}
+			else {
+				sender = nymGetIdByName(nymSender);
+			}
+			if (nymRecipient.at(0) == '%') {
+				recipient = nymRecipient.substr(1);
+			}
+			else {
+				recipient = nymGetIdByName(nymRecipient);
+			}
+
+			_dbg1(sender);
+			_dbg1(recipient);
+
+			string strResponse = madeEasy.send_user_msg ( mServerID, sender, recipient, msg);
 
 			// -1 error, 0 failure, 1 success.
 			if (1 != madeEasy.VerifyMessageSuccess(strResponse))
