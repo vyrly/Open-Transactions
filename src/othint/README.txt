@@ -123,10 +123,32 @@ to disable this check, you can use
 or use the gui tools to switch it.
 
 ========================================================================
-MORE
+MORE ON OPEN-TRANSACTIONS GENERAL INFO
 ------------------------------------------------------------------------
 
 Read other text files distributed here for more information;
 Also read the main documentation of Open-Transactions itself, their readme, wiki.
+
+
+========================================================================
+OTCLI USER MANUAL - IMPORTANT INFO
+------------------------------------------------------------------------
+
+Here we store information for users;
+Especially information that is not yet written in more proper place.
+Please read this section to be up to date with usage of otcli!
+
+------------------------------------------------------------------------
+IMPORTANT SYNTAX AND NOTATION
+------------------------------------------------------------------------
+
+%foobar12345 the % marker in certain command means that the text is a fingerprint/nym instead e.g. alias.
+For example this can be used in command ot msg sendfrom bob %aaa12345
+
+^alice the ^ marker means this is an alias instead of fingerprint/nym
+
+This options are not yet fully implemented. TODO
+
+
 
 
