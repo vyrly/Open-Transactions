@@ -8,10 +8,24 @@ This is "otcli" a sub project for Open-Transactions (secure messages and banking
 that provides tools for it:
 * part otcli - is new Command Line Interface for easy access to advanced modern OT functions
 * part othint - is a nice wrapper providing console line and bash autocomplete for otcli commands
+
+This is an addon/wrapper for Open-Transactions (OT), it needs OT sources/builded for headers/libs,
+and it usually needs runnint OT server process to connect to (normally it would be running
+on same computer/user with data in ~/.ot/ later full networking with external server will work)
 ------------------------------------------------------------------------
 * do "make" or possibly first "cmake ." or see BUILDING
 * do "make run" or ./othint will run program - or see USING
 ========================================================================
+
+Relation with Open-Transactions (in run-time)
+
+(current computer):
+~/.ot/otcli/ <--- private store for otcli/othint own config/cache/data
+~/.ot/client_data/ <--- here otcli will save not-yet-pushed OT data
+(possibly on external computer - but easier on localhost same user):
+~/.ot/server_data/ <--- here some external server will operate to which we will talk using OT
+Once OT federation will work fully, external server will talk to yet another server and push
+our data to end users on any server.
 
 
 ========================================================================
