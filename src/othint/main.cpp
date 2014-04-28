@@ -1069,15 +1069,20 @@ namespace nUse {
 		return mNymsMy_str;
 		}
 
-		const string nymGetIdByName(const string & nymName) {
+		const string nymGetId(const string & nymName) {
 			if(!Init())
 			return "";
 
-			for(int i = 0 ; i < OTAPI_Wrap::GetNymCount ();i++) {
-				string nymID = OTAPI_Wrap::GetNym_ID (i);
-				string nymName_ = OTAPI_Wrap::GetNym_Name (nymID);
-				if (nymName_ == nymName)
-					return nymID;
+			if (nymName.at(0) == '%') { // nym ID
+				return nymName.substr(1);
+			}
+			else { // nym Name
+				for(int i = 0 ; i < OTAPI_Wrap::GetNymCount ();i++) {
+					string nymID = OTAPI_Wrap::GetNym_ID (i);
+					string nymName_ = OTAPI_Wrap::GetNym_Name (nymID);
+					if (nymName_ == nymName)
+						return nymID;
+				}
 			}
 			return "";
 		}
@@ -1225,7 +1230,7 @@ namespace nUse {
 
 			_warn("Checking for default server only");
 
-			string nymID = nymGetIdByName(nymName);
+			string nymID = nymGetId(nymName);
 
 			bool isReg = OTAPI_Wrap::IsNym_RegisteredAtServer(nymID, mServerID);
 
@@ -1289,7 +1294,7 @@ namespace nUse {
 				cout << "OUTBOX" << endl;
 				cout << "id\tto\t\tcontent:" << endl;
 				for(int i = 0 ; i < OTAPI_Wrap::GetNym_OutmailCount (nym_ID);i++) {
-					cout << i+1<< "\t" << nym_Name << "\t" << OTAPI_Wrap::GetNym_OutmailContentsByIndex (nym_ID,i) << endl;
+					cout << i+1<< "\t" << OTAPI_Wrap::GetNym_Name(OTAPI_Wrap::GetNym_OutmailRecipientIDByIndex(nym_ID, i)) << "\t" << OTAPI_Wrap::GetNym_OutmailContentsByIndex (nym_ID,i) << endl;
 				}
 			}
 			return vector<string> {};
@@ -1314,22 +1319,10 @@ namespace nUse {
 		void msgSend(const string & nymSender, const string & nymRecipient, const string & msg) { ///< Send message from Nym1 to Nym2
 			if(!Init())
 				return;
-			_dbg1(nymGetIdByName(nymSender));
-			_dbg1(nymGetIdByName(nymRecipient));
+
 			OT_ME madeEasy;
-			string sender, recipient;
-			if (nymSender.at(0) == '%') {
-				sender = nymSender.substr(1);
-			}
-			else {
-				sender = nymGetIdByName(nymSender);
-			}
-			if (nymRecipient.at(0) == '%') {
-				recipient = nymRecipient.substr(1);
-			}
-			else {
-				recipient = nymGetIdByName(nymRecipient);
-			}
+			string sender = nymGetId(nymSender);
+			string recipient = nymGetId(nymRecipient);
 
 			_dbg1(sender);
 			_dbg1(recipient);
@@ -1410,7 +1403,7 @@ namespace nUse {
 			if(!Init())
 				return "";
 			string encryptedText;
-			encryptedText = OTAPI_Wrap::Encrypt(nymGetIdByName(recipientNymName), plainText);
+			encryptedText = OTAPI_Wrap::Encrypt(nymGetId(recipientNymName), plainText);
 			return encryptedText;
 		}
 
@@ -1418,7 +1411,7 @@ namespace nUse {
 			if(!Init())
 				return "";
 			string plainText;
-			plainText = OTAPI_Wrap::Decrypt(nymGetIdByName(recipientNymName), encryptedText);
+			plainText = OTAPI_Wrap::Decrypt(nymGetId(recipientNymName), encryptedText);
 			return plainText;
 		}
 	};
