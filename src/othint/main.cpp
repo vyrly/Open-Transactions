@@ -758,7 +758,7 @@ nym edit <nymID>		# allows to edit information about such <nymID>
 *nym register <nymName>	# register nym defined by nymName on default server
 nym register <nymID>	# register nym defined by nymID on default server
 /nym register <nymID> <serverID>	# register this specific <nymID> to specific <serverID> server
-
+nym set-default <nymID> # set default nym
 nym import		# import saved (somewhere?) nyms
 nym export		# export nyms to (outerspace) :) ?
 *nym check <nymID>			# returns Public Key of this <nymID> nym
@@ -771,6 +771,7 @@ server			# can display active (default) server
 /server ls			# as above but all servers are listed TODO: Display mode information about servers
 server add		# add new server
 server new 	# like newserver
+server set-default # set default server
 *text encode	# interactively get multiline text
 *text encode <text>
 text encode <textfile>
