@@ -143,8 +143,7 @@
  *   more details.
  **************************************************************/
 
-#include "lib_common1.hpp"
-#include "lib_common2.hpp"
+#include "lib_common3.hpp"
 
 /**
 
@@ -187,21 +186,6 @@ File format of sources: identation with \t char, which we assume is 2 spaces wid
 
 */
 
-
-
-
-
-// OT - like in Moneychanger
-#ifdef _WIN32
-	// TODO CmakeLists
-	// TODO: return to otapi/OTAPI.hpp (when cmake is corrected to find the right path)
-	#include <OTAPI.hpp>
-	#include <OT_ME.hpp>
-#else
-	// TODO: return to opentxs/OTAPI.hpp (when cmake is corrected to find the right path)
-	#include <OTAPI.hpp>
-	#include <OT_ME.hpp>
-#endif
 
 // Editline. Check 'git checkout linenoise' to see linenoise version.
 #ifndef CFG_USE_EDITLINE // should we use editline?
