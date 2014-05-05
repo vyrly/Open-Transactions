@@ -141,10 +141,10 @@
  *   warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
  *   PURPOSE.  See the GNU Affero General Public License for
  *   more details.
-
  **************************************************************/
 
-
+#include "lib_common1.hpp"
+#include "lib_common2.hpp"
 
 /**
 
@@ -187,23 +187,9 @@ File format of sources: identation with \t char, which we assume is 2 spaces wid
 
 */
 
-#include <string>
-#include <iostream>
-#include <vector>
-#include <list>
-#include <set>
-#include <map>
-#include <iostream>
-#include <fstream>
-#include <memory>
-#include <sstream>
-#include <iterator>
-#include <stdexcept>
-#include <algorithm> // find
 
-#include "utils.hpp"
 
-#include <cstring>
+
 
 // OT - like in Moneychanger
 #ifdef _WIN32
@@ -232,25 +218,6 @@ File format of sources: identation with \t char, which we assume is 2 spaces wid
 
 // OTNewcliCmdline
 
-// list of thigs from libraries that we pull into namespace nOT::nNewcli
-// we might still need to copy/paste it in few places to make IDEs pick it up correctly
-#define OT_COMMON_USING_NAMESPACE_1 \
-using std::string; \
-using std::vector; \
-using std::list; \
-using std::set; \
-using std::map; \
-using std::unique_ptr; \
-using std::cin; \
-using std::cerr; \
-using std::cout; \
-using std::cerr; \
-using std::endl; \
-
-#define OT_COMMON_USING_NAMESPACE \
-	OT_COMMON_USING_NAMESPACE_1 \
-	using nOT::nUtils::ToStr; \
-	using nOT::nUtils::DisplayStringEndl;
 
 // Please read and follow this syntax examples:
 namespace nExamplesOfConvention {
@@ -305,7 +272,7 @@ std::string GetObjectName() {	return GetObjectName_global_string; }
 
 namespace nOT {
 
-OT_COMMON_USING_NAMESPACE_1; // <=== namespaces
+INJECT_OT_COMMON_USING_NAMESPACE_COMMON_1; // <=== namespaces
 
 /*
 
@@ -383,7 +350,7 @@ class cCmdfuncProvider {
 namespace nOT {
 namespace nUtils {
 
-OT_COMMON_USING_NAMESPACE_1;
+INJECT_OT_COMMON_USING_NAMESPACE_COMMON_1; // <=== namespaces
 
 struct cNullstream : std::ostream {
 		cNullstream() : std::ios(0), std::ostream(0) {}
@@ -1036,9 +1003,8 @@ class cCmdlineInfo {
 
 namespace nOT {
 namespace nUse {
-	OT_COMMON_USING_NAMESPACE
-	// TODO more uses - as in the macro.. OT_COMMON_USING_NAMESPACE
 
+	INJECT_OT_COMMON_USING_NAMESPACE_COMMON_2; // <=== namespaces
 
 		class cUseOT {
 
@@ -1464,7 +1430,7 @@ namespace nUse {
 namespace nOT {
 namespace nTests {
 
-OT_COMMON_USING_NAMESPACE
+INJECT_OT_COMMON_USING_NAMESPACE_COMMON_2; // <=== namespaces
 
 using namespace nOT::nUtils;
 
@@ -2345,7 +2311,7 @@ namespace nOT {
 namespace nTests {
 
 
-OT_COMMON_USING_NAMESPACE; // <========= NAMESPACE inclusion
+INJECT_OT_COMMON_USING_NAMESPACE_COMMON_2; // <=== namespaces
 
 bool testcase_complete_1(const string &sofar) {
 	map<string , vector<string> > const cases {

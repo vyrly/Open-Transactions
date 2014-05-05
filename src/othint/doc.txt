@@ -74,7 +74,20 @@ commit as "[bug] addressbook segfaults on long name" (reporting founded bug)
 write, fixed the bug...
 commit as "[fix] address book fixed"
 
+=== COMMON LIBRARIES ===
+
+We define sets of common functions, when used (by #include <lib_common1.hpp>) they include common other libraries.
+They also prepare a macro e.g. INJECT_OT_COMMON_USING_NAMESPACE_COMMON_1 that if used will do eg using std::vector
+for some parts of the included libraries.
+Remember to NOT polute global namespace, i.e. in header files do not use such INJECT... in global namespace { }.
+
+Following sets are defined:
+common1 - standard obvious C++(11) features will be included (vector,list,map,iostream,etc); macro uses part of them
+common2 - in addition our (of project OT/newcli) general purpose utils
+common3 - common external libraries like Open-Transactions
+
 === CODING STYLE - debug ===
+
 Change cerr<<foo<<bar<<endl; into
 _info(foo<<bar)
 or as well with either dbg1() info() note() warn() error(). There is also dbg2 and dbg3 that is least significant.
