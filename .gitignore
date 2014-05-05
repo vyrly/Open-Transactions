@@ -106,6 +106,9 @@ src/otlib/bigint/.deps/
 src/otlib/irrxml/.deps/
 src/otlib/lucre/.deps/
 src/otlib/protobOT/.deps/
+src/otd/.dirstamp
+src/ots/.dirstamp
+src/otmint/.dirstamp
 
 # linux build noise
 *.lo
