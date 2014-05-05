@@ -14,6 +14,7 @@ github https://github.com/rfree/Open-Transactions/ for unofficial version by rfr
 4. Fast rebuilding
 (reserved)
 8. Run the software
+9. Run other software: MoneyChanger
 
 -----------------------------------
 1.
@@ -143,9 +144,33 @@ Then follow instructions for otcli e.g. in src/othint/ (this directory name can 
 
 
 
+9. Run other software: MoneyChanger
+
+Running MoneyChanger on Debian 7, for OT lib that was build as above (was build with llvm 3.3);
+Tester on MC version d1c9eb7bac944c9a941c6778d358aa2e97693e5b (Thu Apr 24 18:22:57 2014 +1200)
 
 
+git clone https://github.com/Open-Transactions/Moneychanger.git
+cd Moneychanger/project/
+qmake 
+make 
 
+it will stop with error, you need to export path:
+export PKG_CONFIG_PATH=$HOME/.local/lib/pkgconfig:$PKG_CONFIG_PATH
+then run again:
+make
 
+it will grash gcc (at least gcc (Debian 4.7.2-5) 4.7.2), with error:
+  compiling ../../src/bitcoin-api/btchelper.cpp
+  g++: internal compiler error: Segmentation fault (program cc1plus)
+
+we need to use llvm compiler:
+in file Moneychanger/project/bitcoin-api/Makefile.Release
+	change lines
+CC            = @echo compiling $< && gcc
+CXX           = @echo compiling $< && g++
+	to
+CC            = @echo compiling $< && clang
+CXX           = @echo compiling $< && clang++
 
 
