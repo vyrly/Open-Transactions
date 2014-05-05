@@ -1290,7 +1290,7 @@ namespace nUse {
 				cout << "INBOX" << endl;
 				cout << "id\tfrom\t\tcontent:" << endl;
 				for(int i = 0 ; i < OTAPI_Wrap::GetNym_MailCount (nym_ID);i++) {
-					cout << i+1<< "\t" << nym_Name << "\t" << OTAPI_Wrap::GetNym_MailContentsByIndex (nym_ID,i) << endl;
+					cout << i+1<< "\t" << OTAPI_Wrap::GetNym_Name(OTAPI_Wrap::GetNym_MailSenderIDByIndex(nym_ID, i))  << "\t" << OTAPI_Wrap::GetNym_MailContentsByIndex (nym_ID,i) << endl;
 				}
 				cout << "OUTBOX" << endl;
 				cout << "id\tto\t\tcontent:" << endl;
