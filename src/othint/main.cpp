@@ -168,7 +168,7 @@ or headers-only library)
 
 Currently this is developed rapidly as 1 big file, to be splited soon, composed of this parts:
 - nExamplesOfConvention - documenation of coding style convention
-- nOT::nUtil - various utils for modern (C++11) OT ; ToStr(), OT_CODE_STAMP
+- nOT::nUtils - various utils for modern (C++11) OT ; ToStr(), OT_CODE_STAMP
 - nOT::nNewcli - new command line classes, to parse the command line options, and to execute commands
 - nOT::nOTHint - new command line auto-completion. Move here things usable only for auto-completion and nothing else
 - nOT::nTests - the testcases for our code
@@ -201,10 +201,7 @@ File format of sources: identation with \t char, which we assume is 2 spaces wid
 #include <stdexcept>
 #include <algorithm> // find
 
-//for the super advanced trim ;) TODO remove? - trim not in use
-//#include <functional>
-//#include <cctype>
-//#include <locale>
+#include "utils.hpp"
 
 #include <cstring>
 
@@ -252,8 +249,8 @@ using std::endl; \
 
 #define OT_COMMON_USING_NAMESPACE \
 	OT_COMMON_USING_NAMESPACE_1 \
-	using nOT::nUtil::ToStr; \
-	using nOT::nUtil::DisplayStringEndl;
+	using nOT::nUtils::ToStr; \
+	using nOT::nUtils::DisplayStringEndl;
 
 // Please read and follow this syntax examples:
 namespace nExamplesOfConvention {
@@ -304,7 +301,7 @@ extern std::string GetObjectName_global_string; // extern to h
 std::string GetObjectName_global_string="(global)"; // definition/initialization
 std::string GetObjectName() {	return GetObjectName_global_string; }
 
-#define OT_CODE_STAMP ( nOT::nUtil::ToStr("[") + nOT::nUtil::ShortenTheFile(__FILE__) + nOT::nUtil::ToStr("+") + nOT::nUtil::ToStr(__LINE__) + nOT::nUtil::ToStr(" ") + nOT::nUtil::ToStr(GetObjectName()) + nOT::nUtil::ToStr("::") + nOT::nUtil::ToStr(__FUNCTION__) + nOT::nUtil::ToStr("]"))
+#define OT_CODE_STAMP ( nOT::nUtils::ToStr("[") + nOT::nUtils::ShortenTheFile(__FILE__) + nOT::nUtils::ToStr("+") + nOT::nUtils::ToStr(__LINE__) + nOT::nUtils::ToStr(" ") + nOT::nUtils::ToStr(GetObjectName()) + nOT::nUtils::ToStr("::") + nOT::nUtils::ToStr(__FUNCTION__) + nOT::nUtils::ToStr("]"))
 
 namespace nOT {
 
@@ -384,7 +381,7 @@ class cCmdfuncProvider {
 
 // TODO: move to utils
 namespace nOT {
-namespace nUtil {
+namespace nUtils {
 
 OT_COMMON_USING_NAMESPACE_1;
 
@@ -405,13 +402,13 @@ std::string ToStr(const T & obj) {
 // ====================================================================
 
 
-#define _dbg3(X) do { nOT::nUtil::current_logger.write_stream(20) << OT_CODE_STAMP << ' ' << X << std::endl; } while(0)
-#define _dbg2(X) do { nOT::nUtil::current_logger.write_stream(30) << OT_CODE_STAMP << ' ' << X << std::endl; } while(0)
-#define _dbg1(X) do { nOT::nUtil::current_logger.write_stream(40) << OT_CODE_STAMP << ' ' << X << std::endl; } while(0) // details
-#define _info(X) do { nOT::nUtil::current_logger.write_stream(50) << OT_CODE_STAMP << ' ' << X << std::endl; } while(0) // more boring info
-#define _note(X) do { nOT::nUtil::current_logger.write_stream(70) << OT_CODE_STAMP << ' ' << X << std::endl; } while(0) // interesting event
-#define _warn(X) do { nOT::nUtil::current_logger.write_stream(90) << OT_CODE_STAMP << ' ' << X << std::endl; } while(0) // some problem
-#define _erro(X) do { nOT::nUtil::current_logger.write_stream(100) << OT_CODE_STAMP << ' ' << X << std::endl; } while(0) // error - report
+#define _dbg3(X) do { nOT::nUtils::current_logger.write_stream(20) << OT_CODE_STAMP << ' ' << X << std::endl; } while(0)
+#define _dbg2(X) do { nOT::nUtils::current_logger.write_stream(30) << OT_CODE_STAMP << ' ' << X << std::endl; } while(0)
+#define _dbg1(X) do { nOT::nUtils::current_logger.write_stream(40) << OT_CODE_STAMP << ' ' << X << std::endl; } while(0) // details
+#define _info(X) do { nOT::nUtils::current_logger.write_stream(50) << OT_CODE_STAMP << ' ' << X << std::endl; } while(0) // more boring info
+#define _note(X) do { nOT::nUtils::current_logger.write_stream(70) << OT_CODE_STAMP << ' ' << X << std::endl; } while(0) // interesting event
+#define _warn(X) do { nOT::nUtils::current_logger.write_stream(90) << OT_CODE_STAMP << ' ' << X << std::endl; } while(0) // some problem
+#define _erro(X) do { nOT::nUtils::current_logger.write_stream(100) << OT_CODE_STAMP << ' ' << X << std::endl; } while(0) // error - report
 
 const char* ShortenTheFile(const char *s) {
 	const char *p = s;
@@ -556,31 +553,6 @@ std::string GetLastCharIf(const std::string & str) { // TODO unicode?
 	return std::string( 1 , str.at( s - 1) );
 }
 
-/* TODO: not in use, remove?
-		// trim from start
-		std::string &ltrim_in_place(std::string &s) {
-			s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
-			return s;
-		}
-
-		// trim from end
-		std::string &rtrim_in_place(std::string &s) {
-			s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
-			return s;
-		}
-
-		// trim from both ends
-		//std::string &trim_in_place(std::string &s) {
-		//	return ltrim(rtrim(s));
-		//}
-
-		std::string rtrim(const std::string &s) {
-			string scopy = s;
-			rtrim_in_place(scopy);
-			return scopy;
-		}
-*/
-
 std::string cEscapeString(const std::string &s) {
 	std::ostringstream  newStr;
 		for(int i = 0; i < s.length();i++) {
@@ -603,7 +575,7 @@ void Assert(bool result, const std::string &stamp) {
 }
 
 std::string GetMultiline(string endLine = "~") {
-	nOT::nUtil::DisplayStringEndl( cout, "Please enter multiple lines of input to be encoded, followed by ~ on a blank line:" );
+	nOT::nUtils::DisplayStringEndl( cout, "Please enter multiple lines of input to be encoded, followed by ~ on a blank line:" );
 	std::string result(""); // Taken from OT_CLI_ReadUntilEOF
 	while (true) {
 		std::string input_line("");
@@ -633,7 +605,7 @@ std::string GetMultiline(string endLine = "~") {
 	return result;
 }
 
-namespace nOper { // nOT::nUtil::nOper
+namespace nOper { // nOT::nUtils::nOper
 // cool shortcut operators, like vector + vecotr operator working same as string (appending)
 // isolated to namespace because it's unorthodox ide to implement this
 
@@ -652,9 +624,9 @@ vector<T> & operator+=(vector<T> &a, const vector<T> &b) {
 	return a.insert( a.end() , b.begin(), b.end() );
 }
 
-} // nOT::nUtil::nOper
+} // nOT::nUtils::nOper
 
-} // nUtil
+} // nUtils
 } // nOT
 
 
@@ -675,7 +647,7 @@ using std::cin;
 using std::cerr;
 using std::cout;
 using std::endl;
-using nOT::nUtil::ToStr;
+using nOT::nUtils::ToStr;
 
 /*
 
@@ -1185,7 +1157,7 @@ namespace nUse {
 			return accounts;
 		}
 
-		const nUtil::vector<std::string> accountGetIds() {
+		const nUtils::vector<std::string> accountGetIds() {
 			if(!Init())
 			return vector<std::string> {};
 
@@ -1310,8 +1282,8 @@ namespace nUse {
 			if (!isReg)
 			{
 				string response = madeEasy.register_nym(mServerID, nymID);
-				nOT::nUtil::DisplayStringEndl(cout, response);
-				nOT::nUtil::DisplayStringEndl(cout, "Nym " + ToStr(nymName) + "(" + ToStr(nymID) + ")" + " was registered successfully");
+				nOT::nUtils::DisplayStringEndl(cout, response);
+				nOT::nUtils::DisplayStringEndl(cout, "Nym " + ToStr(nymName) + "(" + ToStr(nymID) + ")" + " was registered successfully");
 			}
 			else
 				cout << "Nym " << nymName << "(" << nymID << ")" << " was already registered" << endl;
@@ -1494,7 +1466,7 @@ namespace nTests {
 
 OT_COMMON_USING_NAMESPACE
 
-using namespace nOT::nUtil;
+using namespace nOT::nUtils;
 
 std::string StreamName(std::ostream &str) {
 	if (str == std::cout) return "cout";
@@ -1545,8 +1517,8 @@ using std::cerr;
 using std::cout;
 using std::endl;
 
-using namespace nOT::nUtil;
-using namespace nOT::nUtil::nOper; // vector + vector and other shortcut operators. It's appen, as in strings! :)
+using namespace nOT::nUtils;
+using namespace nOT::nUtils::nOper; // vector + vector and other shortcut operators. It's appen, as in strings! :)
 
 
 // Data for hinting, e.g. cached or local information.
@@ -1746,7 +1718,7 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 				return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.assetsGetNames() ) ;
 			}
 			if (action=="ls") {
-				nOT::nUtil::DisplayVectorEndl( cout, nOT::nUse::useOT.accountsGet() ); // <====== Execute
+				nOT::nUtils::DisplayVectorEndl( cout, nOT::nUse::useOT.accountsGet() ); // <====== Execute
 				return vector<string>{};
 			}
 			if (action=="refresh") {
@@ -1964,12 +1936,12 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 		if (full_words<3) { // we work on word3 - cmdArgs.at(0)
 
 			if (action=="ls") {
-				nOT::nUtil::DisplayVectorEndl(cout, nOT::nUse::useOT.nymsGetMy(), "\n"); // <====== Execute
+				nOT::nUtils::DisplayVectorEndl(cout, nOT::nUse::useOT.nymsGetMy(), "\n"); // <====== Execute
 				return vector<string>{};
 			}
 
 			if (action=="new") {
-				nOT::nUtil::DisplayStringEndl(cout, "Type new Nym name"); // <====== Execute
+				nOT::nUtils::DisplayStringEndl(cout, "Type new Nym name"); // <====== Execute
 				return vector<string>{};
 			}
 			if (action=="rm") {
@@ -1985,7 +1957,7 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 				return WordsThatMatch( current_word  ,  nOT::nUse::useOT.nymsGetMy() );//TODO server name
 			}
 			if (action=="check") { // TODO interactive input
-				nOT::nUtil::DisplayStringEndl(cout, "Type NymID to check"); // <====== Execute
+				nOT::nUtils::DisplayStringEndl(cout, "Type NymID to check"); // <====== Execute
 				return vector<string>{};
 			}
 		}
@@ -1996,7 +1968,7 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 				return vector<string>{};
 			}
 			if (action=="info") {
-				nOT::nUtil::DisplayStringEndl( cout, nOT::nUse::useOT.nymGetInfo(cmdArgs.at(0)) ); // <====== Execute
+				nOT::nUtils::DisplayStringEndl( cout, nOT::nUse::useOT.nymGetInfo(cmdArgs.at(0)) ); // <====== Execute
 				return vector<string>{};
 			}
 			if (action=="register") {
@@ -2041,12 +2013,12 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 
 		if (full_words<3) { // we work on word3 - var1
 			if (action=="encode") { // text to encode
-				nOT::nUtil::DisplayStringEndl( cout, nOT::nUse::useOT.textEncode(nOT::nUtil::GetMultiline())); // <====== Execute
+				nOT::nUtils::DisplayStringEndl( cout, nOT::nUse::useOT.textEncode(nOT::nUtils::GetMultiline())); // <====== Execute
 				return vector<string>{};
 			}
 
 			if (action=="decode") { // text to decode
-				nOT::nUtil::DisplayStringEndl( cout, nOT::nUse::useOT.textDecode(nOT::nUtil::GetMultiline()) ); // <====== Execute
+				nOT::nUtils::DisplayStringEndl( cout, nOT::nUse::useOT.textDecode(nOT::nUtils::GetMultiline()) ); // <====== Execute
 				return vector<string>{};
 			}
 
@@ -2061,7 +2033,7 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 
 		if (full_words<4) { // we work on word4 - var2
 			if (action=="encode") {
-				nOT::nUtil::DisplayStringEndl( cout, nOT::nUse::useOT.textEncode(cmdArgs.at(0))); // <====== Execute
+				nOT::nUtils::DisplayStringEndl( cout, nOT::nUse::useOT.textEncode(cmdArgs.at(0))); // <====== Execute
 				return vector<string>{};
 			}
 
@@ -2070,19 +2042,19 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 			}
 
 			if (action=="encrypt") {
-				nOT::nUtil::DisplayStringEndl( cout, nOT::nUse::useOT.textEncrypt(cmdArgs.at(0), nOT::nUtil::GetMultiline())); // <====== Execute
+				nOT::nUtils::DisplayStringEndl( cout, nOT::nUse::useOT.textEncrypt(cmdArgs.at(0), nOT::nUtils::GetMultiline())); // <====== Execute
 				return vector<string>{};
 			}
 
 			if (action=="decrypt") {
-				nOT::nUtil::DisplayStringEndl( cout, nOT::nUse::useOT.textDecrypt(cmdArgs.at(0), nOT::nUtil::GetMultiline())); // <====== Execute
+				nOT::nUtils::DisplayStringEndl( cout, nOT::nUse::useOT.textDecrypt(cmdArgs.at(0), nOT::nUtils::GetMultiline())); // <====== Execute
 				return vector<string>{};
 			}
 		}
 
 		if (full_words<5) { // we work on word5 - var3
 			if (action=="encrypt") { // if plain text is passed as argument (don't implemented for decrypt action because of multiline encrytped block)
-				nOT::nUtil::DisplayStringEndl( cout, nOT::nUse::useOT.textEncrypt(cmdArgs.at(0), cmdArgs.at(1))); // <====== Execute
+				nOT::nUtils::DisplayStringEndl( cout, nOT::nUse::useOT.textEncrypt(cmdArgs.at(0), cmdArgs.at(1))); // <====== Execute
 				return vector<string>{};
 			}
 		}
@@ -2113,10 +2085,10 @@ cInteractiveShell::cInteractiveShell()
 { }
 
 void cInteractiveShell::runOnce(const string line) { // used with bash autocompletion
-	nOT::nUtil::current_logger.setDebugLevel(100);
+	nOT::nUtils::current_logger.setDebugLevel(100);
 	nOT::nOTHint::cHintManager hint;
 	vector<string> out = hint.AutoCompleteEntire(line);
-	nOT::nUtil::DisplayVectorEndl(std::cout, out);
+	nOT::nUtils::DisplayVectorEndl(std::cout, out);
 }
 
 extern bool my_rl_wrapper_debug; // external
@@ -2154,7 +2126,7 @@ static char* completionReadlineWrapper(const char *sofar , int number) {
 	if (number == 0) {
 		_dbg3("Start autocomplete (during first callback, number="<<number<<")");
 		completions = hint.AutoCompleteEntire(line); // <--
-		nOT::nUtil::DBGDisplayVectorEndl(completions); //TODO: display in debug
+		nOT::nUtils::DBGDisplayVectorEndl(completions); //TODO: display in debug
 		_dbg3("Done autocomplete (during first callback, number="<<number<<")");
 	}
 
@@ -2194,9 +2166,12 @@ void cInteractiveShell::runEditline() {
 		std::string cmd;
 		if (rl_line_buffer) cmd = rl_line_buffer; // save the full command into string
 		cmd = cmd.substr(0, cmd.length()-1); // remove \n
+
 		if (dbg) cout << "Command was: " << cmd << endl;
-		if (cmd=="quit") break;
-		if (cmd=="q") break;
+		auto cmd_trim = nOT::nUtils::trim(cmd);
+		if (cmd_trim=="exit") break;
+		if (cmd_trim=="quit") break;
+		if (cmd_trim=="q") break;
 
 		if (cmd.length()) {
 		add_history(cmd.c_str()); // TODO (leaks memory...) but why
@@ -2473,7 +2448,7 @@ bool testcase_complete_1(const string &sofar) {
 		out[i] = cSpaceFromEscape(rec);
 		i++;
 	}
-	//nOT::nUtil::DisplayVector(std::cout, out); // FIXME polluting in testcase
+	//nOT::nUtils::DisplayVector(std::cout, out); // FIXME polluting in testcase
 
 
 	bool ok = 1;
@@ -2609,7 +2584,7 @@ bool testcase_account(const cTestCaseCfg &testCfg) {
 		out[i] = cSpaceFromEscape(rec);
 		i++;
 	}
-	nOT::nUtil::DisplayVectorEndl(std::cout, out);
+	nOT::nUtils::DisplayVectorEndl(std::cout, out);
 
 	*/
 
