@@ -115,9 +115,10 @@ setenv variable PKG_CONFIG_PATH
 	git clone git://github.com/rfree/Open-Transactions.git
 	cd Open-Transactions
 
+	# WARNING: if you do not have enough RAM (few GB)? then use -j 1. If you have lots of RAM and multicore CPU you can do -j 8 and more
 	./autogen.sh
 	./configure --prefix=$HOME/.local
-	make
+	make -j 2
 	make install
 
 -----------------------------------
