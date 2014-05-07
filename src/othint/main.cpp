@@ -1250,12 +1250,12 @@ namespace nUse {
 				cout << "INBOX" << endl;
 				cout << "id\tfrom\t\tcontent:" << endl;
 				for(int i = 0 ; i < OTAPI_Wrap::GetNym_MailCount (nym_ID);i++) {
-					cout << i+1<< "\t" << OTAPI_Wrap::GetNym_Name(OTAPI_Wrap::GetNym_MailSenderIDByIndex(nym_ID, i))  << "\t" << OTAPI_Wrap::GetNym_MailContentsByIndex (nym_ID,i) << endl;
+					cout << i << "\t" << OTAPI_Wrap::GetNym_Name(OTAPI_Wrap::GetNym_MailSenderIDByIndex(nym_ID, i))  << "\t" << OTAPI_Wrap::GetNym_MailContentsByIndex (nym_ID,i) << endl;
 				}
 				cout << "OUTBOX" << endl;
 				cout << "id\tto\t\tcontent:" << endl;
 				for(int i = 0 ; i < OTAPI_Wrap::GetNym_OutmailCount (nym_ID);i++) {
-					cout << i+1<< "\t" << OTAPI_Wrap::GetNym_Name(OTAPI_Wrap::GetNym_OutmailRecipientIDByIndex(nym_ID, i)) << "\t" << OTAPI_Wrap::GetNym_OutmailContentsByIndex (nym_ID,i) << endl;
+					cout << i << "\t" << OTAPI_Wrap::GetNym_Name(OTAPI_Wrap::GetNym_OutmailRecipientIDByIndex(nym_ID, i)) << "\t" << OTAPI_Wrap::GetNym_OutmailContentsByIndex (nym_ID,i) << endl;
 				}
 			}
 			return vector<string> {};
@@ -1334,8 +1334,10 @@ namespace nUse {
 
 		}
 
-		void removeMailByIndex(const string &) { //Change name of the function
-			//bool OTAPI_Wrap::Nym_RemoveMailByIndex (const std::string & NYM_ID, const int32_t & nIndex)
+		void msgRemoveByIndex(const string & nymName, const int32_t & nIndex) {
+			if(OTAPI_Wrap::Nym_RemoveMailByIndex (nymGetId(nymName), nIndex)){
+				_info("Message removed successfully");
+			}
 		}
 
 		bool nymCheckByName(const string & nymName) {
@@ -1670,7 +1672,7 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 		}
 		if (full_words<3) { // word3 (cmdArgs.at(0))
 			if (action=="new") {
-				return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.assetsGetNames() ) ;
+				return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.assetsGetNames() ) ; // <====== Execute
 			}
 			if (action=="ls") {
 				nOT::nUtils::DisplayVectorEndl( cout, nOT::nUse::useOT.accountsGet() ); // <====== Execute
@@ -1835,8 +1837,8 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 			if (action=="mv") {
 				return WordsThatMatch(  current_word  ,  vector<string>{"Where-to?"} ); // in mail box... will there be other directories?
 			}
-			if (action=="rm") {
-				return WordsThatMatch(  current_word  ,  vector<string>{"--all", "index"} );
+			if (action=="rm") { // nym
+				return WordsThatMatch(  current_word  , nOT::nUse::useOT.nymsGetMy() );
 			}
 		}
 
@@ -1860,6 +1862,16 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 					return vector<string>{};
 				}
 			}
+			if (action=="rm") { // nym
+				if (nOT::nUse::useOT.nymCheckByName(cmdArgs.at(0))) {
+					cout << "Index?" << endl;
+					return vector<string>{};
+				}
+				else {
+					std::cerr << "Can't find that nym: " << cmdArgs.at(0);
+					return vector<string>{};
+				}
+			}
 		}
 
 		if (full_words<5) { // we work on word5 - var3
@@ -1870,6 +1882,15 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 				}
 				else {
 					std::cerr << "Can't find that nym: " << cmdArgs.at(1);
+					return vector<string>{};
+				}
+			}
+			if (action=="rm") { // nym
+				if (nOT::nUse::useOT.nymCheckByName(cmdArgs.at(0))) {
+					nOT::nUse::useOT.msgRemoveByIndex( cmdArgs.at(0), std::stoi(cmdArgs.at(1)) );
+				}
+				else {
+					std::cerr << "Can't find that nym: " << cmdArgs.at(0);
 					return vector<string>{};
 				}
 			}
