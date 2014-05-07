@@ -7,29 +7,23 @@ This file here is primarly for core developers of otcli
 
 === TEST CASE ===
 
+Sending/receiving message
 A: ot nym new alice 
+A: ot nym new bob
 A: ot nym register alice
+A: ot nym register bob
 S: server: will register this nick as aaa12345 for example
 B: ot msg sendfrom bob %aaa12345
-B: ot refresh  {bug: now this is done manually}
 S: server: will now store the message
-A: ot refresh {bug: now this is done manually}
+B: ot nym refresh
 A: ot msg ls
 
 TODO/bugs:
 
-* need space:
-"ot nym new alice "
+* need dummy argument to execute:
+"ot nym new alice a"
 
-* ot nym register {TAB} does not auto complete possible known nyms/aliases, but instread lists files
-
-* manual refresh is needed:
-  cd ~/.local/bin
-  430  export PATH="$PATH:/home/rafalot/.local/bin"
-  431  ./opentxs   
-  432  ./opentxs    refresh 
-  qpAKgwu23oAi9hb5Iaoc4tcvqvISEjTr9ci4RuMv8mv
-
+* After adding new nym, nym not always shows in list (shows after restart)
 
 === IDEAS TO DISCUSS ===
 

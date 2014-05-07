@@ -722,7 +722,7 @@ nym set-default <nymID> # set default nym
 nym import		# import saved (somewhere?) nyms
 nym export		# export nyms to (outerspace) :) ?
 *nym check <nymID>			# returns Public Key of this <nymID> nym
-nym refresh			# refresh nym's list and its included informations
+*nym refresh			# refresh nym's list and its included informations
 nym-cred new 			# change credential to trust?
 nym-cred revoke
 nym-cred show			# show all credential to trust?
@@ -1821,13 +1821,13 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 			return WordsThatMatch(  current_word  , vector<string>{"send","ls","rm","mv"} );
 		}
 
-		if (full_words<3) { // we work on word3 - var1 - sender name
+		if (full_words<3) { // we work on word3 - var1
 			if (action=="ls") {
 				//return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.nymsGetMy() ) ;
 				nOT::nUse::useOT.msgGetAll(); // <====== Execute
 				return vector<string>{};
 			}
-			if (action=="send") {
+			if (action=="send") { // sender name
 				//nOT::nUse::useOT.msgSend();
 				//return vector<string>{};
 				return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.nymsGetMy() );
@@ -1840,7 +1840,7 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 			}
 		}
 
-		if (full_words<4) { // we work on word4 - var2 -  recipient name
+		if (full_words<4) { // we work on word4 - var2
 			if (action=="ls") {
 				if (nOT::nUse::useOT.nymCheckByName(cmdArgs.at(0))) {
 					nOT::nUse::useOT.msgGetAll(); // <====== Execute
@@ -1851,7 +1851,7 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 					return vector<string>{};
 				}
 			}
-			if (action=="send") {
+			if (action=="send") { // recipient name
 				if (nOT::nUse::useOT.nymCheckByName(cmdArgs.at(0))) {
 					return WordsThatMatch(  current_word  , nOT::nUse::useOT.nymsGetMy() );
 				}
@@ -1863,8 +1863,9 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 		}
 
 		if (full_words<5) { // we work on word5 - var3
-			if (action=="send") {
+			if (action=="send") { // message text
 				if (nOT::nUse::useOT.nymCheckByName(cmdArgs.at(1))) {
+					nOT::nUse::useOT.msgSend(cmdArgs.at(0), cmdArgs.at(1), nOT::nUtils::GetMultiline()); // <====== Execute
 					return vector<string>{}; // ready for message
 				}
 				else {
