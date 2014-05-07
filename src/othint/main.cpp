@@ -977,7 +977,9 @@ namespace nUse {
 
 			vector<string> servers;
 			for(int i = 0 ; i < OTAPI_Wrap::GetServerCount ();i++) {
-				servers.push_back(OTAPI_Wrap::GetServer_Name(OTAPI_Wrap::GetServer_ID(i)));
+				string servID = OTAPI_Wrap::GetServer_ID(i);
+				string servName = OTAPI_Wrap::GetServer_Name(servID);
+				servers.push_back(servName + " - " + servID);
 			}
 			return servers;
 		}
@@ -1724,7 +1726,8 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 
 		if (full_words<3) { // we work on word3 - var1
 			if (action=="ls") {
-				return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.serversGet() ) ;
+				nOT::nUtils::DisplayVectorEndl(cout, nOT::nUse::useOT.serversGet() ); // <====== Execute
+				return vector<string>{};
 			}
 		}
 
