@@ -984,7 +984,7 @@ namespace nUse {
 
 				_info("Trying to load wallet: ");
 				//if not pWrap it means that AppInit is not successed
-				OTAPI_Wrap *pWrap = OTAPI_Wrap::It();
+				OTAPI_Exec *pWrap = OTAPI_Wrap::It(); // TODO check why OTAPI_Exec is needed
 				if (!pWrap) {
 					OTAPI_error = true;
 					_erro("Error while init OTAPI (1)");
@@ -1022,7 +1022,7 @@ namespace nUse {
 					std::string nym_Name = OTAPI_Wrap::GetNym_Name (nym_ID);
 
 					mNymsMy_str.push_back(nym_Name);
-					}
+				}
 			}
 			catch(...) { }
 			mNymsMy_loaded = true;
@@ -1298,6 +1298,40 @@ namespace nUse {
 			}
 
 			_info("Message was sent successfully.");
+		}
+
+		void nymRefresh() {
+			if(!Init())
+				return;
+
+	        // Retrieve Nyms based on Moneychanger
+
+			OT_ME madeEasy;
+
+			int32_t nymCount = OTAPI_Wrap::GetNymCount();
+
+	        int32_t serverCount = OTAPI_Wrap::GetServerCount();
+
+	        for (int32_t serverIndex = 0; serverIndex < serverCount; ++serverIndex)
+	        {
+	            std::string serverId = OTAPI_Wrap::GetServer_ID(serverIndex);
+
+	            for (int32_t nymIndex = 0; nymIndex < nymCount; ++nymIndex)
+	            {
+	                std::string nymId = OTAPI_Wrap::GetNym_ID(nymIndex);
+
+	                bool bRetrievalAttempted = false;
+	                bool bRetrievalSucceeded = false;
+
+	                if (OTAPI_Wrap::IsNym_RegisteredAtServer(nymId, serverId))
+	                {
+
+	                    bRetrievalAttempted = true;
+	                    bRetrievalSucceeded = madeEasy.retrieve_nym(serverId, nymId, true);
+	                }
+	            }
+	        }
+
 		}
 
 		void removeMailByIndex(const string &) { //Change name of the function
@@ -1873,6 +1907,10 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 			}
 			if (action=="edit") {
 				return WordsThatMatch( current_word  ,  nOT::nUse::useOT.nymsGetMy() );//TODO Suitable changes to this part - propably after merging with otlib
+			}
+			if (action=="refresh") {
+				nOT::nUse::useOT.nymRefresh(); // <====== Execute
+				return vector<string>{};
 			}
 			if (action=="register") {
 				return WordsThatMatch( current_word  ,  nOT::nUse::useOT.nymsGetMy() );//TODO server name

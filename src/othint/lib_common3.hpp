@@ -10,10 +10,12 @@
 	// TODO CmakeLists
 	// TODO: return to otapi/OTAPI.hpp (when cmake is corrected to find the right path)
 	#include <OTAPI.hpp>
+	#include <OTAPI_Exec.hpp>
 	#include <OT_ME.hpp>
 #else
 	// TODO: return to opentxs/OTAPI.hpp (when cmake is corrected to find the right path)
 	#include <OTAPI.hpp>
+	#include <OTAPI_Exec.hpp>
 	#include <OT_ME.hpp>
 #endif
 
