@@ -700,8 +700,9 @@ msg send <mynym> <hisnym> --cc <ccnym> --cc <ccnym2> --push  	 # example of forc
 *msg ls			# list all messages for all nyms
 /msg ls <mynym> # list all messages for nym
 msg mv			# move message to different directory in your mail box
-msg rm <index>		# remove message with <index> number
-msg rm --all		# remove all messages from mail box
+msg rm <index>		# remove message with <index> number for current nym
+msg rm --all		# remove all messages from mail box for current nym
+*msg rm <nymName> <index> # remove <index> message from mail inbox for <nymName>
 --- Test ---
 msguard info   # test, imaginary comand "msguard" (microsoft guard) info - shows windows firewall status for OT tcp
 msguard start
@@ -713,7 +714,8 @@ nym new			# make new nym with UI (it should ask potential user to give the name
 *nym new <nymName>			# make new nym by giving name without UI
 nym rm <name>			# remove nym with such <name>
 nym rm <nymID>		# remove nym with such <nymID>
-nym info <nymID>		# show information about such <nymID>
+*nym info <nymName>		# show information about such <nymName>
+*nym info <nymID>		# show information about such <nymID>
 nym edit <nymID>		# allows to edit information about such <nymID>
 *nym register <nymName>	# register nym defined by nymName on default server
 nym register <nymID>	# register nym defined by nymID on default server
@@ -728,7 +730,7 @@ nym-cred revoke
 nym-cred show			# show all credential to trust?
 receipt?
 server			# can display active (default) server
-/server ls			# as above but all servers are listed TODO: Display mode information about servers
+/server ls			# as above but all servers are listed TODO: Display more information about servers
 server add		# add new server
 server new 	# like newserver
 server set-default # set default server
@@ -1030,7 +1032,7 @@ namespace nUse {
 		return mNymsMy_str;
 		}
 
-		const string nymGetId(const string & nymName) {
+		const string nymGetId(const string & nymName) { // Gets nym aliases and IDs begins with '%'
 			if(!Init())
 			return "";
 
@@ -1050,14 +1052,16 @@ namespace nUse {
 
 		const string nymGetInfo(const string & nymName) {
 			if(!Init())
-			return "";
+				return "";
 
-			for(int i = 0 ; i < OTAPI_Wrap::GetNymCount ();i++) {
-				string nymID = OTAPI_Wrap::GetNym_ID (i);
-				string nymName_ = OTAPI_Wrap::GetNym_Name (nymID);
-				if (nymName_ == nymName)
-					return nymName_ + " - " + nymID;
+			if (nymCheckByName(nymName)){
+				string nymID = nymGetId(nymName);
+				return nymName + " - " + nymID;
 			}
+			else {
+				_erro("Nym not found");
+			}
+
 			return "";
 		}
 
@@ -1912,23 +1916,23 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 		}
 		if (full_words<3) { // we work on word3 - cmdArgs.at(0)
 
-			if (action=="ls") {
-				nOT::nUtils::DisplayVectorEndl(cout, nOT::nUse::useOT.nymsGetMy(), "\n"); // <====== Execute
+			if (action=="check") { // TODO interactive input
+				nOT::nUtils::DisplayStringEndl(cout, "Type NymID to check"); // <====== Execute
 				return vector<string>{};
 			}
-
-			if (action=="new") {
-				nOT::nUtils::DisplayStringEndl(cout, "Type new Nym name"); // <====== Execute
-				return vector<string>{};
-			}
-			if (action=="rm") {
+			if (action=="edit") {
 				return WordsThatMatch( current_word  ,  nOT::nUse::useOT.nymsGetMy() );//TODO Suitable changes to this part - propably after merging with otlib
 			}
 			if (action=="info") {
 				return WordsThatMatch( current_word  ,  nOT::nUse::useOT.nymsGetMy() );//TODO Suitable changes to this part - propably after merging with otlib
 			}
-			if (action=="edit") {
-				return WordsThatMatch( current_word  ,  nOT::nUse::useOT.nymsGetMy() );//TODO Suitable changes to this part - propably after merging with otlib
+			if (action=="ls") {
+				nOT::nUtils::DisplayVectorEndl(cout, nOT::nUse::useOT.nymsGetMy(), "\n"); // <====== Execute
+				return vector<string>{};
+			}
+			if (action=="new") {
+				nOT::nUtils::DisplayStringEndl(cout, "Type new Nym name"); // <====== Execute
+				return vector<string>{};
 			}
 			if (action=="refresh") {
 				nOT::nUse::useOT.nymRefresh(); // <====== Execute
@@ -1937,29 +1941,29 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 			if (action=="register") {
 				return WordsThatMatch( current_word  ,  nOT::nUse::useOT.nymsGetMy() );//TODO server name
 			}
-			if (action=="check") { // TODO interactive input
-				nOT::nUtils::DisplayStringEndl(cout, "Type NymID to check"); // <====== Execute
-				return vector<string>{};
+			if (action=="rm") {
+				return WordsThatMatch( current_word  ,  nOT::nUse::useOT.nymsGetMy() );//TODO Suitable changes to this part - propably after merging with otlib
 			}
 		}
 
 		if (full_words<4) { // we work on word4 - var2
-			if (action=="new") {
-				nOT::nUse::useOT.nymCreate(cmdArgs.at(0)); // <====== Execute
+			if (action=="check") {
+				nOT::nUse::useOT.nymCheck(cmdArgs.at(0)); // <====== Execute
 				return vector<string>{};
 			}
 			if (action=="info") {
 				nOT::nUtils::DisplayStringEndl( cout, nOT::nUse::useOT.nymGetInfo(cmdArgs.at(0)) ); // <====== Execute
 				return vector<string>{};
 			}
+			if (action=="new") {
+				nOT::nUse::useOT.nymCreate(cmdArgs.at(0)); // <====== Execute
+				return vector<string>{};
+			}
 			if (action=="register") {
 				nOT::nUse::useOT.nymRegister(cmdArgs.at(0)); // <====== Execute
 				return vector<string>{};
 			}
-			if (action=="check") {
-				nOT::nUse::useOT.nymCheck(cmdArgs.at(0)); // <====== Execute
-				return vector<string>{};
-			}
+
 		}
 
 
