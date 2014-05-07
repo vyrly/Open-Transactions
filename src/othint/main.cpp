@@ -2208,6 +2208,7 @@ void LoadScript(const std::string &script_filename, const std::string &title) {
 
 int main(int argc, char **argv) {
 	LoadScript("autostart-dev.local", "autostart script");
+	int a=42; // test
 
 	// demo of OT
 	/*try {
