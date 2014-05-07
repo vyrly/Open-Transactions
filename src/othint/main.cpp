@@ -186,7 +186,6 @@ File format of sources: identation with \t char, which we assume is 2 spaces wid
 
 */
 
-
 // Editline. Check 'git checkout linenoise' to see linenoise version.
 #ifndef CFG_USE_EDITLINE // should we use editline?
 	#define CFG_USE_EDITLINE 1 // default
@@ -202,46 +201,8 @@ File format of sources: identation with \t char, which we assume is 2 spaces wid
 
 // OTNewcliCmdline
 
+// Please read and follow this syntax examples from example_coding.cpp
 
-// Please read and follow this syntax examples:
-namespace nExamplesOfConvention {
-// Welcome, to the world of C++11 !
-
-int gGlobalVariable; // g - global variable
-
-class cFooBar {
-private:
-	static int sStaticVariable; // s - static variable
-
-	int mFooBarBaz; // m - variable, member of class
-
-	int Fooberize();
-	int DerpTheHerp();
-
-public:
-	cFooBar(int x)
-	: mFooBarBaz(x)
-	{}
-
-	inline int Foo() {
-		int abc=42;
-		return abc;
-	}
-};
-int cFooBar::sStaticVariable = 0;
-
-// In case of simple parameters, we can skip "m" prefix. In this case:
-struct cSimpleParam {
-	int x;
-	int y;
-
-	cSimpleParam(int x, int y)
-	: x(x), y(y)
-	{}
-};
-
-
-} // namespace
 
 // #####################################################################
 // #####################################################################
@@ -328,7 +289,6 @@ class cCmdfuncProvider {
 }; // nOT
 
 // ====================================================================
-
 
 // TODO: move to utils
 namespace nOT {

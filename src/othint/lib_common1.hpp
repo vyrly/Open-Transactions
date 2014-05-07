@@ -1,5 +1,6 @@
 /* See other files here for the LICENCE that applies here. */
 
+
 #ifndef INCLUDE_OT_NEWCLI_COMMON1
 #define INCLUDE_OT_NEWCLI_COMMON1
 

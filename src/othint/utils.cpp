@@ -1,4 +1,5 @@
 /* See other files here for the LICENCE that applies here. */
+/* See the .cpp file for details */
 
 #include <algorithm> 
 #include <functional> 

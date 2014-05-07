@@ -11,5 +11,5 @@ fi
 
 ./cmake-clear.sh || { echo "cmake clear failed"; exit 2; }
 cmake . || { echo "cmake failed"; exit 2; }
-make || { echo "make failed"; exit 2; }
+make -j 4 || { echo "make failed"; exit 2; }
 
