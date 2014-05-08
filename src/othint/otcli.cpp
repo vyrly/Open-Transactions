@@ -1,7 +1,7 @@
 /* See other files here for the LICENCE that applies here. */
 /* See header file .hpp for info */
 
-#include "template.hpp"
+#include "otcli.hpp"
 
 #include "lib_common1.hpp"
 

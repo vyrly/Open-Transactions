@@ -2,6 +2,8 @@
 
 #include "lib_common3.hpp"
 
+#include "otcli.hpp"
+
 #include "tests.hpp"
 
 /**
@@ -1763,10 +1765,9 @@ std::string gVar1; // to keep program input argument for testcase_complete_1
 
 // ====================================================================
 
-int main(int argc, char **argv) {
+int main(int argc, const char **argv) {
 
-	cOTCli application;
-	application.Autostart();
+	nOT::nNewcli::cOTCli application;
 	int ret = application.Run(argc,argv);
 
 	// nOT::nTests::exampleOfOT(); // TODO from script

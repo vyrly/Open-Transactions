@@ -20,8 +20,8 @@ class cOTCli {
 	public:
 		int Run(const int argc, const char **argv);
 
-		bool cOTCli::LoadScript_Main(const std::string &thefile_name);
-		void cOTCli::LoadScript(const std::string &script_filename, const std::string &title);
+		bool LoadScript_Main(const std::string &thefile_name);
+		void LoadScript(const std::string &script_filename, const std::string &title);
 };
 
 
