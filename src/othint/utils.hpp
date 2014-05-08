@@ -9,6 +9,9 @@ we find helpful in coding this project.
 
 #include "lib_common1.hpp"
 
+namespace nOT { namespace nUtils {
+std::string cSpaceFromEscape(const std::string &s);
+} } 
 
 namespace nOT {
 
@@ -108,8 +111,6 @@ void DBGDisplayVectorEndl(const std::vector<T> &v, const std::string &delim=" ")
 }
 
 void DisplayStringEndl(std::ostream & out, const std::string text);
-
-std::string cSpaceFromEscape(const std::string &s);
 
 bool CheckIfBegins(const std::string & beggining, const std::string & all);
 std::string cEscapeFromSpace(const std::string &s); // TODO rename

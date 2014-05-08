@@ -2,6 +2,8 @@
 
 #include "lib_common3.hpp"
 
+#include "tests.hpp"
+
 /**
 OT Hints (new CLI - new commandline : auto complete commands, verify, check, etc)
 
@@ -1049,45 +1051,6 @@ namespace nUse {
 } // nOT
 
 
-namespace nOT {
-namespace nTests {
-
-INJECT_OT_COMMON_USING_NAMESPACE_COMMON_2; // <=== namespaces
-
-using namespace nOT::nUtils;
-
-std::string StreamName(std::ostream &str) {
-	if (str == std::cout) return "cout";
-	if (str == std::cout) return "cin";
-	return "other-stream";
-}
-
-struct cTestCaseCfg {
-	std::ostream &ossErr;
-	bool debug;
-
-	cTestCaseCfg(std::ostream &ossErr, bool debug)
-	: ossErr(ossErr) , debug(debug)
-	{ }
-
-	std::ostream & print(std::ostream &ostr) const { ostr << "[" << (debug ? "debug":"quiet") << " " << StreamName(ossErr) << "]";  return ostr; }
-
-};
-
-std::ostream & operator<<(std::ostream &ostr, const cTestCaseCfg &cfg) { return cfg.print(ostr); }
-
-bool testcase_run_all_tests();
-
-int main_main(int argc, char **argv); // some tests will execute the main... e.g. against errors in args parsing TODO move to namespace
-
-bool testcase_complete_1(const std::string &sofar); // TODO ... testcase or really used???
-bool testcase_complete_1_wrapper(); // TODO ... testcase or really used???
-
-typedef bool ( * tTestCaseFunction )(const cTestCaseCfg &) ;
-// ^- tTestCaseFunction is a function:  bool ....(const cTestCaseCfg &)
-void exampleOfOT();
-} // nTests
-} // nOT
 
 // TODO: move to own file
 namespace nOT {
@@ -2063,7 +2026,7 @@ bool testcase_complete_1(const string &sofar) {
 	//Convert each Escape on Space
 	int i = 0;
 	for(auto rec:out)	{
-		out[i] = cSpaceFromEscape(rec);
+		out[i] = /* nOT::nUtils:: */ cSpaceFromEscape(rec); // CLANG error in error reporting
 		i++;
 	}
 	//nOT::nUtils::DisplayVector(std::cout, out); // FIXME polluting in testcase
