@@ -8,19 +8,6 @@
 
 #include "utils.hpp"
 
-/*  namespace nXXXXX {
-std::string cEscapeFromSpace(const std::string &s) { // TODO rename
-	std::ostringstream  newStr;
-	for(int i = 0; i < s.length();i++) {
-		if(s[i] == 32)
-			newStr << "\\" << " ";
-		else
-			newStr << s[i];
-	}
-	return newStr.str();
-}
-} // namespace
-*/
 namespace nOT {
 namespace nUtils {
 
@@ -118,6 +105,17 @@ bool CheckIfBegins(const std::string & beggining, const std::string & all) {
 	}
 }
 
+
+std::string cEscapeFromSpace(const std::string &s) { // TODO rename
+	std::ostringstream  newStr;
+	for(int i = 0; i < s.length();i++) {
+		if(s[i] == 32)
+			newStr << "\\" << " ";
+		else
+			newStr << s[i];
+	}
+	return newStr.str();
+}
 
 vector<string> WordsThatMatch(const std::string & sofar, const vector<string> & possib) {
 	vector<string> ret;

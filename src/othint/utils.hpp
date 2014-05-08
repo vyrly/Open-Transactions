@@ -9,9 +9,6 @@ we find helpful in coding this project.
 
 #include "lib_common1.hpp"
 
-namespace nOT { namespace nUtils {
-std::string cSpaceFromEscape(const std::string &s);
-} } 
 
 namespace nOT {
 
@@ -50,6 +47,8 @@ extern cNullstream g_nullstream; // a stream that does nothing (eats/discards da
 #define _erro(X) do { nOT::nUtils::current_logger.write_stream(100) << OT_CODE_STAMP << ' ' << X << std::endl; } while(0) // error - report
 
 const char* DbgShortenCodeFileName(const char *s);
+
+std::string cSpaceFromEscape(const std::string &s);
 
 // ========== logger ==========
 
