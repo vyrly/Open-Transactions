@@ -749,83 +749,11 @@ namespace nUse {
 			return OTAPI_loaded;
 		}
 
-		const std::vector<std::string> nymsGetMy() {
-			if(!Init())	return vector<std::string> {};
-
-			if (!mNymsMy_loaded) {
-				try {
-				mNymsMy_loaded=0; // to mark that we start to delete data/data is inconsistent
-				mNymsMy.clear();
-				mNymsMy_str.clear();
-
-				for(int i = 0 ; i < OTAPI_Wrap::GetNymCount ();i++) {
-					std::string nym_ID = OTAPI_Wrap::GetNym_ID (i);
-					std::string nym_Name = OTAPI_Wrap::GetNym_Name (nym_ID);
-
-					mNymsMy_str.push_back(nym_Name);
-				}
-			}
-			catch(...) { }
-			mNymsMy_loaded = true;
-			}
-		return mNymsMy_str;
-		}
-
-		const string nymGetId(const string & nymName) { // Gets nym aliases and IDs begins with '%'
-			if(!Init())
-			return "";
-
-			if (nymName.at(0) == '%') { // nym ID
-				return nymName.substr(1);
-			}
-			else { // nym Name
-				for(int i = 0 ; i < OTAPI_Wrap::GetNymCount ();i++) {
-					string nymID = OTAPI_Wrap::GetNym_ID (i);
-					string nymName_ = OTAPI_Wrap::GetNym_Name (nymID);
-					if (nymName_ == nymName)
-						return nymID;
-				}
-			}
-			return "";
-		}
-
-		const string nymGetInfo(const string & nymName) {
-			if(!Init())
-				return "";
-
-			if (nymCheckByName(nymName)){
-				string nymID = nymGetId(nymName);
-				return nymName + " - " + nymID;
-			}
-			else {
-				_erro("Nym not found");
-			}
-
-			return "";
-		}
-
-		const std::vector<std::string> accountsGet() {
-			if(!Init())
-			return vector<std::string> {};
-
-			_dbg3("Retrieving accounts names");
-			vector<std::string> accounts;
-			for(int i = 0 ; i < OTAPI_Wrap::GetAccountCount ();i++) {
-				accounts.push_back(OTAPI_Wrap::GetAccountWallet_Name ( OTAPI_Wrap::GetAccountWallet_ID (i)));
-			}
-			return accounts;
-		}
-
-		const nUtils::vector<std::string> accountGetIds() {
-			if(!Init())
-			return vector<std::string> {};
-
-			_dbg3("Retrieving accounts ID's");
-			vector<std::string> accountsIDs;
-			for(int i = 0 ; i < OTAPI_Wrap::GetAccountCount ();i++) {
-				accountsIDs.push_back(OTAPI_Wrap::GetAccountWallet_ID (i));
-			}
-			return accountsIDs;
+		bool accountCheckIfExists(const string & accountName) {
+			vector<string> v = accountsGet();
+			if (std::find(v.begin(), v.end(), accountName) != v.end())
+				return true;
+			return false;
 		}
 
 		const std::string accountGetId(const std::string & accountName) {
@@ -839,26 +767,33 @@ namespace nUse {
 			return "";
 		}
 
-		const std::vector<std::string> assetsGetNames() {
+		std::string accountDelete(const std::string & accountName) { ///<
+			if(!Init())
+			return "";
+
+			if(!OTAPI_Wrap::Wallet_CanRemoveAccount (accountGetId(accountName))) {
+				// inBox and OutBox must be get from server because without it account not work properly
+				// example if you can't delete account without inbox and outbox
+				int32_t  inBoxInt = OTAPI_Wrap::getInbox 	(mServerID,mUserID,accountGetId(accountName));
+				int32_t outBoxInt = OTAPI_Wrap::getOutbox 	(mServerID,mUserID,accountGetId(accountName));
+			}
+
+			if(OTAPI_Wrap::deleteAssetAccount(mServerID, mUserID, accountGetId(accountName))==-1)
+				return "Error while deleting account";
+			else
+				return "";
+		}
+
+		const nUtils::vector<std::string> accountGetIds() {
 			if(!Init())
 			return vector<std::string> {};
 
-			vector<std::string> assets;
-			for(int i = 0 ; i < OTAPI_Wrap::GetAssetTypeCount ();i++) {
-				assets.push_back(OTAPI_Wrap::GetAssetType_Name ( OTAPI_Wrap::GetAssetType_ID (i)));
+			_dbg3("Retrieving accounts ID's");
+			vector<std::string> accountsIDs;
+			for(int i = 0 ; i < OTAPI_Wrap::GetAccountCount ();i++) {
+				accountsIDs.push_back(OTAPI_Wrap::GetAccountWallet_ID (i));
 			}
-			return assets;
-		}
-
-		const std::string assetGetId(const std::string & assetName) {
-			if(!Init())
-			return "";
-
-			for(int i = 0 ; i < OTAPI_Wrap::GetAssetTypeCount ();i++) {
-				if(OTAPI_Wrap::GetAssetType_Name ( OTAPI_Wrap::GetAssetType_ID (i))==assetName)
-					return OTAPI_Wrap::GetAssetType_ID (i);
-			}
-			return "";
+			return accountsIDs;
 		}
 
 		const std::string accountRename(const std::string & oldAccountName, const std::string & newAccountName) {
@@ -892,8 +827,7 @@ namespace nUse {
 
 			// Get the ID of the new account.
 			string strID = OTAPI_Wrap::Message_GetNewAcctID(strResponse);
-			if (!strID.size())
-      {
+			if (!strID.size()){
 				_erro("Failed trying to get the new account's ID from the server response.");
 				return;
 			}
@@ -904,84 +838,45 @@ namespace nUse {
 			cout << "Account " << newAccountName << "(" << strID << ")" << " created successfully." << endl;
 		}
 
-		void nymCreate(const std::string & nymName) {
+		const std::vector<std::string> accountsGet() {
 			if(!Init())
-			return ;
+			return vector<std::string> {};
 
-			OT_ME madeEasy;
-			int32_t nKeybits = 1024;
-			string NYM_ID_SOURCE = ""; //TODO: check
-			string ALT_LOCATION = "";
-			string strID = madeEasy.create_pseudonym(nKeybits, NYM_ID_SOURCE, ALT_LOCATION);
-
-			if (strID.empty())
-			{
-				_erro("Failed trying to create new Nym.");
-				return;
+			_dbg3("Retrieving accounts names");
+			vector<std::string> accounts;
+			for(int i = 0 ; i < OTAPI_Wrap::GetAccountCount ();i++) {
+				accounts.push_back(OTAPI_Wrap::GetAccountWallet_Name ( OTAPI_Wrap::GetAccountWallet_ID (i)));
 			}
-
-			// Set the Name of the new Nym.
-			OTAPI_Wrap::SetNym_Name(strID, strID, nymName);
-
-			_info("Nym " << nymName << "(" << strID << ")" << " created successfully.");
+			return accounts;
 		}
 
-		void nymRegister(const std::string & nymName) {
-			if(!Init())
-			return ;
-
-			OT_ME madeEasy;
-
-			_warn("Checking for default server only");
-
-			string nymID = nymGetId(nymName);
-
-			bool isReg = OTAPI_Wrap::IsNym_RegisteredAtServer(nymID, mServerID);
-
-			if (!isReg)
-			{
-				string response = madeEasy.register_nym(mServerID, nymID);
-				nOT::nUtils::DisplayStringEndl(cout, response);
-				nOT::nUtils::DisplayStringEndl(cout, "Nym " + ToStr(nymName) + "(" + ToStr(nymID) + ")" + " was registered successfully");
-			}
-			else
-				cout << "Nym " << nymName << "(" << nymID << ")" << " was already registered" << endl;
+		bool assetCheckIfExists(const string & assetName) {
+			vector<string> v = assetsGetNames();
+			if (std::find(v.begin(), v.end(), assetName) != v.end())
+				return true;
+			return false;
 		}
 
-		void nymRegister(const std::string & nymName, const std::string & serverName) {
-			if(!Init())
-			return ;
-			//TODO: Add servers naming???
-		}
-
-		std::string accountDelete(const std::string & accountName) { ///<
+		const std::string assetGetId(const std::string & assetName) {
 			if(!Init())
 			return "";
 
-			if(!OTAPI_Wrap::Wallet_CanRemoveAccount (accountGetId(accountName))) {
-				// inBox and OutBox must be get from server because without it account not work properly
-				// example if you can't delete account without inbox and outbox
-				int32_t  inBoxInt = OTAPI_Wrap::getInbox 	(mServerID,mUserID,accountGetId(accountName));
-				int32_t outBoxInt = OTAPI_Wrap::getOutbox 	(mServerID,mUserID,accountGetId(accountName));
+			for(int i = 0 ; i < OTAPI_Wrap::GetAssetTypeCount ();i++) {
+				if(OTAPI_Wrap::GetAssetType_Name ( OTAPI_Wrap::GetAssetType_ID (i))==assetName)
+					return OTAPI_Wrap::GetAssetType_ID (i);
 			}
-
-			if(OTAPI_Wrap::deleteAssetAccount(mServerID, mUserID, accountGetId(accountName))==-1)
-				return "Error while deleting account";
-			else
-				return "";
+			return "";
 		}
 
-		const vector<string> serversGet() { ///< Get all servers name
+		const std::vector<std::string> assetsGetNames() {
 			if(!Init())
-			return vector<string> {};
+			return vector<std::string> {};
 
-			vector<string> servers;
-			for(int i = 0 ; i < OTAPI_Wrap::GetServerCount ();i++) {
-				string servID = OTAPI_Wrap::GetServer_ID(i);
-				string servName = OTAPI_Wrap::GetServer_Name(servID);
-				servers.push_back(servName + " - " + servID);
+			vector<std::string> assets;
+			for(int i = 0 ; i < OTAPI_Wrap::GetAssetTypeCount ();i++) {
+				assets.push_back(OTAPI_Wrap::GetAssetType_Name ( OTAPI_Wrap::GetAssetType_ID (i)));
 			}
-			return servers;
+			return assets;
 		}
 
 		const vector<string> msgGetAll() { ///< Get all messages from all Nyms.
@@ -1045,6 +940,89 @@ namespace nUse {
 			_info("Message was sent successfully.");
 		}
 
+		void msgRemoveByIndex(const string & nymName, const int32_t & nIndex) {
+			if(OTAPI_Wrap::Nym_RemoveMailByIndex (nymGetId(nymName), nIndex)){
+				_info("Message removed successfully");
+			}
+		}
+
+		void nymCheck(const string & hisNymID) { // wip
+			if(!Init())
+				return;
+
+			OT_ME madeEasy;
+			string strResponse = madeEasy.check_user( mServerID, mUserID, hisNymID );
+			// -1 error, 0 failure, 1 success.
+			if (1 != madeEasy.VerifyMessageSuccess(strResponse))
+			{
+				_erro("Failed trying to download user public key.");
+				return;
+			}
+			_info("Successfully downloaded user public key.");
+		}
+
+		bool nymCheckByName(const string & nymName) {
+			vector<string> v = nymsGetMy();
+			if (std::find(v.begin(), v.end(), nymName) != v.end())
+				return true;
+			return false;
+		}
+
+		void nymCreate(const std::string & nymName) {
+			if(!Init())
+			return ;
+
+			OT_ME madeEasy;
+			int32_t nKeybits = 1024;
+			string NYM_ID_SOURCE = ""; //TODO: check
+			string ALT_LOCATION = "";
+			string strID = madeEasy.create_pseudonym(nKeybits, NYM_ID_SOURCE, ALT_LOCATION);
+
+			if (strID.empty())
+			{
+				_erro("Failed trying to create new Nym.");
+				return;
+			}
+
+			// Set the Name of the new Nym.
+			OTAPI_Wrap::SetNym_Name(strID, strID, nymName);
+
+			_info("Nym " << nymName << "(" << strID << ")" << " created successfully.");
+		}
+
+		const string nymGetId(const string & nymName) { // Gets nym aliases and IDs begins with '%'
+			if(!Init())
+			return "";
+
+			if (nymName.at(0) == '%') { // nym ID
+				return nymName.substr(1);
+			}
+			else { // nym Name
+				for(int i = 0 ; i < OTAPI_Wrap::GetNymCount ();i++) {
+					string nymID = OTAPI_Wrap::GetNym_ID (i);
+					string nymName_ = OTAPI_Wrap::GetNym_Name (nymID);
+					if (nymName_ == nymName)
+						return nymID;
+				}
+			}
+			return "";
+		}
+
+		const string nymGetInfo(const string & nymName) {
+			if(!Init())
+				return "";
+
+			if (nymCheckByName(nymName)){
+				string nymID = nymGetId(nymName);
+				return nymName + " - " + nymID;
+			}
+			else {
+				_erro("Nym not found");
+			}
+
+			return "";
+		}
+
 		void nymRefresh() {
 			if(!Init())
 				return;
@@ -1079,46 +1057,67 @@ namespace nUse {
 
 		}
 
-		void msgRemoveByIndex(const string & nymName, const int32_t & nIndex) {
-			if(OTAPI_Wrap::Nym_RemoveMailByIndex (nymGetId(nymName), nIndex)){
-				_info("Message removed successfully");
-			}
-		}
-
-		bool nymCheckByName(const string & nymName) {
-			vector<string> v = nymsGetMy();
-			if (std::find(v.begin(), v.end(), nymName) != v.end())
-				return true;
-			return false;
-		}
-
-		void nymCheck(const string & hisNymID) { // wip
+		void nymRegister(const std::string & nymName) {
 			if(!Init())
-				return;
+			return ;
 
 			OT_ME madeEasy;
-			string strResponse = madeEasy.check_user( mServerID, mUserID, hisNymID );
-			// -1 error, 0 failure, 1 success.
-			if (1 != madeEasy.VerifyMessageSuccess(strResponse))
+
+			_warn("Checking for default server only");
+
+			string nymID = nymGetId(nymName);
+
+			bool isReg = OTAPI_Wrap::IsNym_RegisteredAtServer(nymID, mServerID);
+
+			if (!isReg)
 			{
-				_erro("Failed trying to download user public key.");
-				return;
+				string response = madeEasy.register_nym(mServerID, nymID);
+				nOT::nUtils::DisplayStringEndl(cout, response);
+				nOT::nUtils::DisplayStringEndl(cout, "Nym " + ToStr(nymName) + "(" + ToStr(nymID) + ")" + " was registered successfully");
 			}
-			_info("Successfully downloaded user public key.");
+			else
+				cout << "Nym " << nymName << "(" << nymID << ")" << " was already registered" << endl;
 		}
 
-		bool assetCheckIfExists(const string & assetName) {
-			vector<string> v = assetsGetNames();
-			if (std::find(v.begin(), v.end(), assetName) != v.end())
-				return true;
-			return false;
+		void nymRegister(const std::string & nymName, const std::string & serverName) {
+			if(!Init())
+			return ;
+			//TODO: Add servers naming???
 		}
 
-		bool accountCheckIfExists(const string & accountName) {
-			vector<string> v = accountsGet();
-			if (std::find(v.begin(), v.end(), accountName) != v.end())
-				return true;
-			return false;
+		const std::vector<std::string> nymsGetMy() {
+			if(!Init())	return vector<std::string> {};
+
+			if (!mNymsMy_loaded) {
+				try {
+				mNymsMy_loaded=0; // to mark that we start to delete data/data is inconsistent
+				mNymsMy.clear();
+				mNymsMy_str.clear();
+
+				for(int i = 0 ; i < OTAPI_Wrap::GetNymCount ();i++) {
+					std::string nym_ID = OTAPI_Wrap::GetNym_ID (i);
+					std::string nym_Name = OTAPI_Wrap::GetNym_Name (nym_ID);
+
+					mNymsMy_str.push_back(nym_Name);
+				}
+			}
+			catch(...) { }
+			mNymsMy_loaded = true;
+			}
+		return mNymsMy_str;
+		}
+
+		const vector<string> serversGet() { ///< Get all servers name
+			if(!Init())
+			return vector<string> {};
+
+			vector<string> servers;
+			for(int i = 0 ; i < OTAPI_Wrap::GetServerCount ();i++) {
+				string servID = OTAPI_Wrap::GetServer_ID(i);
+				string servName = OTAPI_Wrap::GetServer_Name(servID);
+				servers.push_back(servName + " - " + servID);
+			}
+			return servers;
 		}
 
 		const string textEncode(const string & plainText) {
@@ -1131,6 +1130,14 @@ namespace nUse {
 			return encodedText;
 		}
 
+		const string textEncrypt(const string & recipientNymName, const string & plainText) {
+			if(!Init())
+				return "";
+			string encryptedText;
+			encryptedText = OTAPI_Wrap::Encrypt(nymGetId(recipientNymName), plainText);
+			return encryptedText;
+		}
+
 		const string textDecode(const string & encodedText) {
 			if(!Init())
 				return "";
@@ -1139,14 +1146,6 @@ namespace nUse {
 			string plainText;
 			plainText = OTAPI_Wrap::Decode (encodedText, bLineBreaks);
 			return plainText;
-		}
-
-		const string textEncrypt(const string & recipientNymName, const string & plainText) {
-			if(!Init())
-				return "";
-			string encryptedText;
-			encryptedText = OTAPI_Wrap::Encrypt(nymGetId(recipientNymName), plainText);
-			return encryptedText;
 		}
 
 		const string textDecrypt(const string & recipientNymName, const string & encryptedText) {
