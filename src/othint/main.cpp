@@ -990,6 +990,12 @@ namespace nUse {
 			_info("Nym " << nymName << "(" << strID << ")" << " created successfully.");
 		}
 
+		const string nymGetDefault() {
+			if(!Init())
+				return "";
+			return mUserID;
+		}
+
 		const string nymGetId(const string & nymName) { // Gets nym aliases and IDs begins with '%'
 			if(!Init())
 			return "";
@@ -1081,7 +1087,13 @@ namespace nUse {
 		void nymRegister(const std::string & nymName, const std::string & serverName) {
 			if(!Init())
 			return ;
-			//TODO: Add servers naming???
+			//TODO: Make work with servers aliases
+		}
+
+		void nymSetDefault(const std::string & nymName) {
+			if(!Init())
+				return ;
+			mUserID = nymGetId(nymName);
 		}
 
 		const std::vector<std::string> nymsGetMy() {
@@ -1104,6 +1116,36 @@ namespace nUse {
 			mNymsMy_loaded = true;
 			}
 		return mNymsMy_str;
+		}
+
+		const string serverGetDefault() {
+			if(!Init())
+				return "";
+			return mServerID;
+		}
+
+		const string serverGetId(const string & serverName) { // Gets nym aliases and IDs begins with '%'
+			if(!Init())
+			return "";
+
+			if (serverName.at(0) == '%') { // nym ID
+				return serverName.substr(1);
+			}
+			else { // nym Name
+				for(int i = 0 ; i < OTAPI_Wrap::GetServerCount(); i++) {
+					string nymID = OTAPI_Wrap::GetServer_ID(i);
+					string serverName_ = OTAPI_Wrap::GetServer_Name(nymID);
+					if (serverName_ == serverName)
+						return nymID;
+				}
+			}
+			return "";
+		}
+
+		void serverSetDefault(const std::string & serverName) {
+			if(!Init())
+				return ;
+			mServerID = serverGetId(serverName);
 		}
 
 		const vector<string> serversGet() { ///< Get all servers name
@@ -1272,7 +1314,7 @@ ot [front] nym del $mynym [--a] [--b] [--c]
 }
 
 vector<string> cHintManager::AutoCompleteEntire(const string &sofar_str) const {
-	const std::string cut_begining="ot"; // minimal begining
+	const std::string cut_begining="ot"; // minimal beginning
 	const int cut_begining_size = cut_begining.length();
 	_info("cut_begining=[" << cut_begining << "]");
 	// <= add space if we are at ot<tab>
@@ -1651,7 +1693,7 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 
 	if (topic=="nym") {
 		if (full_words<2) { // we work on word2 - the action:
-			return WordsThatMatch(  current_word  ,  vector<string>{"check", "edit", "export", "import", "info", "ls", "new", "refresh", "register", "rm"} ) ;
+			return WordsThatMatch(  current_word  ,  vector<string>{"check", "edit", "export", "import", "info", "ls", "new", "refresh", "register", "rm", "set-default"} ) ;
 		}
 		if (full_words<3) { // we work on word3 - cmdArgs.at(0)
 
@@ -1663,7 +1705,8 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 				return WordsThatMatch( current_word  ,  nOT::nUse::useOT.nymsGetMy() );//TODO Suitable changes to this part - propably after merging with otlib
 			}
 			if (action=="info") {
-				return WordsThatMatch( current_word  ,  nOT::nUse::useOT.nymsGetMy() );//TODO Suitable changes to this part - propably after merging with otlib
+				//nOT::nUtils::DisplayStringEndl( cout, nOT::nUse::useOT.nymGetInfo(cmdArgs.at(0)) ); // <====== Execute TODO For default nym
+				return WordsThatMatch( current_word  ,  nOT::nUse::useOT.nymsGetMy() );
 			}
 			if (action=="ls") {
 				nOT::nUtils::DisplayVectorEndl(cout, nOT::nUse::useOT.nymsGetMy(), "\n"); // <====== Execute
@@ -1683,11 +1726,14 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 			if (action=="rm") {
 				return WordsThatMatch( current_word  ,  nOT::nUse::useOT.nymsGetMy() );//TODO Suitable changes to this part - propably after merging with otlib
 			}
+			if (action=="set-default") {
+				return WordsThatMatch( current_word  ,  nOT::nUse::useOT.nymsGetMy() );
+			}
 		}
 
 		if (full_words<4) { // we work on word4 - var2
 			if (action=="check") {
-				nOT::nUse::useOT.nymCheck(cmdArgs.at(0)); // <====== Execute
+				nOT::nUse::useOT.nymCheck( cmdArgs.at(0) ); // <====== Execute
 				return vector<string>{};
 			}
 			if (action=="info") {
@@ -1695,18 +1741,18 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 				return vector<string>{};
 			}
 			if (action=="new") {
-				nOT::nUse::useOT.nymCreate(cmdArgs.at(0)); // <====== Execute
+				nOT::nUse::useOT.nymCreate( cmdArgs.at(0) ); // <====== Execute
 				return vector<string>{};
 			}
 			if (action=="register") {
-				nOT::nUse::useOT.nymRegister(cmdArgs.at(0)); // <====== Execute
+				nOT::nUse::useOT.nymRegister( cmdArgs.at(0) ); // <====== Execute
 				return vector<string>{};
 			}
-
+			if (action=="set-default") {
+				nOT::nUse::useOT.nymSetDefault( cmdArgs.at(0) ); // <====== Execute
+				return vector<string>{};
+			}
 		}
-
-
-
 	} // nym
 
 	if (topic=="nym-cred") {
