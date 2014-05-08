@@ -12,6 +12,16 @@ namespace nOT {
 namespace nOTHint{
 
 INJECT_OT_COMMON_USING_NAMESPACE_COMMON_2; // <=== namespaces
+// Data for hinting, e.g. cached or local information.
+
+class cHintData {
+	public:
+		cHintData();
+};
+
+cHintData::cHintData()
+{
+}
 
 // The Manager to access OT-hint (autocompletion) functionality
 class cHintManager {

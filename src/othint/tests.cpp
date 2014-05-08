@@ -153,10 +153,6 @@ bool testcase_complete_1(const string &sofar) {
 	return ok;
 }
 
-bool testcase_complete_1_wrapper() {
-	return nOT::nTests::testcase_complete_1(gVar1);
-}
-
 // ==================================================================
 // ==================================================================
 bool testcase_namespace_pollution(const cTestCaseCfg &testCfg) {

@@ -8,6 +8,8 @@ Template for new files, replace word "template" and later delete this line here.
 
 #include "lib_common1.hpp"
 
+#include "othint.hpp"
+
 namespace nOT {
 namespace nTests {
 
