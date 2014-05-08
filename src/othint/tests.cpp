@@ -394,6 +394,7 @@ bool testcase_run_all_tests() { // Can only run bool(*)(void) functions (to run 
 	return number_errors==0;
 }
 
+#if 0
 void exampleOfOT() {
 	OTAPI_Wrap::AppInit(); // Init OTAPI
 	std::cout <<"loading wallet: ";
@@ -469,6 +470,8 @@ void exampleOfOT() {
 	*/
 
 	}
+
+#endif
 
 
 
