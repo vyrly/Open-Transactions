@@ -5,6 +5,9 @@
 
 #include "lib_common2.hpp"
 
+#include "othint.hpp"
+#include "otcli.hpp"
+
 namespace nOT {
 namespace nTests {
 

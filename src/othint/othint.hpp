@@ -19,9 +19,7 @@ class cHintData {
 		cHintData();
 };
 
-cHintData::cHintData()
-{
-}
+// ====================================================================
 
 // The Manager to access OT-hint (autocompletion) functionality
 class cHintManager {

@@ -2,6 +2,7 @@
 /* See header file .hpp for info */
 
 #include "otcli.hpp"
+#include "othint.hpp"
 
 #include "lib_common1.hpp"
 

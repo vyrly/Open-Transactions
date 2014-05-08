@@ -1064,19 +1064,14 @@ INJECT_OT_COMMON_USING_NAMESPACE_COMMON_2
 using namespace nOT::nUtils::nOper; // vector + vector and other shortcut operators. It's appen, as in strings! :)
 
 
-// Data for hinting, e.g. cached or local information.
-class cHintData {
-	public:
-		cHintData();
-};
+
+// ====================================================================
 
 cHintData::cHintData()
 {
 }
 
-
 // ====================================================================
-
 
 cHintManager::cHintManager()
 : mHintData(new cHintData)
