@@ -1,5 +1,5 @@
 /* See other files here for the LICENCE that applies here. */
-/* See the .cpp file for details */
+/* See header file .hpp for info */
 
 #include <algorithm> 
 #include <functional> 

@@ -16,12 +16,13 @@ namespace nUtils {
 
 INJECT_OT_COMMON_USING_NAMESPACE_COMMON_1; // <=== namespaces
 
-
+// ======================================================================================
 // text trimming
 std::string & ltrim(std::string &s);
 std::string & rtrim(std::string &s);
 std::string & trim(std::string &s);
 
+// ======================================================================================
 // string conversions
 template <class T>
 std::string ToStr(const T & obj) {
@@ -66,7 +67,6 @@ extern cLogger current_logger;
 
 // ====================================================================
 // vector debug
-
 
 template <class T>
 std::string vectorToStr(const T & v) {
