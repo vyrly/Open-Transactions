@@ -283,14 +283,14 @@ market
 market ls
 mint new
 *msg			# should show what options do you have with this topic
-/msg send		# should ask you about nyms ?
-msg send <mynym> 		# should take your nym and ask about addressee's name
-*msg send <mynym> <hisnym> 		# an example of usage
-msg send <mynym> <hisnym> --push     		# global option
-msg send <mynym> <hisnym> --no-footer     # action option
-msg send <mynym> <hisnym> --cc <ccnym>     # action option with value
-msg send <mynym> <hisnym> --cc <ccnym> --cc <ccnym2>
-msg send <mynym> <hisnym> --cc <ccnym> --cc <ccnym2> --push  	 # example of force send (?) - not sure if it will appear
+/msg sendto		# should ask you about nyms ?
+msg sendto <hisnym> 		# Send message from default nym to <hisnym>
+*msg sendfrom <mynym> <hisnym> message 		# Send message from <mynym> to <hisnym>
+msg sendfrom <mynym> <hisnym> --push     	# TODO option "--push" has no sense because msg will be already on the server. Implement msg draft?
+msg sendfrom <mynym> <hisnym> --no-footer   # action option
+msg sendfrom <mynym> <hisnym> --cc <ccnym>  # action option with value
+msg sendfrom <mynym> <hisnym> --cc <ccnym> --cc <ccnym2>
+msg sendfrom <mynym> <hisnym> --cc <ccnym> --cc <ccnym2> --push  	 # example of force send (?) - not sure if it will appear
 *msg ls			# list all messages for all nyms
 /msg ls <mynym> # list all messages for nym
 msg mv			# move message to different directory in your mail box
@@ -739,36 +739,27 @@ namespace nUse {
 			return vector<string> {};
 
 			for(int i = 0 ; i < OTAPI_Wrap::GetNymCount ();i++) {
-				string nym_ID = OTAPI_Wrap::GetNym_ID (i);
-				string nym_Name = OTAPI_Wrap::GetNym_Name (nym_ID);
-				cout << "===" << nym_Name << "(" << nym_ID << ")"  << "===" << endl;
-				cout << "INBOX" << endl;
-				cout << "id\tfrom\t\tcontent:" << endl;
-				for(int i = 0 ; i < OTAPI_Wrap::GetNym_MailCount (nym_ID);i++) {
-					cout << i << "\t" << OTAPI_Wrap::GetNym_Name(OTAPI_Wrap::GetNym_MailSenderIDByIndex(nym_ID, i))  << "\t" << OTAPI_Wrap::GetNym_MailContentsByIndex (nym_ID,i) << endl;
-				}
-				cout << "OUTBOX" << endl;
-				cout << "id\tto\t\tcontent:" << endl;
-				for(int i = 0 ; i < OTAPI_Wrap::GetNym_OutmailCount (nym_ID);i++) {
-					cout << i << "\t" << OTAPI_Wrap::GetNym_Name(OTAPI_Wrap::GetNym_OutmailRecipientIDByIndex(nym_ID, i)) << "\t" << OTAPI_Wrap::GetNym_OutmailContentsByIndex (nym_ID,i) << endl;
-				}
+				msgGetForNym( "^" + OTAPI_Wrap::GetNym_ID(i) );
 			}
 			return vector<string> {};
 		}
 
-		const vector<string> msgGetForNym(const string & nym_Name) { ///< Get all messages from Nym.
+		const vector<string> msgGetForNym(const string & nymName) { ///< Get all messages from Nym.
 			if(!Init())
 				return vector<string> {};
+			string nymID = nymGetId(nymName);
+			cout << "===" << nymName << "(" << nymID << ")"  << "===" << endl;
+			cout << "INBOX" << endl;
+			cout << "id\tfrom\t\tcontent:" << endl;
+			for(int i = 0 ; i < OTAPI_Wrap::GetNym_MailCount (nymID);i++) {
+				cout << i << "\t" << OTAPI_Wrap::GetNym_Name(OTAPI_Wrap::GetNym_MailSenderIDByIndex(nymID, i))  << "\t" << OTAPI_Wrap::GetNym_MailContentsByIndex (nymID,i) << endl;
+			}
+			cout << "OUTBOX" << endl;
+			cout << "id\tto\t\tcontent:" << endl;
+			for(int i = 0 ; i < OTAPI_Wrap::GetNym_OutmailCount (nymID);i++) {
+				cout << i << "\t" << OTAPI_Wrap::GetNym_Name(OTAPI_Wrap::GetNym_OutmailRecipientIDByIndex(nymID, i)) << "\t" << OTAPI_Wrap::GetNym_OutmailContentsByIndex (nymID,i) << endl;
+			}
 
-			//string nym_Name = OTAPI_Wrap::GetNym_Name (nymID);
-			//cout <<"mid\tfrom\t\tcontent inbox:"<< endl;
-			//for(int i = 0 ; i < OTAPI_Wrap::GetNym_MailCount (nymID);i++) {
-				//cout << i+1<< "\t"<< OTAPI_Wrap::GetNym_Name(nymID)<<"\t" << OTAPI_Wrap::GetNym_MailContentsByIndex (nymID,i);
-			//}
-			//cout << endl << "mid\tto\t\tcontent outbox:" << endl;
-			//for(int i = 0 ; i < OTAPI_Wrap::GetNym_OutmailCount (nymID);i++) {
-				//cout << i+1<< "\t"<< OTAPI_Wrap::GetNym_Name(nymID)<<"\t" << OTAPI_Wrap::GetNym_OutmailContentsByIndex (nymID,i);
-			//}
 			return vector<string> {};
 		}
 
@@ -851,11 +842,11 @@ namespace nUse {
 			return mUserID;
 		}
 
-		const string nymGetId(const string & nymName) { // Gets nym aliases and IDs begins with '%'
+		const string nymGetId(const string & nymName) { // Gets nym aliases and IDs begins with '^'
 			if(!Init())
 			return "";
-
-			if (nymName.at(0) == '%') { // nym ID
+			const char prefix = '^';
+			if (nymName.at(0) == prefix) { // nym ID
 				return nymName.substr(1);
 			}
 			else { // nym Name
@@ -1465,7 +1456,7 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 
 		if (full_words<3) { // we work on word3 - var1
 			if (action=="ls") {
-				//return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.nymsGetMy() ) ;
+				//return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.nymsGetMy() ) ; // TODO nyms autocomplete
 				nOT::nUse::useOT.msgGetAll(); // <====== Execute
 				return vector<string>{};
 			}
@@ -1484,8 +1475,8 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 
 		if (full_words<4) { // we work on word4 - var2
 			if (action=="ls") {
-				if (nOT::nUse::useOT.nymCheckByName(cmdArgs.at(0))) {
-					nOT::nUse::useOT.msgGetAll(); // <====== Execute
+				if (nOT::nUse::useOT.nymCheckByName( cmdArgs.at(0) )) {
+					nOT::nUse::useOT.msgGetForNym( cmdArgs.at(0) ); // <====== Execute
 					return vector<string>{};
 				}
 				else {
