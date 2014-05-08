@@ -1013,8 +1013,7 @@ namespace nUse {
 				return "";
 
 			if (nymCheckByName(nymName)){
-				string nymID = nymGetId(nymName);
-				return nymName + " - " + nymID;
+				return OTAPI_Wrap::GetNym_Stats( nymGetId(nymName) );
 			}
 			else {
 				_erro("Nym not found");
