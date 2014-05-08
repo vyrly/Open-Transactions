@@ -1767,95 +1767,25 @@ int main(int argc, char **argv) {
 
 	cOTCli application;
 	application.Autostart();
-	application.Run(argc,argv);
+	int ret = application.Run(argc,argv);
 
-	// demo of OT
-	/*try {
-				nOT::nTests::exampleOfOT();
-		}
-	catch(const std::exception &e) {
-		std::cerr << "\n*** The exampleOfOT code thrown an exception: " << e.what() << std::endl;
-	}
-	catch(...) {
-		std::cerr << "\n*** The exampleOfOT code thrown an UNKNOWN exception!" << std::endl;
-	}*/
-
-	try {
-		//nOT::nTests::testcase_run_all_tests();
-	}
-	catch(const std::exception &e) {
-		_erro("\n*** The testcases code thrown an exception: " << e.what());
-	}
-	catch(...) {
-		_erro("\n*** The testcases code thrown an UNKNOWN exception!");
-	}
-
-	int ret=1;
-	try {
-		LoadScript_Main("autostart.local"); // move to main_main() probably
-		ret = main_main(argc, argv);
-	}
-	catch(const std::exception &e) {
-		_erro("\n*** The testcases code thrown an exception: " << e.what());
-	}
-	catch(...) {
-		_erro("\n*** The testcases code thrown an UNKNOWN exception!");
-	}
+	// nOT::nTests::exampleOfOT(); // TODO from script
+	// nOT::nTests::testcase_run_all_tests(); // TODO from script
 
 	return ret;
 }
 
-// int pole(const int r) { 	r=3; }
-
-
-int nOT::  ::main_nTestsmain(int argc, char **argv) {
-	vector<string> args;
-	int status = 0;
-	if (! (argc>=1)) {
-		throw std::runtime_error("Main program called with 0 arguments (not even program name).");
-	}
-	args.reserve(argc-1); for (int i=1; i<argc; ++i) args.push_back(argv[i]); // from 1 - skip program name
-
-	size_t nr=0;
-	for(auto arg: args) {
-		if (arg=="--complete-shell") {
-			nOT::nOTHint::cInteractiveShell shell;
-			shell.runEditline();
-		}
-		else if (arg=="--complete-one") {
-			string v;  bool ok=1;  try { v=args.at(nr+1); } catch(...) { ok=0; } //
-			if (ok) {
-				nOT::nOTHint::cInteractiveShell shell;
-				shell.runOnce(v);
-			}
-			else {
-				_erro("Missing variables for command line argument '"<<arg<<"'");
-				status = 1;
-			}
-		}
-		++nr;
-	}
-
 /*
-	if (argc>1) {
-		std::string arg1 = argv[1];
 
-		if (arg1=="--complete-shell") {
-		} // SHELL
-		else if (arg1=="--complete-one") {
-			if (argc>2) {
-				gVar1 = argv[2];
-				nOT::nTests::testcase_complete_1_wrapper();
-				//std::cout << gVar1 << std::endl;
-			} // COMPLETE with it's var1
-			else { std::cerr<<"No string provided for completion."<<std::endl; return 1; }
-		} // COMPLETE
-	} else {
-		std::cerr<<"No arguments given."<<std::endl; return 1;
+	catch(const std::exception &e) {
+		_erro("\n*** The testcases code thrown an exception: " << e.what());
 	}
+	catch(...) {
+		_erro("\n*** The testcases code thrown an UNKNOWN exception!");
+	}
+
 */
-	return status;
-}
+
 // ====================================================================
 
 // #####################################################################

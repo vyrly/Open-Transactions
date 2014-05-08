@@ -10,13 +10,39 @@ namespace nNewcli {
 
 INJECT_OT_COMMON_USING_NAMESPACE_COMMON_1; // <=== namespaces
 
-void cOTCli::Run(const int argc, const char **argv) {
-}
+int cOTCli::Run(const int argc, const char **argv) {
 
-void cOTCli::Autostart() {
-	LoadScript("autostart-dev.local", "autostart script"); // todo depending on execution mode?
-}
+	LoadScript("autostart-dev.local", "autostart script"); // todo depending on execution mode? +devel ?
 
+	vector<string> args;
+	int status = 0;
+	if (! (argc>=1)) {
+		throw std::runtime_error("Main program called with 0 arguments (not even program name).");
+	}
+	args.reserve(argc-1); for (int i=1; i<argc; ++i) args.push_back(argv[i]); // from 1 - skip program name
+
+	size_t nr=0;
+	for(auto arg: args) {
+		if (arg=="--complete-shell") {
+			nOT::nOTHint::cInteractiveShell shell;
+			shell.runEditline();
+		}
+		else if (arg=="--complete-one") { // otcli "--complete-one" "ot msg sendfr"
+			string v;  bool ok=1;  try { v=args.at(nr+1); } catch(...) { ok=0; } //
+			if (ok) {
+				nOT::nOTHint::cInteractiveShell shell;
+				shell.runOnce(v);
+			}
+			else {
+				_erro("Missing variables for command line argument '"<<arg<<"'");
+				status = 1;
+			}
+		}
+		++nr;
+	}
+
+	return status;
+}
 
 bool cOTCli::LoadScript_Main(const std::string &thefile_name) { 
 	using std::string;

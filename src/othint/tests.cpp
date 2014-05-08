@@ -34,8 +34,6 @@ std::ostream & operator<<(std::ostream &ostr, const cTestCaseCfg &cfg) { return 
 
 bool testcase_run_all_tests();
 
-int main_main(int argc, char **argv); // some tests will execute the main... e.g. against errors in args parsing TODO move to namespace
-
 bool testcase_complete_1(const std::string &sofar); // TODO ... testcase or really used???
 bool testcase_complete_1_wrapper(); // TODO ... testcase or really used???
 
@@ -43,9 +41,6 @@ typedef bool ( * tTestCaseFunction )(const cTestCaseCfg &) ;
 // ^- tTestCaseFunction is a function:  bool ....(const cTestCaseCfg &)
 
 void exampleOfOT(); // TODO implementation ehre
-
-
-
 
 
 
@@ -211,6 +206,7 @@ bool testcase_fail2(const cTestCaseCfg &testCfg) {
 }
 
 bool helper_testcase_run_main_with_arguments(const cTestCaseCfg &testCfg , vector<string> tab ) {
+/*
 	int argc = tab.size(); // <--
 	typedef char * char_p;
 	char_p * argv  = new char_p[argc]; // C++ style new[]
@@ -240,7 +236,9 @@ bool helper_testcase_run_main_with_arguments(const cTestCaseCfg &testCfg , vecto
 	}
 	for (int i=0; i<argc; ++i) { free( argv[i] ); argv[i]=NULL; } // free!
 	delete []argv; argv=nullptr;
-	return ok;
+	return ok;*/
+	_erro("Test case not refactored yet!");
+	return false;
 }
 
 // Separate functions for failing tests:
