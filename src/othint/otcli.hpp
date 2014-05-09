@@ -6,8 +6,8 @@ that runs either in mode:
 - mode to hint/complete/shell-complete commands
 */
 
-#ifndef INCLUDE_OT_NEWCLI_template
-#define INCLUDE_OT_NEWCLI_template
+#ifndef INCLUDE_OT_NEWCLI
+#define INCLUDE_OT_NEWCLI
 
 #include "lib_common2.hpp"
 
