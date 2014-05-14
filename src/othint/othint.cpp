@@ -716,7 +716,7 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 	// === at 1st (non-front-option) word (topic) ===
 
 	if (full_words<1) { // at 1st word (topic) -> show all level 1 cmdnames
-
+		//TODO new option that will show actual settings (nym, account, server, purse) -> implement profiles
 		return WordsThatMatch(  current_word  ,  vector<string>{"account", "account-in", "account-out", "asset", "basket", "cash", "cheque", "contract", "market", "mint", "msg", "msguard", "nym", "nym-cred", /*"receipt"??,*/ "server", "text", "voucher"/*, "wallet"??*/} + cmdFrontOpt  ) ;
 		//commented procedures are those which we ain't sure if they will appear - definitions below
 	}
@@ -771,7 +771,7 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 				}
 			}
 			if (action=="set-default") {
-				//TODO
+				nOT::nUse::useOT.accountSetDefault(cmdArgs.at(0));
 			}
 			if (action=="mv") {
 				std::cout <<"Pass new account name";

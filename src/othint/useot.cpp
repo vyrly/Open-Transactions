@@ -76,6 +76,11 @@ const string cUseOT::accountGetId(const string & accountName) {
 	}
 	return "";
 }
+const string cUseOT::accountGetDefault() {
+	if(!Init())
+		return "";
+	return mAccountID;
+}
 
 string cUseOT::accountDelete(const string & accountName) { ///<
 	if(!Init())
@@ -146,6 +151,11 @@ void cUseOT::accountCreate(const string & assetName, const string & newAccountNa
 	accountSetName(strID,newAccountName);
 
 	cout << "Account " << newAccountName << "(" << strID << ")" << " created successfully." << endl;
+}
+void cUseOT::accountSetDefault(const string & accountName) {
+	if(!Init())
+		return ;
+	mAccountID = accountGetId(accountName);
 }
 
 const vector<string> cUseOT::accountsGet() {
