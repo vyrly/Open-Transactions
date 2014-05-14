@@ -16,8 +16,10 @@ namespace nUse {
 
 	class cUseOT {
 
-		string mServerID = "r1fUoHwJOWCuK3WBAAySjmKYqsG6G2TYIxdqY6YNuuG"; // TODO read default ServerID
-		string mUserID = "DYEB6U7dcpbwdGrftPnslNKz76BDuBTFAjiAgKaiY2n"; // TODO read default UserID
+		string mServerID;
+		string mUserID;
+		string mAccountID;
+		string mPurseID;
 
 		bool Init();
 

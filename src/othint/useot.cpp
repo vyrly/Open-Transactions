@@ -14,6 +14,10 @@ cUseOT::cUseOT()
 : mNymsMy_loaded(false)
 , OTAPI_loaded(false)
 , OTAPI_error(false)
+, mServerID("r1fUoHwJOWCuK3WBAAySjmKYqsG6G2TYIxdqY6YNuuG")// TODO read all default ID's
+, mUserID("DYEB6U7dcpbwdGrftPnslNKz76BDuBTFAjiAgKaiY2n")
+, mAccountID("yQGh0vgm9YiqYOh6bfLDxyAA7Nnh2NmturCQmOt4LTo")
+, mPurseID("JY7kEFnm2c50CGNphdpgnlVo2hOZuLrBua5cFqWWR9Q")
 {}
 
 cUseOT::~cUseOT() {

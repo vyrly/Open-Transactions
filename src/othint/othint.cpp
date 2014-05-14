@@ -263,12 +263,13 @@ account			# can display active (default) account
 *account new <assetName>			# make new account by giving only <assetID>...
 *account new <assetName> <accountName>			#... and <accountName>
 account refresh			#	refresh database of private accounts' list
+account set-default <accountID> # set default account
 *account rm <accountName>			# delete account
 *account mv <oldAccountName>	<newAccountName>		# rename account
 --- Account inbox actions ---
 account-in ls			# for active account
 account-in ls <accountID>			# for specific <accountID>
-account-in accept <paymentID>				#	accept this particullar payment
+account-in accept <paymentID>				#	accept this particular payment
 account-in accept --all		# accept all incoming transfers, as well as receipts
 --- Account outbox actions ---
 account-out ls
@@ -726,7 +727,7 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 	if (topic=="account") {
 
 		if (full_words<2) { // word2 - the action:
-			return WordsThatMatch(  current_word  ,  vector<string>{"new", "ls", "refresh", "rm", "mv"} ) ;
+			return WordsThatMatch(  current_word  ,  vector<string>{"new", "ls", "refresh", "rm", "set-default", "mv"} ) ;
 		}
 		if (full_words<3) { // word3 (cmdArgs.at(0))
 			if (action=="new") {
@@ -740,6 +741,9 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 				return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.nymsGetMy() ) ;
 			}
 			if (action=="rm") {
+				return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.accountsGet() ) ;
+			}
+			if (action=="set-default") {
 				return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.accountsGet() ) ;
 			}
 			if (action=="mv") {
@@ -765,6 +769,9 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 					std::cout << "No account with this name: "  << (cmdArgs.at(0)) << endl;
 					return vector<string>{};
 				}
+			}
+			if (action=="set-default") {
+				//TODO
 			}
 			if (action=="mv") {
 				std::cout <<"Pass new account name";
@@ -878,7 +885,7 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 
 	if (topic=="msg") {
 		if (full_words<2) { // we work on word2 - the action:
-			return WordsThatMatch(  current_word  , vector<string>{"send","ls","rm","mv"} );
+			return WordsThatMatch(  current_word  , vector<string>{"ls", "mv", "rm", "sendfrom", "sendto" } );
 		}
 
 		if (full_words<3) { // we work on word3 - var1
@@ -887,16 +894,17 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 				nOT::nUse::useOT.msgGetAll(); // <====== Execute
 				return vector<string>{};
 			}
-			if (action=="send") { // sender name
-				//nOT::nUse::useOT.msgSend();
-				//return vector<string>{};
-				return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.nymsGetMy() );
-			}
 			if (action=="mv") {
 				return WordsThatMatch(  current_word  ,  vector<string>{"Where-to?"} ); // in mail box... will there be other directories?
 			}
 			if (action=="rm") { // nym
 				return WordsThatMatch(  current_word  , nOT::nUse::useOT.nymsGetMy() );
+			}
+			if (action=="sendfrom") { // sender name
+				return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.nymsGetMy() );
+			}
+			if (action=="sendto") { // recipient name TODO finish sendto functionality
+				return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.nymsGetMy() ); //TODO propose nyms from adressbook
 			}
 		}
 
@@ -905,15 +913,6 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 				if (nOT::nUse::useOT.nymCheckByName( cmdArgs.at(0) )) {
 					nOT::nUse::useOT.msgGetForNym( cmdArgs.at(0) ); // <====== Execute
 					return vector<string>{};
-				}
-				else {
-					std::cerr << "Can't find that nym: " << cmdArgs.at(0);
-					return vector<string>{};
-				}
-			}
-			if (action=="send") { // recipient name
-				if (nOT::nUse::useOT.nymCheckByName(cmdArgs.at(0))) {
-					return WordsThatMatch(  current_word  , nOT::nUse::useOT.nymsGetMy() );
 				}
 				else {
 					std::cerr << "Can't find that nym: " << cmdArgs.at(0);
@@ -930,10 +929,19 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 					return vector<string>{};
 				}
 			}
+			if (action=="sendfrom") { // recipient name
+				if (nOT::nUse::useOT.nymCheckByName(cmdArgs.at(0))) {
+					return WordsThatMatch(  current_word  , nOT::nUse::useOT.nymsGetMy() );
+				}
+				else {
+					std::cerr << "Can't find that nym: " << cmdArgs.at(0);
+					return vector<string>{};
+				}
+			}
 		}
 
 		if (full_words<5) { // we work on word5 - var3
-			if (action=="send") { // message text
+			if (action=="sendfrom") { // message text
 				if (nOT::nUse::useOT.nymCheckByName(cmdArgs.at(1))) {
 					nOT::nUse::useOT.msgSend(cmdArgs.at(0), cmdArgs.at(1), nOT::nUtils::GetMultiline()); // <====== Execute
 					return vector<string>{}; // ready for message
@@ -955,7 +963,7 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 		}
 
 		if (full_words<6) { // we work on word6
-			if (action=="send") { // message text
+			if (action=="sendfrom") { // message text
 				nOT::nUse::useOT.msgSend(cmdArgs.at(0), cmdArgs.at(1), cmdArgs.at(2)); // <====== Execute
 				return vector<string>{};
 			}
