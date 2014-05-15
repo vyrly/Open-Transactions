@@ -1,16 +1,19 @@
 #!/bin/bash
 
-echo "Running for developer."
+#echo "Running for developer."
+
+echo ""
 
 xset q &>/dev/null
 if [[ $? -ne 0 ]] ; then
-	echo "No X server at \$DISPLAY=$DISPLAY" >&2
+	#echo "No X server at \$DISPLAY=$DISPLAY" >&2
 
 	./othint --complete-shell
 	EC=$?
 	if [[ $EC -ne 0 ]] ; then
 		echo "Program exited with error? error code was $EC."
 	fi
+	echo ""
 	exit $EC
 fi
 
@@ -31,3 +34,5 @@ else
 		./othint --complete-shell
 	fi
 fi
+
+echo ""
