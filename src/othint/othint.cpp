@@ -588,9 +588,10 @@ ot [front] nym del $mynym [--a] [--b] [--c]
 }
 
 vector<string> cHintManager::AutoCompleteEntire(const string &sofar_str) const {
+	bool dbg = false;
 	const std::string cut_begining="ot"; // minimal beginning
 	const int cut_begining_size = cut_begining.length();
-	_info("cut_begining=[" << cut_begining << "]");
+	if (dbg) _info("cut_begining=[" << cut_begining << "]");
 	// <= add space if we are at ot<tab>
 	if (sofar_str.length() <= cut_begining_size) return WordsThatMatch(sofar_str, vector<string>{ cut_begining }); // too short, force completio to "ot"
 
@@ -674,7 +675,7 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 
 	if (GetLastCharIf(sofar_str)==" ") {
 		if( sofar.size()>=1 ) { // if there is any last-word element:
-		_dbg3("Adding space after last word to mark that it was ended");
+			if (dbg) _dbg3("Adding space after last word to mark that it was ended");
 			sofar.at( sofar.size()-1 )+=" "; // append the last space - to the last word so that we know it was ended.
 		}
 	}
@@ -1168,7 +1169,7 @@ bool my_rl_wrapper_debug; // external
 
 
 static char* completionReadlineWrapper(const char *sofar , int number) {
-	bool dbg = my_rl_wrapper_debug || 1;
+	bool dbg = my_rl_wrapper_debug;
 	if (dbg) _dbg3("sofar="<<sofar<<" number="<<number<<" rl_line_buffer="<<rl_line_buffer<<endl);
 	string line;
 	if (rl_line_buffer) line = rl_line_buffer;
@@ -1176,23 +1177,23 @@ static char* completionReadlineWrapper(const char *sofar , int number) {
 	nOT::nOTHint::cHintManager hint;
 	static vector <string> completions;
 	if (number == 0) {
-		_dbg3("Start autocomplete (during first callback, number="<<number<<")");
+		if (dbg) _dbg3("Start autocomplete (during first callback, number="<<number<<")");
 		completions = hint.AutoCompleteEntire(line); // <--
-		nOT::nUtils::DBGDisplayVectorEndl(completions); //TODO: display in debug
-		_dbg3("Done autocomplete (during first callback, number="<<number<<")");
+		if (dbg)nOT::nUtils::DBGDisplayVectorEndl(completions); //TODO: display in debug
+		if (dbg) _dbg3("Done autocomplete (during first callback, number="<<number<<")");
 	}
 
 	auto completions_size = completions.size();
 	if (!completions_size) {
-		_dbg3("Stop autocomplete: no matching words found because completions_size="<<completions_size);
+		if (dbg) _dbg3("Stop autocomplete: no matching words found because completions_size="<<completions_size);
 		return NULL; // <--- RET
 	}
 	if (dbg) _dbg3( "completions_size=" << completions_size << endl);
 	if (number==completions_size) { // stop
-		_dbg3("Stop autocomplete because we are at last callback number="<<number<<" completions_size="<<completions_size);
+		if (dbg) _dbg3("Stop autocomplete because we are at last callback number="<<number<<" completions_size="<<completions_size);
 		return NULL;
 	}
-	_dbg3("Current completion number="<<number<<" is: [" + completions.at(number) + "]");
+	if (dbg) _dbg3("Current completion number="<<number<<" is: [" + completions.at(number) + "]");
 	return strdup( completions.at(number).c_str() ); // caller must free() this memory
 }
 
