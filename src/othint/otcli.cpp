@@ -3,6 +3,7 @@
 
 #include "otcli.hpp"
 #include "othint.hpp"
+#include "cmd.hpp"
 
 #include "lib_common1.hpp"
 
@@ -26,7 +27,17 @@ int cOTCli::Run(const int argc, const char **argv) {
 	for(auto arg: args) {
 		if (arg=="--complete-shell") {
 			nOT::nOTHint::cInteractiveShell shell;
-			shell.runEditline();
+			//shell.runEditline();
+
+
+			using namespace nOT::nNewcli;
+
+			string input = "msg sendfrom rafal";
+
+			cCmdParser newcli;
+			cCmdProcessing proc = newcli.StartProcessing(input);
+
+
 		}
 		else if (arg=="--complete-one") { // otcli "--complete-one" "ot msg sendfr"
 			string v;  bool ok=1;  try { v=args.at(nr+1); } catch(...) { ok=0; } //

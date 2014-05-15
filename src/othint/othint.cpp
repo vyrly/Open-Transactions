@@ -27,7 +27,7 @@ This subproject is separated out of OT, and uses C++11 and few other modern codi
 Rules of language: use C++11, do not use boost (thoug we could copy small part of boost source code if needed,
 or headers-only library)
 
-Currently this is developed rapidly as 1 big file, to be splited soon, composed of this parts:
+OTNewCli composed of this parts:
 - nExamplesOfConvention - documenation of coding style convention
 - nOT::nUtils - various utils for modern (C++11) OT ; ToStr(), OT_CODE_STAMP
 - nOT::nNewcli - new command line classes, to parse the command line options, and to execute commands
