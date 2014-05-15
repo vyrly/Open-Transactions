@@ -7,6 +7,7 @@ option(LOCAL_EDITLINE "Use local Editline library ($HOME/.local)" ON) # Always O
 option(WITH_WRAPPER "Build with wrapper" OFF)
 option(LOCAL_OT "Build with locally installed ot" ON)
 option(CHECK_COMPILER_VERSION "Check if current compiler version is suported" ON)
+option(WITH_TERMCOLORS "Build with support for unix terminal console colors VT100" ON)
 
 # Check compiler version
 
@@ -42,6 +43,10 @@ endif (WITH_WRAPPER)
 set(CMAKE_CXX_FLAGS "-std=c++11 -g3 -O0 ")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/") # Add folder with cmake modules
+
+if (WITH_TERMCOLORS)
+	add_definitions( -DCFG_WITH_TERMCOLORS )
+endif ()
 
 # Add executable
 

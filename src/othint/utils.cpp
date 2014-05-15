@@ -8,6 +8,8 @@
 
 #include "utils.hpp"
 
+#include "ccolor.hpp"
+
 namespace nOT {
 namespace nUtils {
 
@@ -62,16 +64,24 @@ void cLogger::setDebugLevel(int level) {
 
 cLogger::cLogger() : mStream(NULL), mLevel(20) { mStream = & std::cout; }
 
-
 std::string cLogger::icon(int level) const {
-	if (level >= 100) return "ERROR ";
-	if (level >=  90) return "WARN ";
-	if (level >=  70) return "Note ";
-	if (level >=  50) return "info ";
-	if (level >=  40) return "Dbg  ";
-	if (level >=  30) return "dbg  ";
-	if (level >=  20) return "dbg  ";
+	// TODO replan to avoid needles converting back and forth char*, string etc
+
+	using namespace zkr;
+
+	if (level >= 100) return cc::fore::red    + ToStr("ERROR ");
+	if (level >=  90) return cc::fore::red    + ToStr("Warn  ");
+	if (level >=  70) return cc::fore::cyan   + ToStr("Note ");
+	if (level >=  50) return cc::fore::green  + ToStr("info ");
+	if (level >=  40) return cc::fore::blue   + ToStr("dbg ");
+	if (level >=  30) return cc::fore::blue   + ToStr("dbg ");
+	if (level >=  30) return cc::fore::blue   + ToStr("dbg ");
+
 	return "  ";
+}
+
+std::string cLogger::endline() const {
+	return ToStr("\n") + zkr::cc::console; // TODO replan to avoid needles converting back and forth char*, string etc
 }
 
 cLogger current_logger; // extern TODO gCurrentLogger

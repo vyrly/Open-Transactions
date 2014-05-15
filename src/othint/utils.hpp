@@ -9,6 +9,9 @@ we find helpful in coding this project.
 
 #include "lib_common1.hpp"
 
+#ifndef CFG_WITH_TERMCOLORS
+	#error "You requested to turn off terminal colors (CFG_WITH_TERMCOLORS), how ever currently they are hardcoded (this option to turn them off is not yet implemented)."
+#endif
 
 namespace nOT {
 
@@ -38,13 +41,13 @@ extern cNullstream g_nullstream; // a stream that does nothing (eats/discards da
 
 // ========== debug ==========
 
-#define _dbg3(X) do { nOT::nUtils::current_logger.write_stream(20) << OT_CODE_STAMP << ' ' << X << std::endl; } while(0)
-#define _dbg2(X) do { nOT::nUtils::current_logger.write_stream(30) << OT_CODE_STAMP << ' ' << X << std::endl; } while(0)
-#define _dbg1(X) do { nOT::nUtils::current_logger.write_stream(40) << OT_CODE_STAMP << ' ' << X << std::endl; } while(0) // details
-#define _info(X) do { nOT::nUtils::current_logger.write_stream(50) << OT_CODE_STAMP << ' ' << X << std::endl; } while(0) // more boring info
-#define _note(X) do { nOT::nUtils::current_logger.write_stream(70) << OT_CODE_STAMP << ' ' << X << std::endl; } while(0) // interesting event
-#define _warn(X) do { nOT::nUtils::current_logger.write_stream(90) << OT_CODE_STAMP << ' ' << X << std::endl; } while(0) // some problem
-#define _erro(X) do { nOT::nUtils::current_logger.write_stream(100) << OT_CODE_STAMP << ' ' << X << std::endl; } while(0) // error - report
+#define _dbg3(X) do { nOT::nUtils::current_logger.write_stream( 20) << OT_CODE_STAMP << ' ' << X << nOT::nUtils::current_logger.endline(); } while(0)
+#define _dbg2(X) do { nOT::nUtils::current_logger.write_stream( 30) << OT_CODE_STAMP << ' ' << X << nOT::nUtils::current_logger.endline(); } while(0)
+#define _dbg1(X) do { nOT::nUtils::current_logger.write_stream( 40) << OT_CODE_STAMP << ' ' << X << nOT::nUtils::current_logger.endline(); } while(0) // details
+#define _info(X) do { nOT::nUtils::current_logger.write_stream( 50) << OT_CODE_STAMP << ' ' << X << nOT::nUtils::current_logger.endline(); } while(0) // more boring info
+#define _note(X) do { nOT::nUtils::current_logger.write_stream( 70) << OT_CODE_STAMP << ' ' << X << nOT::nUtils::current_logger.endline(); } while(0) // interesting event
+#define _warn(X) do { nOT::nUtils::current_logger.write_stream( 90) << OT_CODE_STAMP << ' ' << X << nOT::nUtils::current_logger.endline(); } while(0) // some problem
+#define _erro(X) do { nOT::nUtils::current_logger.write_stream(100) << OT_CODE_STAMP << ' ' << X << nOT::nUtils::current_logger.endline(); } while(0) // error - report
 
 const char* DbgShortenCodeFileName(const char *s);
 
@@ -57,6 +60,7 @@ class cLogger {
 		cLogger();
 		std::ostream & write_stream(int level);
 		std::string icon(int level) const;
+		std::string endline() const;
 		void setDebugLevel(int level);
 	protected:
 		std::ostream *mStream; // pointing only
