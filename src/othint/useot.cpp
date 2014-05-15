@@ -29,12 +29,12 @@ bool cUseOT::Init() {
 	if (OTAPI_loaded) return true;
 	try {
 		if (!OTAPI_Wrap::AppInit()) {// Init OTAPI
-			_erro("Error while init OTAPI thrown an UNKNOWN exception!");
+			_erro("Error while initializing wrapper");
 			return false; // <--- RET
 		}
 
-		_info("Trying to load wallet: ");
-		//if not pWrap it means that AppInit is not successed
+		_info("Trying to load wallet now.");
+		// if not pWrap it means that AppInit is not successed
 		OTAPI_Exec *pWrap = OTAPI_Wrap::It(); // TODO check why OTAPI_Exec is needed
 		if (!pWrap) {
 			OTAPI_error = true;
@@ -42,7 +42,7 @@ bool cUseOT::Init() {
 			return false;
 		}
 
-		if(OTAPI_Wrap::LoadWallet()) {
+		if (OTAPI_Wrap::LoadWallet()) {
 			_info("wallet was loaded.");
 			OTAPI_loaded = true;
 		}	else _erro("Error while loading wallet.");

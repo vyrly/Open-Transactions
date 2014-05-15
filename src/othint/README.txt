@@ -43,6 +43,12 @@ The otcli part is not currently delivered as separate program, use othint instea
 
 ========================================================================
 
+========================================================================
+COOL THINGS TO DEMO
+
+You can try or demonstrate following things: 
+* try adding server example_data/ot-servers/DigitalisOTserver.otc
+------------------------------------------------------------------------
 
 ========================================================================
 BUILDING
