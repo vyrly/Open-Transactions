@@ -727,6 +727,8 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 	if (topic=="account") {
 
 		if (full_words<2) { // word2 - the action:
+			string defAcct = nOT::nUse::useOT.accountGetDefault();
+			cout << "Default account: " << nOT::nUse::useOT.accountGetName(defAcct) + " - " + defAcct << endl;// <====== Execute - show active account
 			return WordsThatMatch(  current_word  ,  vector<string>{"new", "ls", "refresh", "rm", "set-default", "mv"} ) ;
 		}
 		if (full_words<3) { // word3 (cmdArgs.at(0))
@@ -974,6 +976,8 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 
 	if (topic=="nym") {
 		if (full_words<2) { // we work on word2 - the action:
+			string defNym = nOT::nUse::useOT.nymGetDefault();
+			cout << "Default Nym: " << nOT::nUse::useOT.nymGetName(defNym) + " - " + defNym << endl;// <====== Execute - show active nym
 			return WordsThatMatch(  current_word  ,  vector<string>{"check", "edit", "export", "import", "info", "ls", "new", "refresh", "register", "rm", "set-default"} ) ;
 		}
 		if (full_words<3) { // we work on word3 - cmdArgs.at(0)
@@ -1046,6 +1050,8 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 
 	if (topic=="server") {
 		if (full_words<2) { // we work on word2 - the action:
+			string defServer = nOT::nUse::useOT.serverGetDefault();
+			cout << "Default server: " << nOT::nUse::useOT.serverGetName(defServer) + " - " + defServer << endl;// <====== Execute - show active server
 			return WordsThatMatch(  current_word  ,  vector<string>{"ls", "new", "add"} ) ;
 		}
 

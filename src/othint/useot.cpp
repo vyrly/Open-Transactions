@@ -82,6 +82,12 @@ const string cUseOT::accountGetDefault() {
 	return mAccountID;
 }
 
+const string cUseOT::accountGetName(const string & accountID) {
+	if(!Init())
+		return "";
+	return OTAPI_Wrap::GetAccountWallet_Name(accountID);
+}
+
 string cUseOT::accountDelete(const string & accountName) { ///<
 	if(!Init())
 	return "";
@@ -339,6 +345,12 @@ const string cUseOT::nymGetInfo(const string & nymName) {
 	return "";
 }
 
+const string cUseOT::nymGetName(const string & nymID) {
+	if(!Init())
+		return "";
+	return OTAPI_Wrap::GetNym_Name(nymID);
+}
+
 void cUseOT::nymRefresh() {
 	if(!Init())
 		return;
@@ -444,13 +456,19 @@ const string cUseOT::serverGetId(const string & serverName) { // Gets nym aliase
 	}
 	else { // nym Name
 		for(int i = 0 ; i < OTAPI_Wrap::GetServerCount(); i++) {
-			string nymID = OTAPI_Wrap::GetServer_ID(i);
-			string serverName_ = OTAPI_Wrap::GetServer_Name(nymID);
+			string serverID = OTAPI_Wrap::GetServer_ID(i);
+			string serverName_ = OTAPI_Wrap::GetServer_Name(serverID);
 			if (serverName_ == serverName)
-				return nymID;
+				return serverID;
 		}
 	}
 	return "";
+}
+
+const string cUseOT::serverGetName(const string & serverID){
+	if(!Init())
+		return "";
+	return OTAPI_Wrap::GetServer_Name(serverID);
 }
 
 void cUseOT::serverSetDefault(const string & serverName) {

@@ -38,6 +38,7 @@ namespace nUse {
 		bool accountCheckIfExists(const string & accountName);
 		const string accountGetId(const string & accountName);
 		const string accountGetDefault();
+		const string accountGetName(const string & accountID);
 		string accountDelete(const string & accountName);
 		const vector<string> accountGetIds();
 		const string accountRename(const string & oldAccountName, const string & newAccountName);
@@ -62,6 +63,7 @@ namespace nUse {
 		const string nymGetDefault();
 		const string nymGetId(const string & nymName);
 		const string nymGetInfo(const string & nymName);
+		const string nymGetName(const string & nymID);
 		void nymRefresh();
 		void nymRegister(const string & nymName);
 		void nymRegister(const string & nymName, const string & serverName);
@@ -70,6 +72,7 @@ namespace nUse {
 
 		const string serverGetDefault();
 		const string serverGetId(const string & serverName);
+		const string serverGetName(const string & serverID);
 		void serverSetDefault(const string & serverName);
 		const vector<string> serversGet();
 
