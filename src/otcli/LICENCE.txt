@@ -1,7 +1,7 @@
 /************************************************************
  *
  *  OTNewcli  -- Open Transactions new command line interface
- *  (including parts like othint, some util libs, and more)
+ *  (including parts like: othint, otcli, some util libs, and more)
  *
  * 	Written in 2013 by rfree (rfree@gmx.us) and other members of
  * 	open-source community.
