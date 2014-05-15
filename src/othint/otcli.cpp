@@ -34,8 +34,10 @@ int cOTCli::Run(const int argc, const char **argv) {
 
 			string input = "msg sendfrom rafal";
 
-			cCmdParser newcli;
-			cCmdProcessing proc = newcli.StartProcessing(input);
+			shared_ptr<cCmdParser> newcli(new cCmdParser);
+			newcli->Test();
+			newcli->StartProcessing(input);
+			//cCmdProcessing proc = newcli.StartProcessing(input);
 
 
 		}
@@ -53,6 +55,7 @@ int cOTCli::Run(const int argc, const char **argv) {
 		++nr;
 	}
 
+	_note("Exiting application with status="<<status);
 	return status;
 }
 

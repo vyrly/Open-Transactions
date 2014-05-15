@@ -7,7 +7,11 @@ if [[ $? -ne 0 ]] ; then
 	echo "No X server at \$DISPLAY=$DISPLAY" >&2
 
 	./othint --complete-shell
-	exit $?
+	EC=$?
+	if [[ $EC -ne 0 ]] ; then
+		echo "Program exited with error? error code was $EC."
+	fi
+	exit $EC
 fi
 
 if [ "$TERM" == "xterm" ] || [ "$TERM" == "konsole" ] || ["$TERM" == "aterm" ]; then

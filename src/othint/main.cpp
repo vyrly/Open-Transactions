@@ -12,7 +12,7 @@ int main(int argc, const char **argv) {
 	try {
 		ret=1; // if aborted then this indicated error
 		nOT::nNewcli::cOTCli application;
-		int ret = application.Run(argc,argv);
+		ret = application.Run(argc,argv);
 	}
 	catch (const std::exception &e) {
   	_erro("\n*** Captured exception:" << e.what());
