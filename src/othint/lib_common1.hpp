@@ -19,6 +19,9 @@
 #include <algorithm>
 #include <cstring>
 
+#include <functional>
+
+
 // list of thigs from libraries that we pull into namespace nOT::nNewcli
 // we might still need to copy/paste it in few places to make IDEs pick it up correctly
 #define INJECT_OT_COMMON_USING_NAMESPACE_COMMON_1 \
