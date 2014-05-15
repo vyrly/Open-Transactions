@@ -84,31 +84,32 @@ Build:
 --------------------------------------------------------------------------
 Selecting compiler for Open-Transactions:
 
-On Linux/Unix, edit ~/.bashrc to use given compiler, by prepending following settings to that file:
+On Linux/Unix, edit ~/.bashrc to use given compiler, by appending following 2 lines to that file:
 
 # use user's local clang/llvm compiler - recommended especially for building subproject "otcli" (see otcli/README.txt)
-	export CC="ccache $HOME/.local/bin/clang" ; export CXX="ccache $HOME/.local/bin/clang++" ; export CPP="$HOME/.local/bin/clang -E"
-if you want to use other compiler then change this lines, e.g. system-wide clang (with ccache) should be something like:
-	export CC="ccache clang" ; export CXX="ccache clang++" ; export CPP="clang -E"
-system-wide without ccache should be something like:
-	export CC="clang" ; export CXX="clang++" ; export CPP="clang -E"
-and so on.
+export CC="ccache $HOME/.local/bin/clang" ; export CXX="ccache $HOME/.local/bin/clang++" ; export CPP="$HOME/.local/bin/clang -E"
 
-Keep in mind that certain parts, like othint sub-project might require new enough compiler version;
-It might be possible to set compiler for sub-project separatelly see subproject doc (e.g. in othint/).
+if you want to use other compiler then change this lines, e.g. system-wide clang (with ccache) then use something like:
+export CC="ccache clang" ; export CXX="ccache clang++" ; export CPP="clang -E"
 
-After applying this changes you must clear cmake cache using:
+and system-wide without ccache should be something like:
+export CC="clang" ; export CXX="clang++" ; export CPP="clang -E"
+
+Next, ALSO append this line AS WELL (in either case, this is other setting):
+export PKG_CONFIG_PATH=$HOME/.local/lib/pkgconfig:$PKG_CONFIG_PATH
+
+Keep in mind that certain parts of Open-Transactiona, like otcli (othint) sub-project might require new enough compiler version;
+It might be possible to set compiler for sub-project separatelly see subproject doc (e.g. in otcli/ a.k.a. othint/).
+
+
+After applying this changes (if you build previously with other compiler choice) you must clear cmake cache using:
 	rm -rf CMakeCache.txt CMakeFiles/
 in the directory where you will be running cmake, and then run cmake (e.g. "cmake .") and then make.
 
---------------------------------------------------------------------------
 
 For above change to take effect you need to log out and again log in to user account
-or instead:
-	$ source ~/.bashrc
-
-setenv variable PKG_CONFIG_PATH
-	$ export PKG_CONFIG_PATH=$HOME/.local/lib/pkgconfig:$PKG_CONFIG_PATH
+OR instead just do this command:
+	source ~/.bashrc
 
 -----------------------------------
 2. Build and install Open Transactions:
