@@ -70,7 +70,11 @@ How to validate and how to compelte this argument
 */
 class cParamInfo {
 	public:
-	//	function<  >
+		typedef function< bool ( cCmdData ) > tFuncX;
+
+		typedef function< bool ( cCmdData , int  ) > tFuncValid;
+
+		typedef function< vector<string> ( cCmdData , int  ) > tFuncHint;
 };
 
 
