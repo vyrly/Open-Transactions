@@ -622,13 +622,9 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 }
 */
 	bool dbg = false;
-
 	string sofar_str_tmp = sofar_str;
-
 	if (dbg) { _dbg3("sofar_str "<<sofar_str);};
-
 	string esc ("\\ ");
-
 
 	string newEsc = "#x#";
 	// change Escape on new unique substring
@@ -637,7 +633,20 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 		if (dbg) { _dbg3("sofar_str_tmp "<< sofar_str_tmp);}
 	}
 
+/*
+TODO - planned new tree of commands using lambda
 
+	v<s> suggest_nym_my() { return mynyms(); }
+	NYM_FROM = argument_type { validate_nym_my() , suggest_nym_my() };
+	NYM_TO   = argument_type { validate_nym_any() , suggest_nym_recipient_any() };
+	ASSET_ANY  = argument_type { validate_asset_any() ,... };
+	
+  add("msg", "sendfrom", vars{ NYM_FROM, NYM_TO }, vars{ TEXT_SHORT }, opts{opt_priority}, opts{opt_cc, opt_bcc},
+  		[](){ useOT.msgSendAdvanced(arg(1), arg(2), get_multiline(), arg(3), map<string>{{"cc",opt("cc")} ); } );
+  add("msg", "sendto", vars{ NYM_TO }, vars{ TEXT_SHORT }, opts{opt_priority}, opts{opt_cc, opt_bcc},
+  		[](){ useOT.msgSendAdvanced(nym_me(), arg(2), get_multiline(), arg(3), map<string>{{"cc",opt("cc")} ); } );
+
+*/
 
 	std::istringstream iss(sofar_str_tmp);
 
@@ -654,10 +663,7 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 		}
 	}
 
-
-		for (auto& rec : sofar) {
-				if (dbg) { _dbg3("rec "<< rec);};
-			}
+	if (dbg) for (auto& rec : sofar) _dbg3("rec "<< rec);
 
 	// exactly 2 elements, with "" for missing elements
 	decltype(sofar) cmdPart;
