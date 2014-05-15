@@ -165,8 +165,7 @@ void Assert(bool result, const std::string &stamp) {
 // ====================================================================
 // advanced string
 
-std::string GetMultiline(string endLine) {
-	nOT::nUtils::DisplayStringEndl( cout, "Please enter multiple lines of input to be encoded, followed by ~ on a blank line:" );
+const std::string GetMultiline(string endLine) {
 	std::string result(""); // Taken from OT_CLI_ReadUntilEOF
 	while (true) {
 		std::string input_line("");

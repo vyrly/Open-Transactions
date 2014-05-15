@@ -130,7 +130,7 @@ void Assert(bool result, const std::string &stamp);
 // ====================================================================
 // advanced string
 
-std::string GetMultiline(string endLine = "~"); 
+const std::string GetMultiline(string endLine = "~");
 
 // ====================================================================
 

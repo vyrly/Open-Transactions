@@ -274,10 +274,11 @@ account-in accept --all		# accept all incoming transfers, as well as receipts
 --- Account outbox actions ---
 account-out ls
 ------------------------------
-asset				# can display active (default) asset
+asset				# can display active (default) asset - TODO check: can we have default asset?
 *asset ls		# display all assets
-asset new 	# TODO: change to issue?
-asset new <assetName>			# set new asset with given <assetName>
+/asset issue # Issue asset for default nym and server
+*asset new # add new asset to the wallet
+------------------------------
 basket new
 basket ls
 basket exchange
@@ -830,14 +831,21 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 
 	if (topic=="asset") {
 		if (full_words<2) { // we work on word2 - the action:
-			return WordsThatMatch(  current_word  ,  vector<string>{"new", "ls"} ) ;
+			return WordsThatMatch(  current_word  ,  vector<string>{"issue", "ls", "new"} ) ;
 		}
 		if (full_words<3) { // we work on word3 - cmdArgs.at(0) - asset name
 			if (action=="ls") {
 				return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.assetsGetNames() ) ;
 			}
+			else if (action=="issue") {
+				nOT::nUtils::DisplayStringEndl( cout, "Please paste a currency contract, followed by an EOF or a ~ by itself on a blank line:");
+				nOT::nUse::useOT.assetIssue( nOT::nUse::useOT.serverGetDefault(),nOT::nUse::useOT.nymGetDefault(), nOT::nUtils::GetMultiline() );
+				return vector<string>{};
+			}
 			else if (action=="new") {
-				std::cerr << "Type name of asset" << endl;
+				nOT::nUtils::DisplayStringEndl( cout, "Please enter the XML contents for the contract, followed by an EOF or a ~ by itself on a blank line:");
+				const string signedContract = nOT::nUse::useOT.assetNew( nOT::nUse::useOT.nymGetDefault(), nOT::nUtils::GetMultiline() );
+				nOT::nUtils::DisplayStringEndl(cout, signedContract);
 				return vector<string>{};
 			}
 		}
@@ -946,6 +954,7 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 		if (full_words<5) { // we work on word5 - var3
 			if (action=="sendfrom") { // message text
 				if (nOT::nUse::useOT.nymCheckByName(cmdArgs.at(1))) {
+					nOT::nUtils::DisplayStringEndl( cout, "Please enter multiple lines of message, followed by an EOF or a ~ by itself on a blank line:" );
 					nOT::nUse::useOT.msgSend(cmdArgs.at(0), cmdArgs.at(1), nOT::nUtils::GetMultiline()); // <====== Execute
 					return vector<string>{}; // ready for message
 				}
@@ -1072,11 +1081,13 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 
 		if (full_words<3) { // we work on word3 - var1
 			if (action=="encode") { // text to encode
+				nOT::nUtils::DisplayStringEndl( cout, "Please enter multiple lines of text to be encoded, followed by an EOF or a ~ by itself on a blank line:" );
 				nOT::nUtils::DisplayStringEndl( cout, nOT::nUse::useOT.textEncode(nOT::nUtils::GetMultiline())); // <====== Execute
 				return vector<string>{};
 			}
 
 			if (action=="decode") { // text to decode
+				nOT::nUtils::DisplayStringEndl( cout, "Please enter multiple lines of text to be decoded, followed by an EOF or a ~ by itself on a blank line:" );
 				nOT::nUtils::DisplayStringEndl( cout, nOT::nUse::useOT.textDecode(nOT::nUtils::GetMultiline()) ); // <====== Execute
 				return vector<string>{};
 			}
@@ -1101,11 +1112,13 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 			}
 
 			if (action=="encrypt") {
+				nOT::nUtils::DisplayStringEndl( cout, "Please enter multiple lines of text to be encrypted, followed by an EOF or a ~ by itself on a blank line:" );
 				nOT::nUtils::DisplayStringEndl( cout, nOT::nUse::useOT.textEncrypt(cmdArgs.at(0), nOT::nUtils::GetMultiline())); // <====== Execute
 				return vector<string>{};
 			}
 
 			if (action=="decrypt") {
+				nOT::nUtils::DisplayStringEndl( cout, "Please enter multiple lines of text to be decrypted, followed by an EOF or a ~ by itself on a blank line:" );
 				nOT::nUtils::DisplayStringEndl( cout, nOT::nUse::useOT.textDecrypt(cmdArgs.at(0), nOT::nUtils::GetMultiline())); // <====== Execute
 				return vector<string>{};
 			}
@@ -1205,6 +1218,7 @@ char ** completion(const char* text, int start, int end __attribute__((__unused_
 }
 
 void cInteractiveShell::runEditline() {
+	nOT::nUse::useOT.Init(); // Init OT on the beginning
 	char *buf = NULL;
 	my_rl_wrapper_debug = dbg;
 	rl_attempted_completion_function = completion;

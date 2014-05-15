@@ -21,8 +21,6 @@ namespace nUse {
 		string mAccountID;
 		string mPurseID;
 
-		bool Init();
-
 		public:
 
 		// vector<nOT::nNewcli::cNyminfo> mNymsMy; // FIXME Not used class cNyminfo (look: othint.cpp)
@@ -34,6 +32,8 @@ namespace nUse {
 
 		cUseOT();
 		~cUseOT();
+
+		bool Init();
 
 		bool accountCheckIfExists(const string & accountName);
 		const string accountGetId(const string & accountName);
@@ -51,6 +51,9 @@ namespace nUse {
 		bool assetCheckIfExists(const string & assetName);
 		const string assetGetId(const string & assetName);
 		const vector<string> assetsGetNames();
+		void assetIssue(const std::string & serverID, const std::string & nymID, const std::string & signedContract);
+		const string assetNew(const std::string & nymID, const std::string & xmlContents);
+		const string contractSign(const std::string & nymID, const std::string & contract);
 
 		const vector<string> msgGetAll();
 		const vector<string> msgGetForNym(const string & nymName);

@@ -205,6 +205,34 @@ const vector<string> cUseOT::assetsGetNames() {
 	return assets;
 }
 
+void cUseOT::assetIssue(const std::string & serverID, const std::string & nymID, const std::string & signedContract) { // Issue new asset type
+	if(!Init())
+	return ;
+
+	OT_ME madeEasy;
+	//std::string OT_ME::issue_asset_type(const std::string  & SERVER_ID, const std::string  & NYM_ID, const std::string  & THE_CONTRACT)
+	string strResponse = madeEasy.issue_asset_type(serverID, nymID, signedContract);
+
+	// -1 error, 0 failure, 1 success.
+	if (1 != madeEasy.VerifyMessageSuccess(strResponse))
+	{
+		_erro("Failed trying to issue asset at Server.");
+		return;
+	}
+}
+
+const string cUseOT::assetNew(const std::string & nymID, const std::string & xmlContents){
+	if(!Init())
+			return "";
+	return OTAPI_Wrap::CreateAssetContract(nymID, xmlContents);
+}
+
+const string cUseOT::contractSign(const std::string & nymID, const std::string & contract){
+	if(!Init())
+		return "";
+	return OTAPI_Wrap::AddSignature(nymID, contract);
+}
+
 const vector<string> cUseOT::msgGetAll() { ///< Get all messages from all Nyms.
 	if(!Init())
 	return vector<string> {};
