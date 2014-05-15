@@ -20,6 +20,7 @@
 #include <cstring>
 
 #include <functional>
+#include <memory>
 
 
 // list of thigs from libraries that we pull into namespace nOT::nNewcli
@@ -30,13 +31,16 @@
 	using std::list; \
 	using std::set; \
 	using std::map; \
-	using std::unique_ptr; \
 	using std::cin; \
 	using std::cerr; \
 	using std::cout; \
 	using std::cerr; \
 	using std::endl; \
 	using std::function; \
+	using std::unique_ptr; \
+	using std::shared_ptr; \
+	using std::weak_ptr; \
+	using std::enable_shared_from_this; \
 
 #endif
 

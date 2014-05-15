@@ -22,11 +22,10 @@ class cCmdName;
 class cParamInfo;
 class cParamString;
 
-
 /**
-Intance of a parser, that should contain some tree of possible commands and format/validatio/hint of each.
+The parser (can be used many times), that should contain some tree of possible commands and format/validatio/hint of each.
 */
-class cCmdParser {
+class cCmdParser : public enable_shared_from_this<cCmdParser> {
 	protected:
 		map< cCmdName , cCmdFormat > tree;
 	public:
@@ -34,6 +33,20 @@ class cCmdParser {
 
 		cCmdProcessing StartProcessing(const vector<string> &words);
 		cCmdProcessing StartProcessing(const string &words);
+
+		void Test();
+};
+
+/**
+Particular instance of process of parsing one input. 
+E.g. parsing the input "msg sendfrom rafal dorota 5000" and pointing to standard parser
+*/
+class cCmdProcessing {
+	protected:
+		shared_ptr<cCmdParser> parser;
+		vector<string> commandLine;
+	public:
+		cCmdProcessing(shared_ptr<cCmdParser> _parser, vector<string> _commandLine);
 };
 
 /**
@@ -66,16 +79,22 @@ class cCmdName {
 
 
 /**
-How to validate and how to compelte this argument
+Info about Parameter: How to validate and how to complete this argument
 */
 class cParamInfo {
 	public:
-		typedef function< bool ( cCmdData ) > tFuncX;
-
 		typedef function< bool ( cCmdData , int  ) > tFuncValid;
-
 		typedef function< vector<string> ( cCmdData , int  ) > tFuncHint;
+
+	protected:
+		tFuncValid funcValid;
+		tFuncHint funcHint;
+
+	public:
+		cParamInfo()=default;
+		cParamInfo(tFuncValid valid, tFuncHint hint=nullptr);
 };
+
 
 
 }; // namespace nNewcli
