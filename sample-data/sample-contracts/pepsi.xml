@@ -1,16 +1,16 @@
 <?xml version="1.0"?>
 <digitalAssetContract version="2.0">
 
-<entity shortname="AAA" 
+<entity shortname="Monetas" 
 longname="Monetas is your favorite" 
 email="johann@monetas.net"/>
 
-<issue company="AAA" 
+<issue company="Monetas" 
 email="johann@monetas.net"
 contractUrl="http://monetas.net/"
 type="shares"/>
 
-<shares name="aaa shares" symbol="AAA" type="decimal" issuedate="0"/>
+<shares name="pepsi shares" symbol="PEP" type="decimal" issuedate="0"/>
 
 <!-- CONDITIONS -->
 

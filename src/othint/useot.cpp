@@ -205,9 +205,9 @@ const vector<string> cUseOT::assetsGetNames() {
 	return assets;
 }
 
-void cUseOT::assetIssue(const std::string & serverID, const std::string & nymID, const std::string & signedContract) { // Issue new asset type
+const string cUseOT::assetIssue(const std::string & serverID, const std::string & nymID, const std::string & signedContract) { // Issue new asset type
 	if(!Init())
-	return ;
+	return "";
 
 	OT_ME madeEasy;
 	//std::string OT_ME::issue_asset_type(const std::string  & SERVER_ID, const std::string  & NYM_ID, const std::string  & THE_CONTRACT)
@@ -217,8 +217,9 @@ void cUseOT::assetIssue(const std::string & serverID, const std::string & nymID,
 	if (1 != madeEasy.VerifyMessageSuccess(strResponse))
 	{
 		_erro("Failed trying to issue asset at Server.");
-		return;
+		return "";
 	}
+	return strResponse;
 }
 
 const string cUseOT::assetNew(const std::string & nymID, const std::string & xmlContents){
@@ -227,11 +228,22 @@ const string cUseOT::assetNew(const std::string & nymID, const std::string & xml
 	return OTAPI_Wrap::CreateAssetContract(nymID, xmlContents);
 }
 
-const string cUseOT::contractSign(const std::string & nymID, const std::string & contract){
+const string cUseOT::assetGetContract(const std::string & assetID){
+	if(!Init())
+		return "";
+	string strContract = OTAPI_Wrap::GetAssetType_Contract(assetID);
+	return strContract;
+}
+
+const string cUseOT::contractSign(const std::string & nymID, const std::string & contract){ // FIXME can't sign contract with this (assetNew() functionality)
 	if(!Init())
 		return "";
 	return OTAPI_Wrap::AddSignature(nymID, contract);
 }
+
+
+
+
 
 const vector<string> cUseOT::msgGetAll() { ///< Get all messages from all Nyms.
 	if(!Init())

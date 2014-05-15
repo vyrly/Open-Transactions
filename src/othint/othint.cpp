@@ -274,9 +274,9 @@ account-in accept --all		# accept all incoming transfers, as well as receipts
 --- Account outbox actions ---
 account-out ls
 ------------------------------
-asset				# can display active (default) asset - TODO check: can we have default asset?
+asset				# can display active (default) asset - TODO check differences beetween asset and purse
 *asset ls		# display all assets
-/asset issue # Issue asset for default nym and server
+*asset issue # Issue asset for default nym and server
 *asset new # add new asset to the wallet
 ------------------------------
 basket new
@@ -835,17 +835,19 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 		}
 		if (full_words<3) { // we work on word3 - cmdArgs.at(0) - asset name
 			if (action=="ls") {
-				return WordsThatMatch(  current_word  ,  nOT::nUse::useOT.assetsGetNames() ) ;
+				nOT::nUtils::DisplayVectorEndl( cout,  nOT::nUse::useOT.assetsGetNames() ) ;
+				return vector<string>{};
 			}
 			else if (action=="issue") {
-				nOT::nUtils::DisplayStringEndl( cout, "Please paste a currency contract, followed by an EOF or a ~ by itself on a blank line:");
-				nOT::nUse::useOT.assetIssue( nOT::nUse::useOT.serverGetDefault(),nOT::nUse::useOT.nymGetDefault(), nOT::nUtils::GetMultiline() );
+				nOT::nUtils::DisplayStringEndl( cout, "Please paste a currency contract, followed by an EOF or a ~ by itself on a blank line:" );
+				nOT::nUtils::DisplayStringEndl( cout, "SERVER RESPONSE:\n" + nOT::nUse::useOT.assetIssue( nOT::nUse::useOT.serverGetDefault(),nOT::nUse::useOT.nymGetDefault(), nOT::nUtils::GetMultiline() ) );
 				return vector<string>{};
 			}
 			else if (action=="new") {
 				nOT::nUtils::DisplayStringEndl( cout, "Please enter the XML contents for the contract, followed by an EOF or a ~ by itself on a blank line:");
-				const string signedContract = nOT::nUse::useOT.assetNew( nOT::nUse::useOT.nymGetDefault(), nOT::nUtils::GetMultiline() );
-				nOT::nUtils::DisplayStringEndl(cout, signedContract);
+				const string assetID = nOT::nUse::useOT.assetNew( nOT::nUse::useOT.nymGetDefault(), nOT::nUtils::GetMultiline() );
+				nOT::nUtils::DisplayStringEndl( cout, "ASSET ID:\n" + assetID );
+				nOT::nUtils::DisplayStringEndl( cout, "SIGNED CONTRACT:\n" + nOT::nUse::useOT.assetGetContract(assetID) );
 				return vector<string>{};
 			}
 		}

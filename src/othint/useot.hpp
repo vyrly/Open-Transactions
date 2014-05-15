@@ -51,8 +51,10 @@ namespace nUse {
 		bool assetCheckIfExists(const string & assetName);
 		const string assetGetId(const string & assetName);
 		const vector<string> assetsGetNames();
-		void assetIssue(const std::string & serverID, const std::string & nymID, const std::string & signedContract);
+		const string assetIssue(const std::string & serverID, const std::string & nymID, const std::string & signedContract);
 		const string assetNew(const std::string & nymID, const std::string & xmlContents);
+		const string assetGetContract(const std::string & assetID);
+
 		const string contractSign(const std::string & nymID, const std::string & contract);
 
 		const vector<string> msgGetAll();
