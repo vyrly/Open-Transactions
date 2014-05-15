@@ -1,4 +1,15 @@
-#!/bin/sh
+#!/bin/bash
+
+echo "Running for developer."
+
+xset q &>/dev/null
+if [[ $? -ne 0 ]] ; then
+	echo "No X server at \$DISPLAY=$DISPLAY" >&2
+
+	./othint --complete-shell
+	exit $?
+fi
+
 if [ "$TERM" == "xterm" ] || [ "$TERM" == "konsole" ] || ["$TERM" == "aterm" ]; then
   $TERM -e ./othint --complete-shell
 elif ["$TERM" == "gnome-terminal "]; then
