@@ -75,6 +75,7 @@ namespace nUse {
 		void nymSetDefault(const string & nymName);
 		const vector<string> nymsGetMy();
 
+		void serverAdd(const std::string & contract);
 		const string serverGetDefault();
 		const string serverGetId(const string & serverName);
 		const string serverGetName(const string & serverID);

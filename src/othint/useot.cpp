@@ -481,6 +481,12 @@ const vector<string> cUseOT::nymsGetMy() {
 return mNymsMy_str;
 }
 
+void cUseOT::serverAdd(const std::string & contract) {
+	if(!Init())
+			return ;
+	OTAPI_Wrap::AddServerContract( contract );
+}
+
 const string cUseOT::serverGetDefault() {
 	if(!Init())
 		return "";

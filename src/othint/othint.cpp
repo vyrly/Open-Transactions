@@ -284,7 +284,7 @@ basket ls
 basket exchange
 cash send <mynym> <hisnym>
 cheque new
-contract new
+contract new  # Managed by asset new / server new
 contract get <contractID>
 contract sign
 market
@@ -333,7 +333,7 @@ nym-cred show			# show all credential to trust?
 receipt?
 server			# can display active (default) server
 /server ls			# as above but all servers are listed TODO: Display more information about servers
-server add		# add new server
+server add		# add new server contract
 server new 	# like newserver
 server set-default # set default server
 *text encode	# interactively get multiline text
@@ -1074,7 +1074,15 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 			}
 		}
 
-	}
+		if (full_words<3) { // we work on word3 - var1
+			if (action=="add") {
+				nOT::nUtils::DisplayStringEndl( cout, "Please paste a server contract, followed by an EOF or a ~ by itself on a blank line:" );
+				nOT::nUse::useOT.serverAdd( nOT::nUtils::GetMultiline() ); // <====== Execute
+				return vector<string>{};
+			}
+		}
+
+	} // server
 
 	if (topic=="text") {
 		if (full_words<2) { // we work on word2 - the action:
