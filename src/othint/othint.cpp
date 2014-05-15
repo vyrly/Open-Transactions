@@ -1064,20 +1064,33 @@ vector<string> cHintManager::BuildTreeOfCommandlines(const string &sofar_str, bo
 		if (full_words<2) { // we work on word2 - the action:
 			string defServer = nOT::nUse::useOT.serverGetDefault();
 			cout << "Default server: " << nOT::nUse::useOT.serverGetName(defServer) + " - " + defServer << endl;// <====== Execute - show active server
-			return WordsThatMatch(  current_word  ,  vector<string>{"ls", "new", "add"} ) ;
-		}
-
-		if (full_words<3) { // we work on word3 - var1
-			if (action=="ls") {
-				nOT::nUtils::DisplayVectorEndl(cout, nOT::nUse::useOT.serversGet() ); // <====== Execute
-				return vector<string>{};
-			}
+			return WordsThatMatch(  current_word  ,  vector<string>{"add", "check", "ls", "new", "set-default"} ) ;
 		}
 
 		if (full_words<3) { // we work on word3 - var1
 			if (action=="add") {
 				nOT::nUtils::DisplayStringEndl( cout, "Please paste a server contract, followed by an EOF or a ~ by itself on a blank line:" );
 				nOT::nUse::useOT.serverAdd( nOT::nUtils::GetMultiline() ); // <====== Execute
+				return vector<string>{};
+			}
+			if (action=="check") {
+				nOT::nUse::useOT.serverCheck();// <====== Execute
+				return vector<string>{};
+			}
+			if (action=="ls") {
+
+				nOT::nUtils::DisplayVectorEndl(cout, nOT::nUse::useOT.serversGet() ); // <====== Execute
+				return vector<string>{};
+			}
+			if (action=="set-default") {
+				return WordsThatMatch(  current_word  , nOT::nUse::useOT.serversGet() );
+				return vector<string>{};
+			}
+		}
+
+		if (full_words<4) { // we work on word4 - var2
+			if (action=="set-default") {
+				nOT::nUse::useOT.serverSetDefault(cmdArgs.at(0)); // <====== Execute
 				return vector<string>{};
 			}
 		}

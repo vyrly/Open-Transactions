@@ -487,6 +487,17 @@ void cUseOT::serverAdd(const std::string & contract) {
 	OTAPI_Wrap::AddServerContract( contract );
 }
 
+void cUseOT::serverCheck() { // Use it to ping server
+	if(!Init())
+			return ;
+
+	if( !OTAPI_Wrap::checkServerID( mServerID, mUserID ) ){
+		_erro("No response from server");
+	}
+	_info("Server OK");
+}
+
+
 const string cUseOT::serverGetDefault() {
 	if(!Init())
 		return "";
@@ -521,6 +532,7 @@ void cUseOT::serverSetDefault(const string & serverName) {
 	if(!Init())
 		return ;
 	mServerID = serverGetId(serverName);
+	_info("Default server: " + mServerID);
 }
 
 const vector<string> cUseOT::serversGet() { ///< Get all servers name
@@ -530,8 +542,7 @@ const vector<string> cUseOT::serversGet() { ///< Get all servers name
 	vector<string> servers;
 	for(int i = 0 ; i < OTAPI_Wrap::GetServerCount ();i++) {
 		string servID = OTAPI_Wrap::GetServer_ID(i);
-		string servName = OTAPI_Wrap::GetServer_Name(servID);
-		servers.push_back(servName + " - " + servID);
+		servers.push_back(servID);
 	}
 	return servers;
 }

@@ -76,6 +76,7 @@ namespace nUse {
 		const vector<string> nymsGetMy();
 
 		void serverAdd(const std::string & contract);
+		void serverCheck();
 		const string serverGetDefault();
 		const string serverGetId(const string & serverName);
 		const string serverGetName(const string & serverID);
