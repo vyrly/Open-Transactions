@@ -135,8 +135,12 @@ OR instead just do this command:
 For subprojects like otcli, enter given directory e.g. otcli/
 and follow instructions there (e.g. otcli/README.txt).
 
+Please go to otcli/README.txt for rest of compilation process to include otcli subproject <------ ! 
+
+
 -----------------------------------
 4. to 7. are reserved chapters
+
 
 -----------------------------------
 8. Run the software
