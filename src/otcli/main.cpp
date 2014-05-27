@@ -5,12 +5,26 @@
 
 #include "otcli.hpp"
 
+#include "easylogging++.h"
+
 INJECT_OT_COMMON_USING_NAMESPACE_COMMON_1
+
+_INITIALIZE_EASYLOGGINGPP
+#define _ELPP_UNICODE
 
 nOT::nUtils::cLogger gCurrentLogger;
 
 int main(int argc, const char **argv) {
 	int ret=0;
+	_START_EASYLOGGINGPP(argc, argv);
+	// Load configuration from file
+	el::Configurations conf("logger.conf");
+	// Reconfigure single logger
+	el::Loggers::reconfigureLogger("default", conf);
+	// Actually reconfigure all loggers instead
+	el::Loggers::reconfigureAllLoggers(conf);
+	// Now all the loggers will use configuration from file
+	LOG(INFO) << "Logger initialized";
 
 	try {
 		ret=1; // if aborted then this indicated error

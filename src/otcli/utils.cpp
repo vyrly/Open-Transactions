@@ -292,7 +292,7 @@ ConfigManager configManager;
 
 }; // namespace OT
 
-
+/*
 std::string * GetObjectName_name_delete; // pointer just points what should be delete, if the function GetObjectName_exit() is registered atexit; if not then it has garbage but
 // this does not matter
 
@@ -312,5 +312,5 @@ std::string GetObjectName() {
 	return * GetObjectName_name; // TODO optimize this and all this debug code (copy here)
 }
 
-
+*/
 
