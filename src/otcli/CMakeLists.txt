@@ -40,7 +40,7 @@ else ()
 	message(STATUS "Option was NOT set for wrapper. Using CMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}")
 endif (WITH_WRAPPER)
 
-set(CMAKE_CXX_FLAGS "-std=c++11 -g3 -O0 ")
+set(CMAKE_CXX_FLAGS "-std=c++11 -stdlib=libc++ -g3 -O0")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/") # Add folder with cmake modules
 

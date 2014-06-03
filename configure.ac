@@ -23,7 +23,7 @@ AC_PROG_CXX
 AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_CPP
-: ${CXXFLAGS=""}
+: ${CXXFLAGS="-stdlib=libc++"}
 : ${CFLAGS=""}
 : ${CPPFLAGS=""}
 
