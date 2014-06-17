@@ -293,6 +293,10 @@ void cCmdParser::Init() {
 	AddFormat("account-in ls", {}, {pAccountMy}, { {"--dryrun", pBool} },
 		LAMBDA { auto &D=*d; return U.AccountInDisplay(D.v(1, U.AccountGetName(U.AccountGetDefault())), D.has("--dryrun") ); } );
 
+	AddFormat("account-in accept", {}, {pAccountMy}, { {"--dryrun", pBool} },
+		LAMBDA { auto &D=*d; return U.AccountInAccept(D.v(1, U.AccountGetName(U.AccountGetDefault())), 0, D.has("--dryrun") ); } ); //TODO index
+
+
 	//======== ot asset ========
 
 	AddFormat("asset ls", {}, {}, { {"--dryrun", pBool} },

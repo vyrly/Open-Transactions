@@ -82,7 +82,7 @@ namespace nUse {
 		//================= account-in =================
 
 		EXEC bool AccountInDisplay(const string & account, bool dryrun);
-		EXEC bool AccountInAccept(const string & account, bool dryrun);
+		EXEC bool AccountInAccept(const string & account, const int index, bool dryrun);
 
 		//================= asset =================
 

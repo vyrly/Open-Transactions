@@ -390,9 +390,9 @@ bool cUseOT::AccountInDisplay(const string & account, bool dryrun) {
 	int32_t transactionCount = OTAPI_Wrap::Ledger_GetCount(accountServerID, accountNymID, accountID, inbox);
 
 	if (transactionCount > 0) {
-	nUtils::DisplayStringEndl(cout, "Inbox for an asset account " + AccountGetName(accountID) + "(" + accountID + "):");
-	nUtils::DisplayStringEndl(cout, "Idx  Amt  Type        Txn# InRef#|User / Acct");
-	nUtils::DisplayStringEndl(cout, "---------------------------------|(from or to)");
+		nUtils::DisplayStringEndl(cout, "Inbox for an asset account " + AccountGetName(accountID) + "(" + accountID + "):");
+		nUtils::DisplayStringEndl(cout, "Idx  Amt  Type        Txn# InRef#|User / Acct");
+		nUtils::DisplayStringEndl(cout, "---------------------------------|(from or to)");
 	  for (int32_t index = 0; index < transactionCount; ++index) {
 			string transaction = OTAPI_Wrap::Ledger_GetTransactionByIndex(accountServerID, accountNymID, accountID, inbox, index);
 			int64_t transactionID = OTAPI_Wrap::Ledger_GetTransactionIDByIndex(accountServerID, accountNymID, accountID, inbox, index);
@@ -419,35 +419,200 @@ bool cUseOT::AccountInDisplay(const string & account, bool dryrun) {
 	return false;
 }
 
-//bool cUseOT::AccountInAccept(const string & account, bool dryrun) {
-//	_fact("account-in accept " << account);
-//	if(dryrun) return true;
-//	if(!Init()) return false;
+bool cUseOT::AccountInAccept(const string & account, const int index, bool dryrun) {
+	_fact("account-in accept " << account);
+	if(dryrun) return true;
+	if(!Init()) return false;
+
+	ID accountID = AccountGetId(account);
+	ID accountServerID = OTAPI_Wrap::GetAccountWallet_ServerID(accountID);
+	ID accountNymID = OTAPI_Wrap::GetAccountWallet_NymID(accountID);
+
+	const string inbox = OTAPI_Wrap::LoadInbox(accountServerID, accountNymID, accountID); // Returns NULL, or an inbox.
+
+	OT_ME madeEasy;
+
+	//madeEasy.process_inbox(accountServerID, accountNymID, accountID, inbox); //TODO what for?
+
+	// User may have already chosen indices (passed in) so we don't want to
+	// re-download the inbox unless we HAVE to. But if the hash has changed, that's
+	// one clear-cut case where we _do_ have to. Otherwise our balance agreement
+	// will fail anyway. So hopefully we can let OT "be smart about it" here instead
+	// of just forcing it to download every time even when unnecessary.
+	//
+//	if (!MsgUtil.getIntermediaryFiles(strServerID, strMyNymID, strMyAcctID)) // boolean bForceDownload=false
+//	{
+//			OTAPI_Wrap::Output(0, "Unable to download necessary intermediary files for this inbox/account. (Failure.)\n");
+//			return -1;
+//	}
+
+
+  // Make sure we have at least one transaction number (to process the inbox with.)
+  //
+  // NOTE: Normally we don't have to do this, because the high-level API is smart
+  // enough, when sending server transaction requests, to grab new transaction numbers
+  // if it is running low.
+  // But in this case, we need the numbers available BEFORE sending the transaction
+  // request, because the call to OTAPI_Wrap::Ledger_CreateResponse is where the number
+  // is first needed, and that call is made int64_t before the server transaction request
+  // is actually sent.
+  //
+//  if (!madeEasy:: (10, accountServerID, accountNymID))
+//  {
+//      return -1;
+//  }
+
+
+	if (inbox.empty()) {
+		_info("Unable to load inbox for account " << AccountGetName(accountID)<< "(" << accountID << "). Perhaps it doesn't exist yet?");
+		return false;
+	}
+  else // Success!
+  {
+  	int32_t nIndex = index;
+		 string strServerID = accountServerID;
+		 string strMyAcctID = accountID;
+		 string strMyNymID = accountNymID;
+		 string strInbox = inbox;
+		 int nItemType = 0;
+
+		 int32_t count = OTAPI_Wrap::Ledger_GetCount(accountServerID, accountNymID, accountID, inbox);
+		 if (count > 0) {
+			 // NOTE!!! DO **NOT** create the response ledger until the FIRST iteration of the below loop that actually
+			 // creates a transaction response! If that "first iteration" never comes (due to receipts being skipped, etc)
+			 // then OTAPI_Wrap::Transaction_CreateResponse will never get called, and therefore Ledger_CreateResponse should
+			 // also not be called, either. (Nor should OTAPI_Wrap::Ledger_FinalizeResponse, etc.)
+			 //
+
+			 bool bContinue = false;  // I'm hacking my own "continue" since the language doesn't support it....
+
+			 string strResponseLEDGER = "";
+
+			 string strTrans = OTAPI_Wrap::Ledger_GetTransactionByIndex(strServerID, strMyNymID, strMyAcctID, strInbox, nIndex);
+
+			 // nItemType  == 0 for all, 1 for transfers only, 2 for receipts only.
+			 // strIndices == "" for "all indices"
+			 //
+			 if (nItemType > 0) // 0 means "all", so we don't have to skip anything based on type, if it's 0.
+			 {
+					 string strTransType = OTAPI_Wrap::Transaction_GetType(strServerID, strMyNymID, strMyAcctID, strTrans);
+
+					 // incoming transfer
+					 if (("pending" == strTransType) && (1 != nItemType))
+					 {
+							 // if it IS an incoming transfer, but we're doing receipts, then skip it.
+							 //                      continue // language doesn't support this
+							 bContinue = true;
+					 }
+					 // receipt
+					 else if (!bContinue && ("pending" != strTransType) && (2 != nItemType))
+					 {
+							 // if it is NOT an incoming transfer, then it's a receipt. If we're not doing receipts, then skip it.
+							 //                      continue // language doesn't support this
+							 bContinue = true;
+					 }
+			 }
+
+			 if (!bContinue)
+			 {
+
+					 // - If NO indices are specified, process them ALL.
+					 //
+					 // - If indices are specified, but the current index is not on
+					 //   that list, then continue...
+					 //
+//					 if ((nIndicesCount > 0) && !OTAPI_Wrap::NumList_VerifyQuery(strIndices, to_string(nIndex)))
+//					 {
+//							 //                      continue  // language doesn't support continue.
+//							 bContinue = true;
+//					 }
+
+					 if (!bContinue) {
+							 // By this point we know we actually have to call OTAPI_Wrap::Transaction_CreateResponse
+							 // Therefore, if OTAPI_Wrap::Ledger_CreateResponse has not yet been called (which it won't
+							 // have been, the first time we hit this in this loop), then we call it here this one
+							 // time, to get things started...
+							 //
+//							 if (!VerifyStringVal(strResponseLEDGER))
+//							 {
+									 strResponseLEDGER = OTAPI_Wrap::Ledger_CreateResponse(strServerID, strMyNymID, strMyAcctID, strInbox);
+
+//									 if (!VerifyStringVal(strResponseLEDGER))
+//									 {
+//											 OTAPI_Wrap::Output(0, "\n\nFailure: OT_API_Ledger_CreateResponse returned NULL.\n");
+//											 return -1;
+//									 }
+//							 }
+
+							 // By this point, we know the ledger response exists, and we know we have to create
+							 // a transaction response to go inside of it, so let's do that next...
+							 //
+							 string strNEW_ResponseLEDGER = OTAPI_Wrap::Transaction_CreateResponse(strServerID, strMyNymID, strMyAcctID, strResponseLEDGER, strTrans, true); // accept = true (versus rejecting a pending transfer, for example.)
+
+//							 if (!VerifyStringVal(strNEW_ResponseLEDGER))
+//							 {
+//									 OTAPI_Wrap::Output(0, "\n\nFailure: OT_API_Transaction_CreateResponse returned NULL.\n");
+//									 return -1;
+//							 }
+							 strResponseLEDGER = strNEW_ResponseLEDGER;
+					 }
+		 	 	 }
+
+//			 if (!VerifyStringVal(strResponseLEDGER))
+//			 {
+//					 // This means there were receipts in the box, but they were skipped.
+//					 // And after the skipping was done, there were no receipts left.
+//					 // So we can't just say "the box is empty" because it's not. But nevertheless,
+//					 // we aren't actually processing any of them, so we return 0 AS IF the box
+//					 // had been empty. (Because this is not an error condition. Just a "no op".)
+//					 //
+//					 return 0;
+//			 }
+
+			 // Below this point, we know strResponseLEDGER needs to be sent,
+			 // so let's finalize it.
+			 //
+			 string strFinalizedResponse = OTAPI_Wrap::Ledger_FinalizeResponse(strServerID, strMyNymID, strMyAcctID, strResponseLEDGER);
+
+//			 if (!VerifyStringVal(strFinalizedResponse))
+//			 {
+//					 OTAPI_Wrap::Output(0, "\n\nFailure: OT_API_Ledger_FinalizeResponse returned NULL.\n");
+//					 return -1;
+//			 }
+			 // ***************************************************************
+
+			 // Server communications are handled here...
+			 //
+			 string strResponse = madeEasy.process_inbox(strServerID, strMyNymID, strMyAcctID, strFinalizedResponse);
+			 string strAttempt = "process_inbox";
+
+			 // ***************************************************************
+
+//			 int32_t nInterpretReply = InterpretTransactionMsgReply(strServerID, strMyNymID, strMyAcctID, strAttempt, strResponse);
 //
-//	ID accountID = AccountGetId(account);
-//	ID accountServerID = OTAPI_Wrap::GetAccountWallet_ServerID(accountID);
-//	ID accountNymID = OTAPI_Wrap::GetAccountWallet_NymID(accountID);
-//
-//	const string inbox = OTAPI_Wrap::LoadInbox(accountServerID, accountNymID, accountID); // Returns NULL, or an inbox.
-//
-//	OT_ME madeEasy;
-//
-//	madeEasy.process_inbox(accountServerID, accountNymID, accountID, inbox);
-//	// User may have already chosen indices (passed in) so we don't want to
-//	// re-download the inbox unless we HAVE to. But if the hash has changed, that's
-//	// one clear-cut case where we _do_ have to. Otherwise our balance agreement
-//	// will fail anyway. So hopefully we can let OT "be smart about it" here instead
-//	// of just forcing it to download every time even when unnecessary.
-//	//
-////	if (!MsgUtil.getIntermediaryFiles(strServerID, strMyNymID, strMyAcctID)) // boolean bForceDownload=false
-////	{
-////			OTAPI_Wrap::Output(0, "Unable to download necessary intermediary files for this inbox/account. (Failure.)\n");
-////			return -1;
-////	}
-//
-//
-//	return false;
-//}
+//			 if (1 == nInterpretReply)
+//			 {
+					 // Download all the intermediary files (account balance, inbox, outbox, etc)
+					 // since they have probably changed from this operation.
+					 //
+					 bool bRetrieved = madeEasy.retrieve_account(strServerID, strMyNymID, strMyAcctID, true); //bForceDownload defaults to false.
+
+					 OTAPI_Wrap::Output(0, "\n\nServer response (" + strAttempt + "): SUCCESS processing/accepting inbox.\n");
+					 OTAPI_Wrap::Output(0, string(bRetrieved ? "Success" : "Failed") + " retrieving intermediary files for account.\n");
+//			 }
+
+			 // ***************************************************************
+			 //
+			 // Success!
+			 //
+			 return 1;//nInterpretReply;
+
+		 } // nCount > 0
+
+		 OTAPI_Wrap::Output(0, "The asset account inbox is empty.\n\n");
+		}
+		return false;
+}
 
 const vector<string> cUseOT::AssetGetAllNames() {
 	if(!Init())
@@ -627,10 +792,10 @@ bool cUseOT::MsgSend(const string & nymSender, vector<string> nymRecipient, cons
 		recipientID.push_back( NymGetId(varName) );
 
 	for (auto varID : recipientID) {
-		_dbg1("Sending message from " + senderID + " to " + varID );
+		_dbg1("Sending message from " + senderID + " to " + varID + "using server " + nUtils::SubjectType2String(nUtils::eSubjectType::Server) );
 
 		string strResponse = madeEasy.send_user_msg ( mDefaultIDs.at(nUtils::eSubjectType::Server), senderID, varID, outMsg);
-
+		_mark(strResponse);
 		// -1 error, 0 failure, 1 success.
 		if (1 != madeEasy.VerifyMessageSuccess(strResponse))
 		{
