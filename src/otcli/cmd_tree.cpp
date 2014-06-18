@@ -274,6 +274,9 @@ void cCmdParser::Init() {
 		
 	AddFormat("refresh", {}, {} ,{ {"--dryrun", pBool} },
 		LAMBDA { auto &D=*d; return	U.Refresh( D.has("--dryrun") ); } ) ;
+		
+	AddFormat("test complete", {}, {}, {},
+		LAMBDA { auto &D=*d; auto Utmp = make_shared<cUseOT>( U ); cmd_test_EndingCmdNames(Utmp); return true; } );
 
 	//======== ot account ========
 

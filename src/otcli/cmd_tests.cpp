@@ -12,13 +12,17 @@ INJECT_OT_COMMON_USING_NAMESPACE_COMMON_2; // <=== namespaces
 
 using namespace nUse;
 vector<string> cCmdParser::EndingCmdNames (const string sofar) {
+	_mark("start EndingCmdNames");
 	vector<string> CmdNames;
-	set<int>::iterator it;
 	for(auto var : mI->mTree) {
-		CmdNames.push_back(var.first);
-		if((nUtils::CheckIfBegins( sofar, CmdNames.back()))==false) {
-			CmdNames.pop_back();
+		_info("candidate: " << std::string(var.first) );
+		if((nUtils::CheckIfBegins( sofar, var.first))==true) {
+			_info("element that match: " << std::string(var.first) );
+			CmdNames.push_back(var.first);
 		}
+	}
+	for (auto str: CmdNames) {
+	_dbg1(str+" ");
 	}
 	return CmdNames;
 }
@@ -193,9 +197,9 @@ void cCmdParser::cmd_test_EndingCmdNames(shared_ptr<cUseOT> use){
 	,"ot ~"
 	};
 	for (const auto cmd_raw : alltest) {
+		
 		try {
 			if (!cmd_raw.length()) continue;
-
 			auto pos = cmd_raw.find_first_of("~");
 			if (pos == string::npos) {
 				_erro("Bad example - no TAB position given!");
@@ -206,7 +210,7 @@ void cCmdParser::cmd_test_EndingCmdNames(shared_ptr<cUseOT> use){
 
 			_mark("====== Testing completion: [" << cmd << "] for position pos=" << pos << " (from cmd_raw="<<cmd_raw<<")" );
 			auto processing = parser->StartProcessing(cmd, use);
-			vector<string> completions = processing.UseComplete( pos  );
+			vector<string> completions = parser->EndingCmdNames( cmd  );
 			_note("Completions: " << DbgVector(completions));
 
 		} 
