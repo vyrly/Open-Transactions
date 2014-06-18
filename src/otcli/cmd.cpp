@@ -425,20 +425,38 @@ vector<string> cCmdProcessing::UseComplete(int char_pos) {
 			vector<string> matching = WordsThatMatch( word_sofar ,  format->GetPossibleOptionNames() );
 			return matching;
 		}
-
-		if (arg_nr > 0) { // we are really inside some argument (not in the cmdname part)
+		else if (entity.mKind == cParseEntity::tKind::option_value) {
+			string option_name = mCommandLine.at(word_ix - mData->mFirstWord  -1); // the corresponding name of option like "--cc"
+			shared_ptr<cCmdFormat> format = mFormat;  // info about command "msg sendfrom"  
+			if (!format) return vector<string>{}; // if we did not understood command name, then return empty vector
+			try {
+				const cParamInfo &info = format->mOption.at(option_name);
+				auto funcHint = info.GetFuncHint();   // typedef function< bool ( nUse::cUseOT &, cCmdData &, size_t ) > tFuncValid;
+				auto hint = (funcHint)( *mUse , *mData  , word_ix );
+				vector<string> matching = WordsThatMatch( word_sofar , hint); 
+				// TODO check if the word_ix here is correct
+				return matching;
+			} catch(std::exception &e) { } // something failed probaly the option name was not known
+			return vector<string>{}; // the name of option seems unknown, so we can not offer any completion for the value for that option
+		}
+		else if (entity.mKind == cParseEntity::tKind::variable) {
 			shared_ptr<cCmdFormat> format = mFormat;  // info about command "msg sendfrom"  
 			ASRT( format );
 			cParamInfo param_info = format->GetParamInfo( arg_nr ); // eg. pNymFrom  <--- info about kind (completion function etc) of argument that we now are tab-completing
 			vector<string> completions = param_info.GetFuncHint()  ( *mUse , *mData , arg_nr );
 			_fact("Completions: " << DbgVector(completions));
-
-			// TODO just vars yet, not options!
-
 			vector<string> matching = WordsThatMatch( mData->V( arg_nr ) ,  completions );
 			return matching;
-		} else {
-			_warn("TODO: write completion for command names here");
+		} 
+		else if (entity.mKind == cParseEntity::tKind::cmdname) {
+			_erro("TODO");
+		}
+		else if (entity.mKind == cParseEntity::tKind::pre) {
+			return vector<string>{"ot"}; // TODO
+		}
+		else {
+			_erro("Unimplemented entity type in completion");
+			return vector<string>{}; 
 		}
 
 		_erro("DEAD CODE");
