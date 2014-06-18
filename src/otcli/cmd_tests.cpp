@@ -31,6 +31,7 @@ void cCmdParser::_cmd_test_completion( shared_ptr<cUseOT> use ) {
 //	,"ot msg send-from ali~ bo"
 //	,"ot msg send-from ali bo~"
 	,"ot msg send-from alice bob subject message --prio 3 --dryr~"
+	,"ot msg send-from alice bob subject message --pr~ 3 --dryrun"
 //	,"ot help securi~"
 //	,"help securi~"
 //	,"ot msg sendfrom ali bobxxxxx~"

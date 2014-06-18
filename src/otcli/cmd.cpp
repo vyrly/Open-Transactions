@@ -149,7 +149,10 @@ void cCmdProcessing::_Parse(bool allowBadCmdname) {
 	mData = std::make_shared<cCmdDataParse>();
 	mData->mOrginalCommand = mCommandLineString;
 
+	// will be used to calculate offsets (e.g. words) between orginal string suppied (eg from user) and the upgraded string we store later (after addig pre "ot" etc)
 	int namepart_words = 0; // how many words are in name SINCE BEGINING (including ot), "ot msg send"=3, "ot help"=2", "ot"=1 
+	int prepart_words = 0; // simillary, how many words are the begining, usually there is 1 (for "ot")
+
 	if (mCommandLineString.empty()) { const string s="Command for processing was empty (string)"; _warn(s);  throw cErrParseSyntax(s); } // <--- THROW
 
 	{
@@ -203,7 +206,7 @@ void cCmdProcessing::_Parse(bool allowBadCmdname) {
 	if (mCommandLine.empty()) { const string s="Command for processing was empty (had no words)"; _warn(s);  throw cErrParseSyntax(s); } // <--- THROW
 
 	// -----------------------------------
-	if (mCommandLine.at(0) == "help") { mData->mCharShift=-3; namepart_words--;  mCommandLine.insert( mCommandLine.begin() , "ot"); } // change "help" to "ot help"
+	if (mCommandLine.at(0) == "help") { mData->mCharShift=-3; namepart_words--; prepart_words--;  mCommandLine.insert( mCommandLine.begin() , "ot"); } // change "help" to "ot help"
 	// ^--- namepart_words-- because we here inject the word "ot" and it will make word-position calculation off by one
 
 	if (mCommandLine.at(0) != "ot") _warn("Command for processing is mallformed");
@@ -213,8 +216,10 @@ void cCmdProcessing::_Parse(bool allowBadCmdname) {
 
 	if (mCommandLineString.empty()) { const string s="Command for processing was empty (besides prefix)"; _warn(s);  throw cErrParseSyntax(s); } // <--- THROW
 
+	namepart_words++;
+	mData->mFirstWord = namepart_words; // usually 1, meaning that there is 1 word between actuall entities, e.g. when we remove the "ot" pre
 
-	_mark(" shift : " << mData->mCharShift );
+	_mark("Shift: mCharShift=" << mData->mCharShift << " mFirstWord="<<mData->mFirstWord );
 
 	int phase=0; // 0: cmd name  1:var, 2:varExt  3:opt   9:end
 	try {
@@ -402,17 +407,28 @@ vector<string> cCmdProcessing::UseComplete(int char_pos) {
 	}
 	ASRT(nullptr != mData);
 
-	try {
-		int word = mData->CharIx2WordIx( char_pos  );
-		_dbg1("word=" << word);
-		int arg_nr = mData->WordIx2ArgNr( word );
-		_dbg1(arg_nr);
-		_mark("Completion at pos="<<char_pos<<" word="<<word<<" arg_nr="<<arg_nr);
 
+	try {
+		int word_ix = mData->CharIx2WordIx( char_pos  );
+		_dbg1("word_ix=" << word_ix);
+		int arg_nr = mData->WordIx2ArgNr( word_ix );
+
+		_dbg1("mCommandLine=" << DbgVector(mCommandLine));
+		string word_sofar = mCommandLine.at(word_ix - mData->mFirstWord);  // the current word that we need to complete. e.g. "--dryr" (and we will complete "--dryrun")
+		_dbg1("word_sofar="<<word_sofar);
+		cParseEntity entity =  mData->mWordIx2Entity.at(word_ix);
+		_mark("Completion at pos="<<char_pos<<" word_ix="<<word_ix<<" arg_nr="<<arg_nr<<" entity="<<entity<<" word_sofar="<<word_sofar);
+
+		if (entity.mKind == cParseEntity::tKind::option_name) {
+			shared_ptr<cCmdFormat> format = mFormat;  // info about command "msg sendfrom"  
+			if (!format) return vector<string>{}; // if we did not understood command name, then return empty vector
+			vector<string> matching = WordsThatMatch( word_sofar ,  format->GetPossibleOptionNames() );
+			return matching;
+		}
 
 		if (arg_nr > 0) { // we are really inside some argument (not in the cmdname part)
 			shared_ptr<cCmdFormat> format = mFormat;  // info about command "msg sendfrom"  
-			ASRT( format );						
+			ASRT( format );
 			cParamInfo param_info = format->GetParamInfo( arg_nr ); // eg. pNymFrom  <--- info about kind (completion function etc) of argument that we now are tab-completing
 			vector<string> completions = param_info.GetFuncHint()  ( *mUse , *mData , arg_nr );
 			_fact("Completions: " << DbgVector(completions));
@@ -486,6 +502,14 @@ cCmdFormat::cCmdFormat(const cCmdExecutable &exec, const tVar &var, const tVar &
 	:	mExec(exec), mVar(var), mVarExt(varExt), mOption(opt)
 {
 	_dbg1("Created new format");
+}
+
+vector<string> cCmdFormat::GetPossibleOptionNames() const {
+	vector<string> ret;
+	for(auto elem : mOption) {
+		ret.push_back( elem.first ); // add eg "--cc" 
+	}
+	return ret;
 }
 
 cParamInfo cCmdFormat::GetParamInfo(int nr) const {
@@ -668,7 +692,7 @@ void cCmdData::AddOpt(const string &name, const string &value) throw(cErrArgIlle
 // ========================================================================================================================
 
 cCmdDataParse::cCmdDataParse()
-	: mFirstArgAfterWord(0), mCharShift(0)
+	: mFirstArgAfterWord(0), mFirstWord(0), mCharShift(0)
 { 
 }
 

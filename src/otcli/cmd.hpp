@@ -215,6 +215,8 @@ class cCmdFormat {  MAKE_CLASS_NAME("cCmdFormat");
 		void Debug() const;
 		void PrintUsageShort(ostream &out) const;
 
+		vector<string> GetPossibleOptionNames() const;
+
 		size_t SizeAllVar() const ; // return size of required mVar + optional mVarExt
 
 		cParamInfo GetParamInfo(int nr) const;		
@@ -306,6 +308,8 @@ class cCmdDataParse : public cCmdData { MAKE_CLASS_NAME("cCmdDataParse");
 		vector< cParseEntity  > mWordIx2Entity; // mWordIxEntity[3].mCharPos==20, means that 4th word starts at character position 20 in the orginal command string
 
 		int mFirstArgAfterWord; // at which word we have first param. Usually after 3 words (ot msg send ...) but could be e.g. 2 ("ot help" ...)
+		int mFirstWord; // at which word is the first entity (because we could had removed "ot" for example). Usually 1 ("ot something ...")
+
 		int mCharShift; // *deprecated?* how many characters should we shift to get back to orginal string becuse auto-prepending like "help"->"ot help" (-3), or 0 often
 
 	public:
