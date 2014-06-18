@@ -11,7 +11,17 @@ namespace nNewcli {
 INJECT_OT_COMMON_USING_NAMESPACE_COMMON_2; // <=== namespaces
 
 using namespace nUse;
-
+vector<string> cCmdParser::EndingCmdNames (const string sofar) {
+	vector<string> CmdNames;
+	set<int>::iterator it;
+	for(auto var : mI->mTree) {
+		CmdNames.push_back(var.first);
+		if((nUtils::CheckIfBegins( sofar, CmdNames.back()))==false) {
+			CmdNames.pop_back();
+		}
+	}
+	return CmdNames;
+}
 void cCmdParser::_cmd_test(  shared_ptr<cUseOT> use  ) {
 	_cmd_test_completion( use );
 //	_cmd_test_tree();
@@ -172,6 +182,38 @@ void cCmdParser::cmd_test( shared_ptr<cUseOT> use ) {
 	try {
 		_cmd_test(use);
 	} catch (const myexception &e) { e.Report(); throw ; } catch (const std::exception &e) { _erro("Exception " << e.what()); throw ; }
+}
+void cCmdParser::cmd_test_EndingCmdNames(shared_ptr<cUseOT> use){
+	_mark("TEST ENDING_CMD_NAMES");
+	shared_ptr<cCmdParser> parser(new cCmdParser);
+	parser->Init();
+	auto alltest = vector<string> {
+	 "ot msg s~" 
+	,"ot m~"
+	,"ot ~"
+	};
+	for (const auto cmd_raw : alltest) {
+		try {
+			if (!cmd_raw.length()) continue;
+
+			auto pos = cmd_raw.find_first_of("~");
+			if (pos == string::npos) {
+				_erro("Bad example - no TAB position given!");
+				continue; // <---
+			}
+			auto cmd = cmd_raw; 
+			cmd.erase( pos , 1 );
+
+			_mark("====== Testing completion: [" << cmd << "] for position pos=" << pos << " (from cmd_raw="<<cmd_raw<<")" );
+			auto processing = parser->StartProcessing(cmd, use);
+			vector<string> completions = processing.UseComplete( pos  );
+			_note("Completions: " << DbgVector(completions));
+
+		} 
+		catch (const myexception &e) { e.Report(); } 
+		catch (const std::exception &e) { _erro("Exception " << e.what()); }
+		// continue anyway
+	}
 }
 
 
