@@ -7,6 +7,19 @@
 
 #include "lib_common3.hpp"
 
+// Editline. Check 'git checkout linenoise' to see linenoise version.
+#ifndef CFG_USE_EDITLINE // should we use editline?
+	#define CFG_USE_EDITLINE 1 // default
+#endif
+
+#if CFG_USE_EDITLINE
+	#ifdef __unix__
+		#include <editline/readline.h>
+	#else // not unix
+		// TODO: do support MinGWEditline for windows)
+	#endif // not unix
+#endif // not use editline
+
 namespace nOT {
 namespace nUse {
 
@@ -70,6 +83,17 @@ bool cUseOT::DisplayDefaultID(const nUtils::eSubjectType type, bool dryrun) {
 	ID defaultID = mDefaultIDs.at(type);
 //	string defaultName = ;
 	nUtils::DisplayStringEndl(cout, defaultID );
+	return true;
+}
+
+bool cUseOT::DisplayHistory(bool dryrun) {
+	_fact("ot history");
+	if(dryrun) return true;
+	if(!Init()) return false;
+
+	for (int i=1; i<history_length; i++) {
+		DisplayStringEndl( cout, history_get(i)->line );
+	}
 	return true;
 }
 
@@ -379,8 +403,6 @@ bool cUseOT::AccountInDisplay(const string & account, bool dryrun) {
 	ID accountNymID = OTAPI_Wrap::GetAccountWallet_NymID(accountID);
 
 	string inbox = OTAPI_Wrap::LoadInbox(accountServerID, accountNymID, accountID); // Returns NULL, or an inbox.
-
-	_mark( "Account inbox:" << endl << inbox);
 
 	if (inbox.empty()) {
 		_info("Unable to load inbox for account " << AccountGetName(accountID)<< "(" << accountID << "). Perhaps it doesn't exist yet?");

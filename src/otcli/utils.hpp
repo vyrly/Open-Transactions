@@ -232,7 +232,6 @@ public:
 
 extern cConfigManager configManager;
 
-//TODO class cEnvUtils -> opening editor for multiline text input
 class cEnvUtils {
 	int fd;
 	string mFilename;
@@ -243,6 +242,7 @@ class cEnvUtils {
 	const string ReadFromTmpFile();
 public:
 	const string Compose();
+	const string ReadFromFile(const string path);
 };
 
 // ====================================================================

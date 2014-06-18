@@ -406,6 +406,14 @@ const string cEnvUtils::Compose() {
 
 #endif
 
+const string cEnvUtils::ReadFromFile(const string path) {
+	std::ifstream ifs(path);
+	string msg((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+	return msg;
+}
+
+
+
 // ====================================================================
 // algorthms
 

@@ -58,7 +58,7 @@ namespace nUse {
 
 		VALID bool CheckIfExists(const nUtils::eSubjectType type, const string & subject);
 		EXEC bool DisplayDefaultID(const nUtils::eSubjectType type, bool dryrun);
-
+		EXEC bool DisplayHistory(bool dryrun);
 		//================= account =================
 
 		const vector<ID> AccountGetAllIds();

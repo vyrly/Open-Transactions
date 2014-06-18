@@ -256,6 +256,9 @@ void cCmdParser::Init() {
 	AddFormat("test tree", {}, {}, {},
 		LAMBDA { auto &D=*d; auto Utmp = make_shared<cUseOT>( U ); _cmd_test_tree(Utmp); return true; } );
 
+	AddFormat("history", {}, {}, {},
+		LAMBDA { auto &D=*d; return U.DisplayHistory(D.has("--dryrun") ); } );
+
 	//======== ot account ========
 
 	AddFormat("account", {}, {}, {},
