@@ -12,12 +12,10 @@ INJECT_OT_COMMON_USING_NAMESPACE_COMMON_2; // <=== namespaces
 
 using namespace nUse;
 vector<string> cCmdParser::EndingCmdNames (const string sofar) {
-	_mark("start EndingCmdNames");
 	vector<string> CmdNames;
 	for(auto var : mI->mTree) {
-		_info("candidate: " << std::string(var.first) );
-		if((nUtils::CheckIfBegins( sofar, var.first))==true) {
-			_info("element that match: " << std::string(var.first) );
+		bool Begin=nUtils::CheckIfBegins(sofar,std::string(var.first));
+		if(Begin==true) {
 			CmdNames.push_back(var.first);
 		}
 	}
@@ -191,18 +189,19 @@ void cCmdParser::cmd_test( shared_ptr<cUseOT> use ) {
 }
 
 
-void cCmdParser::cmd_test_EndingCmdNames(shared_ptr<cUseOT> use){
+void cCmdParser::cmd_test_EndingCmdNames(shared_ptr<cUseOT> use) {
 	_mark("TEST ENDING_CMD_NAMES");
+
 
 	shared_ptr<cCmdParser> parser(new cCmdParser);
 	parser->Init();
 	auto alltest = vector<string> {
-	 "ot msg s~" 
-	,"ot m~"
-	,"ot ~"
+	 "msg s~" 
+	,"m~"
+	,"~"
 	};
 	for (const auto cmd_raw : alltest) {
-		
+
 		try {
 			if (!cmd_raw.length()) continue;
 			auto pos = cmd_raw.find_first_of("~");
