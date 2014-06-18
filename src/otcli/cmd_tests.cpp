@@ -15,8 +15,18 @@ vector<string> cCmdParser::EndingCmdNames (const string sofar) {
 	vector<string> CmdNames;
 	for(auto var : mI->mTree) {
 		bool Begin=nUtils::CheckIfBegins(sofar,std::string(var.first));
-		if(Begin==true) {
-			CmdNames.push_back(var.first);
+		if(Begin==true) {     
+			std:: string propose=var.first;  
+			size_t pos = sofar.find(" "); 
+			if(pos==std::string::npos ) {
+				_mark("nie pojawilo sie");
+				CmdNames.push_back(propose);
+				}
+		else if(pos!=std::string::npos){
+			size_t pos2 = propose.find(" "); 
+			std::string formated_propose = propose.substr (pos2);
+			CmdNames.push_back(formated_propose);
+			}
 		}
 	}
 	for (auto str: CmdNames) {
