@@ -76,8 +76,8 @@ void cUseOT::LoadDefaults() {
 	}
 }
 
-bool cUseOT::DisplayDefaultID(const nUtils::eSubjectType type, bool dryrun) {
-	_fact("get default " << nUtils::SubjectType2String(type) );
+bool cUseOT::DisplayDefaultSubject(const nUtils::eSubjectType type, bool dryrun) {
+	_fact("display default " << nUtils::SubjectType2String(type) );
 	if(dryrun) return true;
 	if(!Init()) return false;
 	ID defaultID = mDefaultIDs.at(type);
@@ -85,6 +85,16 @@ bool cUseOT::DisplayDefaultID(const nUtils::eSubjectType type, bool dryrun) {
 	nUtils::DisplayStringEndl(cout, defaultID );
 	return true;
 }
+
+bool cUseOT::DisplayAllDefaults(bool dryrun) {
+	_fact("display all defaults" );
+	if(dryrun) return true;
+	if(!Init()) return false;
+	for (auto var : mDefaultIDs)
+		nUtils::DisplayStringEndl(cout, SubjectType2String(var.first) + " " + var.second );
+	return true;
+}
+
 
 bool cUseOT::DisplayHistory(bool dryrun) {
 	_fact("ot history");
@@ -811,10 +821,9 @@ bool cUseOT::MsgSend(const string & nymSender, vector<string> nymRecipient, cons
 		_dbg1("Sending message from " + senderID + " to " + varID + "using server " + nUtils::SubjectType2String(nUtils::eSubjectType::Server) );
 
 		string strResponse = madeEasy.send_user_msg ( mDefaultIDs.at(nUtils::eSubjectType::Server), senderID, varID, outMsg);
-		_mark(strResponse);
+
 		// -1 error, 0 failure, 1 success.
-		if (1 != madeEasy.VerifyMessageSuccess(strResponse))
-		{
+		if (1 != madeEasy.VerifyMessageSuccess(strResponse)) {
 			_erro("Failed trying to send the message");
 			return false;
 		}

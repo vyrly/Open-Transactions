@@ -266,15 +266,18 @@ void cCmdParser::Init() {
 	AddFormat("test tree", {}, {}, {},
 		LAMBDA { auto &D=*d; auto Utmp = make_shared<cUseOT>( U ); _cmd_test_tree(Utmp); return true; } );
 
-	AddFormat("history", {}, {}, {},
+	AddFormat("history", {}, {}, { {"--dryrun", pBool} },
 		LAMBDA { auto &D=*d; return U.DisplayHistory(D.has("--dryrun") ); } );
+
+	AddFormat("defaults", {}, {}, { {"--dryrun", pBool} },
+		LAMBDA { auto &D=*d; return U.DisplayAllDefaults(D.has("--dryrun") ); } );
 
 	//======== ot account ========
 
 //	AddFormat("account", {}, {}, {},
-//		LAMBDA { auto &D=*d; return U.DisplayDefaultID(nUtils::eSubjectType::Account, D.has("--dryrun") ); } );
+//		LAMBDA { auto &D=*d; return U.DisplayDefaultSubject(nUtils::eSubjectType::Account, D.has("--dryrun") ); } );
 
-	AddFormat("account new", {pAsset, pAccountNewName}, {}, {},
+	AddFormat("account new", {pAsset, pAccountNewName}, {}, { {"--dryrun", pBool} },
 		LAMBDA { auto &D=*d; return U.AccountCreate( D.V(1), D.V(2), D.has("--dryrun") ); } );
 
 	AddFormat("account refresh", {}, {pAccount}, { {"--all", pBool } },
@@ -313,7 +316,7 @@ void cCmdParser::Init() {
 	//======== ot asset ========
 
 	//	AddFormat("asset", {}, {}, {},
-	//		LAMBDA { auto &D=*d; return U.DisplayDefaultID(nUtils::eSubjectType::Asset, D.has("--dryrun") ); } );
+	//		LAMBDA { auto &D=*d; return U.DisplayDefaultSubject(nUtils::eSubjectType::Asset, D.has("--dryrun") ); } );
 
 	AddFormat("asset ls", {}, {}, { {"--dryrun", pBool} },
 		LAMBDA { auto &D=*d; return U.AssetDisplayAll( D.has("--dryrun") ); } );
@@ -350,7 +353,7 @@ void cCmdParser::Init() {
 	//======== ot nym ========
 
 	//	AddFormat("nym", {}, {}, {},
-	//		LAMBDA { auto &D=*d; return U.DisplayDefaultID(nUtils::eSubjectType::User, D.has("--dryrun") ); } );
+	//		LAMBDA { auto &D=*d; return U.DisplayDefaultSubject(nUtils::eSubjectType::User, D.has("--dryrun") ); } );
 
 	AddFormat("nym check", {pNym}, {}, { {"--dryrun", pBool} },
 		LAMBDA { auto &D=*d; return U.NymCheck( D.V(1), D.has("--dryrun") ); } );
@@ -383,7 +386,7 @@ void cCmdParser::Init() {
 	//======== ot server ========
 
 	//	AddFormat("server", {}, {}, {},
-	//		LAMBDA { auto &D=*d; return U.DisplayDefaultID(nUtils::eSubjectType::Server, D.has("--dryrun") ); } );
+	//		LAMBDA { auto &D=*d; return U.DisplayDefaultSubject(nUtils::eSubjectType::Server, D.has("--dryrun") ); } );
 
 	AddFormat("server ls", {}, {}, { {"--dryrun", pBool} },
 		LAMBDA { auto &D=*d; return U.ServerDisplayAll(D.has("--dryrun") ); } );
