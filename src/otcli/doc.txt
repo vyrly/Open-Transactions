@@ -13,7 +13,7 @@ main()
 ---> on ENTER: cCmdParser() - Parse(), Validate(), UseExecute()
 
 ---> on TAB: 
-----> completionReadlineWrapper()
+----> CompletionReadlineWrapper()
 -----> current_completion = gReadlineHandleParser -> StartProcessing (on nr==0)
 ------> current_completion->UseComplete() + save results (on nr==0)
 -----> send back results (on nr==1,2,3...)

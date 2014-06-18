@@ -924,9 +924,10 @@ bool my_rl_wrapper_debug; // external
 // arrays, or recalculate on change)
 
 shared_ptr<nNewcli::cCmdParser> gReadlineHandleParser;
+shared_ptr<nUse::cUseOT> gReadlineHandlerUseOT;
 
 /** 
-Caller: before calling this function gReadlineHandleParser must be set!
+Caller: before calling this function gReadlineHandleParser and gReadlineHandlerUseOT must be set!
 Caller: you must free the returned char* memory if not NULL! (this will be done by readline lib implementation that calls us)
 */
 static char* CompletionReadlineWrapper(const char *sofar , int number) { 
@@ -935,8 +936,9 @@ static char* CompletionReadlineWrapper(const char *sofar , int number) {
 	// rl_point - current CURSOR position
 
 	bool dbg = my_rl_wrapper_debug;
-	dbg=true;
-	ASRT( !(gReadlineHandleParser == nullptr) ); // gReadlineHandleParser must be set before calling this function
+	dbg=true; // XXX
+	ASRT( !(gReadlineHandleParser == nullptr) ); // must be set before calling this function
+	ASRT( !(gReadlineHandlerUseOT == nullptr) ); // must be set before calling this function
 	if (dbg||1) _mark("sofar="<<sofar<<" number="<<number<<" rl_line_buffer="<<rl_line_buffer<<endl);
 
 	string line_all;
@@ -947,11 +949,10 @@ static char* CompletionReadlineWrapper(const char *sofar , int number) {
 	static vector <string> completions;
 	if (number == 0) {
 		if (dbg) _dbg3("Start autocomplete (during first callback, number="<<number<<")");
-//		completions = gReadlineHandleParser->Complete(line);
-		completions = {"alice","bob","sendfrom","sendto"};
-		completions = WordsThatMatch( sofar, completions);
-//		if (dbg) nOT::nUtils::DbgDisplayVectorEndl(completions); //TODO: display in debug
-		if (dbg) _dbg3("Done autocomplete (during first callback, number="<<number<<")");
+		auto processing = gReadlineHandleParser->StartProcessing(line_all, gReadlineHandlerUseOT);
+		completions = processing.UseComplete( rl_point );
+		_mark( DbgVector(completions) );
+		if (dbg) _dbg3("Done autocomplete (during first callback, number="<<number<<"); completions="<<DbgVector(completions));
 	}
 
 	auto completions_size = completions.size();
@@ -994,6 +995,7 @@ void cInteractiveShell::_runEditline(shared_ptr<nUse::cUseOT> use) {
 
 	auto parser = make_shared<nNewcli::cCmdParser>();
 	gReadlineHandleParser = parser;
+	gReadlineHandlerUseOT = use;
 	parser->Init();
 	
 	int said_help=0, help_needed=0;

@@ -216,8 +216,8 @@ void cCmdProcessing::_Parse(bool allowBadCmdname) {
 
 	if (mCommandLineString.empty()) { const string s="Command for processing was empty (besides prefix)"; _warn(s);  throw cErrParseSyntax(s); } // <--- THROW
 
-	namepart_words++;
-	mData->mFirstWord = namepart_words; // usually 1, meaning that there is 1 word between actuall entities, e.g. when we remove the "ot" pre
+	prepart_words++;
+	mData->mFirstWord = prepart_words; // usually 1, meaning that there is 1 word between actuall entities, e.g. when we remove the "ot" pre
 
 	_mark("Shift: mCharShift=" << mData->mCharShift << " mFirstWord="<<mData->mFirstWord );
 
