@@ -60,6 +60,7 @@ namespace nUse {
 		EXEC bool DisplayDefaultSubject(const nUtils::eSubjectType type, bool dryrun);
 		bool DisplayAllDefaults(bool dryrun);
 		EXEC bool DisplayHistory(bool dryrun);
+		bool Refresh(bool dryrun);
 		//================= account =================
 
 		const vector<ID> AccountGetAllIds();

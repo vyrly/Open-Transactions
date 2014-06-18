@@ -271,6 +271,9 @@ void cCmdParser::Init() {
 
 	AddFormat("defaults", {}, {}, { {"--dryrun", pBool} },
 		LAMBDA { auto &D=*d; return U.DisplayAllDefaults(D.has("--dryrun") ); } );
+		
+	AddFormat("refresh", {}, {} ,{ {"--dryrun", pBool} },
+		LAMBDA { auto &D=*d; return	U.Refresh( D.has("--dryrun") ); } ) ;
 
 	//======== ot account ========
 

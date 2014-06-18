@@ -106,6 +106,28 @@ bool cUseOT::DisplayHistory(bool dryrun) {
 	}
 	return true;
 }
+bool cUseOT::Refresh(bool dryrun){
+	_fact("refresh all");
+	if(dryrun) return true;
+	if(!Init()) return false;
+	bool StatusAccountRefresh=AccountRefresh(AccountGetName(AccountGetDefault()), true, false  ); 
+	bool StatusNymRefresh=NymRefresh("^" + NymGetDefault(), true, false  );
+	if( StatusAccountRefresh==true &&  StatusNymRefresh==true) {
+		_info("Succesfull refresh");
+		return true;
+	}
+	else if( StatusAccountRefresh==true &&  StatusNymRefresh==false) {
+		_dbg1("Can not refresh Nym");
+		return false;
+	}
+	else if( StatusAccountRefresh==false &&  StatusNymRefresh==true) {
+		_dbg1("Can not refresh Account");
+		return false;
+	}
+		_dbg1("Can not refresh ");
+		return false;
+
+}
 
 bool cUseOT::Init() { // TODO init on the beginning of application execution
 	if (OTAPI_error) return false;
