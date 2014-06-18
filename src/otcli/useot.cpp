@@ -418,7 +418,6 @@ bool cUseOT::AccountInDisplay(const string & account, bool dryrun) {
 	  for (int32_t index = 0; index < transactionCount; ++index) {
 			string transaction = OTAPI_Wrap::Ledger_GetTransactionByIndex(accountServerID, accountNymID, accountID, inbox, index);
 			int64_t transactionID = OTAPI_Wrap::Ledger_GetTransactionIDByIndex(accountServerID, accountNymID, accountID, inbox, index);
-			_mark( "Transaction " << transactionID << transaction );
 			int64_t refNum = OTAPI_Wrap::Transaction_GetDisplayReferenceToNum(accountServerID, accountNymID, accountID, transaction);
 			int64_t amount = OTAPI_Wrap::Transaction_GetAmount(accountServerID, accountNymID, accountID, transaction);
 			string transactionType = OTAPI_Wrap::Transaction_GetType(accountServerID, accountNymID, accountID, transaction);
@@ -441,7 +440,7 @@ bool cUseOT::AccountInDisplay(const string & account, bool dryrun) {
 	return false;
 }
 
-bool cUseOT::AccountInAccept(const string & account, const int index, bool dryrun) {
+bool cUseOT::AccountInAccept(const string & account, const int index, bool all, bool dryrun) {
 	_fact("account-in accept " << account);
 	if(dryrun) return true;
 	if(!Init()) return false;
@@ -453,8 +452,6 @@ bool cUseOT::AccountInAccept(const string & account, const int index, bool dryru
 	const string inbox = OTAPI_Wrap::LoadInbox(accountServerID, accountNymID, accountID); // Returns NULL, or an inbox.
 
 	OT_ME madeEasy;
-
-	//madeEasy.process_inbox(accountServerID, accountNymID, accountID, inbox); //TODO what for?
 
 	// User may have already chosen indices (passed in) so we don't want to
 	// re-download the inbox unless we HAVE to. But if the hash has changed, that's
@@ -555,52 +552,49 @@ bool cUseOT::AccountInAccept(const string & account, const int index, bool dryru
 							 // have been, the first time we hit this in this loop), then we call it here this one
 							 // time, to get things started...
 							 //
-//							 if (!VerifyStringVal(strResponseLEDGER))
-//							 {
+							 if ( strResponseLEDGER.empty() ) {
 									 strResponseLEDGER = OTAPI_Wrap::Ledger_CreateResponse(strServerID, strMyNymID, strMyAcctID, strInbox);
 
-//									 if (!VerifyStringVal(strResponseLEDGER))
-//									 {
-//											 OTAPI_Wrap::Output(0, "\n\nFailure: OT_API_Ledger_CreateResponse returned NULL.\n");
-//											 return -1;
-//									 }
-//							 }
+									 if ( strResponseLEDGER.empty() ) {
+											 _erro("Failure: OT_API_Ledger_CreateResponse returned NULL");
+											 return false;
+									 }
+							 }
 
 							 // By this point, we know the ledger response exists, and we know we have to create
 							 // a transaction response to go inside of it, so let's do that next...
 							 //
 							 string strNEW_ResponseLEDGER = OTAPI_Wrap::Transaction_CreateResponse(strServerID, strMyNymID, strMyAcctID, strResponseLEDGER, strTrans, true); // accept = true (versus rejecting a pending transfer, for example.)
 
-//							 if (!VerifyStringVal(strNEW_ResponseLEDGER))
-//							 {
-//									 OTAPI_Wrap::Output(0, "\n\nFailure: OT_API_Transaction_CreateResponse returned NULL.\n");
-//									 return -1;
-//							 }
+							 	 if ( strNEW_ResponseLEDGER.empty() ) {
+							 		 _erro("Failure: OT_API_Transaction_CreateResponse returned NULL");
+									 return false;
+								 }
 							 strResponseLEDGER = strNEW_ResponseLEDGER;
 					 }
 		 	 	 }
 
-//			 if (!VerifyStringVal(strResponseLEDGER))
-//			 {
-//					 // This means there were receipts in the box, but they were skipped.
-//					 // And after the skipping was done, there were no receipts left.
-//					 // So we can't just say "the box is empty" because it's not. But nevertheless,
-//					 // we aren't actually processing any of them, so we return 0 AS IF the box
-//					 // had been empty. (Because this is not an error condition. Just a "no op".)
-//					 //
-//					 return 0;
-//			 }
+			 if ( strResponseLEDGER.empty() )
+			 {
+					 // This means there were receipts in the box, but they were skipped.
+					 // And after the skipping was done, there were no receipts left.
+					 // So we can't just say "the box is empty" because it's not. But nevertheless,
+					 // we aren't actually processing any of them, so we return 0 AS IF the box
+					 // had been empty. (Because this is not an error condition. Just a "no op".)
+					 //
+					 return true;
+			 }
 
 			 // Below this point, we know strResponseLEDGER needs to be sent,
 			 // so let's finalize it.
 			 //
 			 string strFinalizedResponse = OTAPI_Wrap::Ledger_FinalizeResponse(strServerID, strMyNymID, strMyAcctID, strResponseLEDGER);
 
-//			 if (!VerifyStringVal(strFinalizedResponse))
-//			 {
-//					 OTAPI_Wrap::Output(0, "\n\nFailure: OT_API_Ledger_FinalizeResponse returned NULL.\n");
-//					 return -1;
-//			 }
+			 if ( strFinalizedResponse.empty() )
+			 {
+				 _erro("Failure: OT_API_Ledger_FinalizeResponse returned NULL");
+					 return false;
+			 }
 			 // ***************************************************************
 
 			 // Server communications are handled here...
@@ -617,21 +611,21 @@ bool cUseOT::AccountInAccept(const string & account, const int index, bool dryru
 					 // Download all the intermediary files (account balance, inbox, outbox, etc)
 					 // since they have probably changed from this operation.
 					 //
-					 bool bRetrieved = madeEasy.retrieve_account(strServerID, strMyNymID, strMyAcctID, true); //bForceDownload defaults to false.
 
-					 OTAPI_Wrap::Output(0, "\n\nServer response (" + strAttempt + "): SUCCESS processing/accepting inbox.\n");
-					 OTAPI_Wrap::Output(0, string(bRetrieved ? "Success" : "Failed") + " retrieving intermediary files for account.\n");
+			 	 	 if (AccountRefresh("^" + strMyAcctID, false, false) ) {
+			 	 		 _info("SUCCESS processing/accepting inbox.");
+			 	 	 }
+
 //			 }
 
 			 // ***************************************************************
 			 //
 			 // Success!
 			 //
-			 return 1;//nInterpretReply;
+			 return true;//nInterpretReply;
 
 		 } // nCount > 0
-
-		 OTAPI_Wrap::Output(0, "The asset account inbox is empty.\n\n");
+		 _info("The asset account inbox is empty");
 		}
 		return false;
 }
@@ -899,7 +893,7 @@ bool cUseOT::NymCheck(const string & nymName, bool dryrun) { // wip
 	return true;
 }
 
-bool cUseOT::NymCreate(const string & nymName, bool dryrun) {
+bool cUseOT::NymCreate(const string & nymName, bool registerOnServer, bool dryrun) {
 	_fact("nym create " << nymName);
 	if (dryrun) return false;
 	if(!Init()) return false;
@@ -922,6 +916,9 @@ bool cUseOT::NymCreate(const string & nymName, bool dryrun) {
 	}
 	_info("Nym " << nymName << "(" << nymID << ")" << " created successfully.");
 	//	TODO add nym to the cache
+
+	if ( registerOnServer )
+		NymRegister(nymName, "^" + ServerGetDefault(), dryrun);
 	return true;
 }
 

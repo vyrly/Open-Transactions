@@ -82,7 +82,7 @@ namespace nUse {
 		//================= account-in =================
 
 		EXEC bool AccountInDisplay(const string & account, bool dryrun);
-		EXEC bool AccountInAccept(const string & account, const int index, bool dryrun);
+		EXEC bool AccountInAccept(const string & account, const int index, bool all, bool dryrun);
 
 		//================= asset =================
 
@@ -128,7 +128,7 @@ namespace nUse {
 		HINT const vector<string> NymGetAllNames();
 
 		EXEC bool NymCheck(const string & nymName, bool dryrun);
-		EXEC bool NymCreate(const string & nymName, bool dryrun);
+		EXEC bool NymCreate(const string & nymName, bool registerOnServer, bool dryrun);
 		EXEC bool NymDisplayAll(bool dryrun);
 		EXEC bool NymDisplayInfo(const string & nymName, bool dryrun);
 		EXEC bool NymRefresh(const string & nymName, bool all, bool dryrun);

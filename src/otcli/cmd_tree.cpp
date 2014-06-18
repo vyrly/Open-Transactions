@@ -209,6 +209,16 @@ void cCmdParser::Init() {
 		}
 	);
 
+	cParamInfo pInboxIndex( "inbox-index", "index of incoming transaction",
+		[] (cUseOT & use, cCmdData & data, size_t curr_word_ix ) -> bool {
+			const int nr = curr_word_ix+1;
+			return true; //TODO
+		} ,
+		[] ( cUseOT & use, cCmdData & data, size_t curr_word_ix  ) -> vector<string> {
+			return vector<string> { "" }; //TODO hinting function for msg index
+		}
+	);
+
 	// ===========================================================================
 	// COMMON OPTIONS
 
@@ -261,8 +271,8 @@ void cCmdParser::Init() {
 
 	//======== ot account ========
 
-	AddFormat("account", {}, {}, {},
-		LAMBDA { auto &D=*d; return U.DisplayDefaultID(nUtils::eSubjectType::Account, D.has("--dryrun") ); } ); //TODO
+//	AddFormat("account", {}, {}, {},
+//		LAMBDA { auto &D=*d; return U.DisplayDefaultID(nUtils::eSubjectType::Account, D.has("--dryrun") ); } );
 
 	AddFormat("account new", {pAsset, pAccountNewName}, {}, {},
 		LAMBDA { auto &D=*d; return U.AccountCreate( D.V(1), D.V(2), D.has("--dryrun") ); } );
@@ -296,11 +306,14 @@ void cCmdParser::Init() {
 	AddFormat("account-in ls", {}, {pAccountMy}, { {"--dryrun", pBool} },
 		LAMBDA { auto &D=*d; return U.AccountInDisplay(D.v(1, U.AccountGetName(U.AccountGetDefault())), D.has("--dryrun") ); } );
 
-	AddFormat("account-in accept", {}, {pAccountMy}, { {"--dryrun", pBool} },
-		LAMBDA { auto &D=*d; return U.AccountInAccept(D.v(1, U.AccountGetName(U.AccountGetDefault())), 0, D.has("--dryrun") ); } ); //TODO index
+	AddFormat("account-in accept", {}, {pAccountMy, pInboxIndex}, { {"--all", pBool }, {"--dryrun", pBool} },
+		LAMBDA { auto &D=*d; return U.AccountInAccept(D.v(1, U.AccountGetName(U.AccountGetDefault())), stoi( D.v(2, "0") ), D.has("--all"), D.has("--dryrun") ); } ); //TODO index
 
 
 	//======== ot asset ========
+
+	//	AddFormat("asset", {}, {}, {},
+	//		LAMBDA { auto &D=*d; return U.DisplayDefaultID(nUtils::eSubjectType::Asset, D.has("--dryrun") ); } );
 
 	AddFormat("asset ls", {}, {}, { {"--dryrun", pBool} },
 		LAMBDA { auto &D=*d; return U.AssetDisplayAll( D.has("--dryrun") ); } );
@@ -336,6 +349,9 @@ void cCmdParser::Init() {
 
 	//======== ot nym ========
 
+	//	AddFormat("nym", {}, {}, {},
+	//		LAMBDA { auto &D=*d; return U.DisplayDefaultID(nUtils::eSubjectType::User, D.has("--dryrun") ); } );
+
 	AddFormat("nym check", {pNym}, {}, { {"--dryrun", pBool} },
 		LAMBDA { auto &D=*d; return U.NymCheck( D.V(1), D.has("--dryrun") ); } );
 
@@ -348,8 +364,8 @@ void cCmdParser::Init() {
 	AddFormat("nym rm", {pNym}, {}, { {"--dryrun", pBool} },
 		LAMBDA { auto &D=*d; return U.NymRemove( D.V(1), D.has("--dryrun") ); } );
 
-	AddFormat("nym new", {pNymNewName}, {}, { {"--dryrun", pBool} },
-		LAMBDA { auto &D=*d; return U.NymCreate( D.V(1), D.has("--dryrun") ); } );
+	AddFormat("nym new", {pNymNewName}, {}, { {"--register", pBool}, {"--dryrun", pBool} },
+		LAMBDA { auto &D=*d; return U.NymCreate( D.V(1), D.has("--register"), D.has("--dryrun") ); } );
 
 	AddFormat("nym set-default", {pNym}, {}, { {"--dryrun", pBool} },
 		LAMBDA { auto &D=*d; return U.NymSetDefault( D.V(1), D.has("--dryrun") ); } );
@@ -365,6 +381,9 @@ void cCmdParser::Init() {
 
 
 	//======== ot server ========
+
+	//	AddFormat("server", {}, {}, {},
+	//		LAMBDA { auto &D=*d; return U.DisplayDefaultID(nUtils::eSubjectType::Server, D.has("--dryrun") ); } );
 
 	AddFormat("server ls", {}, {}, { {"--dryrun", pBool} },
 		LAMBDA { auto &D=*d; return U.ServerDisplayAll(D.has("--dryrun") ); } );
