@@ -187,8 +187,11 @@ void cCmdParser::cmd_test( shared_ptr<cUseOT> use ) {
 		_cmd_test(use);
 	} catch (const myexception &e) { e.Report(); throw ; } catch (const std::exception &e) { _erro("Exception " << e.what()); throw ; }
 }
+
+
 void cCmdParser::cmd_test_EndingCmdNames(shared_ptr<cUseOT> use){
 	_mark("TEST ENDING_CMD_NAMES");
+
 	shared_ptr<cCmdParser> parser(new cCmdParser);
 	parser->Init();
 	auto alltest = vector<string> {
