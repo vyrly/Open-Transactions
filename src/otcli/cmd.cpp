@@ -226,11 +226,13 @@ void cCmdProcessing::_Parse(bool allowBadCmdname) {
 	try {
 		string name_tmp = mCommandLine.at(0); // buld the name of command, start with 1st word like "msg" or "help"
 		if(mCommandLine.size()>1) {	// if NOT one-word command like "help", then:
-			string name_tmp2 = name_tmp+" " + mCommandLine.at(1);
-			if (	mParser->FindFormatExists(name_tmp) && mParser->FindFormatExists(name_tmp)) { //  take 2nd word as part of the name 
+		string name_tmp2 = name_tmp+" " + mCommandLine.at(1);
+		if (	mParser->FindFormatExists(name_tmp) && mParser->FindFormatExists(name_tmp2)) { // if the second word is CmdName
+			if (mCommandLine.size()>1) {  // take 2nd word as part of the name
 				namepart_words++;
 				name_tmp += " " + mCommandLine.at(1);
 			}
+		}
 		}
 		const string name = name_tmp;
 		_mark("command name = " << name);

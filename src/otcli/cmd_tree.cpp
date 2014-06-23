@@ -281,8 +281,7 @@ void cCmdParser::Init() {
 		
 	AddFormat("test complete", {}, {}, {},
 		LAMBDA { auto &D=*d; auto Utmp = make_shared<cUseOT>( U ); cmd_test_EndingCmdNames(Utmp); return true; } );
-	AddFormat("test2", {}, {}, {}, // temporarly TODO while parse does not recognize "test complete"
-		LAMBDA { auto &D=*d; auto Utmp = make_shared<cUseOT>( U ); cmd_test_EndingCmdNames(Utmp); return true; } );
+	
 
 	//======== ot account ========
 
