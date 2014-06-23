@@ -324,7 +324,13 @@ void cCmdParser::Init() {
 	AddFormat("account-in accept", {}, {pAccountMy, pInboxIndex}, { {"--all", pBool } },
 		LAMBDA { auto &D=*d; return U.AccountInAccept(D.v(1, U.AccountGetName(U.AccountGetDefault())), stoi( D.v(2, "0") ), D.has("--all"), D.has("--dryrun") ); } ); //TODO index
 
+	//======== ot account-out ========
 
+	AddFormat("account-out cancel", {}, {pAccountMy, pInboxIndex}, { {"--all", pBool }, {"--dryrun", pBool} },
+		LAMBDA { auto &D=*d; return U.AccountOutCancel(D.v(1, U.AccountGetName(U.AccountGetDefault())), stoi( D.v(2, "0") ), D.has("--all"), D.has("--dryrun") ); } ); //FIXME
+
+	AddFormat("account-out ls", {}, {pAccountMy}, {},
+		LAMBDA { auto &D=*d; return U.AccountOutDisplay(D.v(1, U.AccountGetName(U.AccountGetDefault())), D.has("--dryrun") ); } );
 	//======== ot asset ========
 
 	//	AddFormat("asset", {}, {}, {},

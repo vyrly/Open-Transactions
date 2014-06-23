@@ -86,6 +86,11 @@ namespace nUse {
 		EXEC bool AccountInDisplay(const string & account, bool dryrun);
 		EXEC bool AccountInAccept(const string & account, const int index, bool all, bool dryrun);
 
+		//================= account-out =================
+
+		EXEC bool AccountOutCancel(const string & account, const int index, bool all, bool dryrun);
+		EXEC bool AccountOutDisplay(const string & account, bool dryrun);
+
 		//================= asset =================
 
 		const ID AssetGetId(const string & asset); ///< Gets asset ID both from name and ID with prefix

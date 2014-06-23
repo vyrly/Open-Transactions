@@ -474,7 +474,7 @@ bool cUseOT::AccountInDisplay(const string & account, bool dryrun) {
 	return false;
 }
 
-bool cUseOT::AccountInAccept(const string & account, const int index, bool all, bool dryrun) {
+bool cUseOT::AccountInAccept(const string & account, const int index, bool all, bool dryrun) { //TODO make it work with --all, multiple indices
 	_fact("account-in accept " << account);
 	if(dryrun) return true;
 	if(!Init()) return false;
@@ -489,6 +489,71 @@ bool cUseOT::AccountInAccept(const string & account, const int index, bool all, 
 		return true;
 	}
 	_erro("Failed to accept inbox transaction: " << index);
+	return false;
+}
+
+bool cUseOT::AccountOutCancel(const string & account, const int index, bool all, bool dryrun) { //TODO make it work with --all, multiple indices
+	_fact("account-out cancel " << account << " transaction=" << index);
+	if(dryrun) return true;
+	if(!Init()) return false;
+
+	ID accountID = AccountGetId(account);
+	ID accountNymID = OTAPI_Wrap::GetAccountWallet_NymID(accountID);
+	int32_t nItemType = 0; // TODO pass it as an argument
+
+	OT_ME madeEasy;
+	if ( madeEasy.cancel_outgoing_payments( accountNymID, accountID, to_string(index) ) ) { //TODO cancel_outgoing_payments is not for account outbox
+		_info("Successfully cancelled outbox transaction: " << index);
+		return true;
+	}
+	_erro("Failed to cancel outbox transaction: " << index);
+	return false;
+}
+
+bool cUseOT::AccountOutDisplay(const string & account, bool dryrun) {
+	_fact("account-out ls " << account);
+	if(dryrun) return true;
+	if(!Init()) return false;
+
+	ID accountID = AccountGetId(account);
+	ID accountServerID = OTAPI_Wrap::GetAccountWallet_ServerID(accountID);
+	ID accountNymID = OTAPI_Wrap::GetAccountWallet_NymID(accountID);
+
+	string outbox = OTAPI_Wrap::LoadOutbox(accountServerID, accountNymID, accountID); // Returns NULL, or an inbox.
+
+	if (outbox.empty()) {
+		_info("Unable to load outbox for account " << AccountGetName(accountID)<< "(" << accountID << "). Perhaps it doesn't exist yet?");
+		return false;
+	}
+
+	int32_t transactionCount = OTAPI_Wrap::Ledger_GetCount(accountServerID, accountNymID, accountID, outbox);
+
+	if (transactionCount > 0) {
+		nUtils::DisplayStringEndl(cout, "Outbox for an asset account " + AccountGetName(accountID) + "(" + accountID + "):");
+		nUtils::DisplayStringEndl(cout, "Idx  Amt  Type        Txn# InRef#|User / Acct");
+		nUtils::DisplayStringEndl(cout, "---------------------------------|(from or to)");
+	  for (int32_t index = 0; index < transactionCount; ++index) {
+			string transaction = OTAPI_Wrap::Ledger_GetTransactionByIndex(accountServerID, accountNymID, accountID, outbox, index);
+			int64_t transactionID = OTAPI_Wrap::Ledger_GetTransactionIDByIndex(accountServerID, accountNymID, accountID, outbox, index);
+			int64_t refNum = OTAPI_Wrap::Transaction_GetDisplayReferenceToNum(accountServerID, accountNymID, accountID, transaction);
+			int64_t amount = OTAPI_Wrap::Transaction_GetAmount(accountServerID, accountNymID, accountID, transaction);
+			string transactionType = OTAPI_Wrap::Transaction_GetType(accountServerID, accountNymID, accountID, transaction);
+			string senderNymID = OTAPI_Wrap::Transaction_GetSenderUserID(accountServerID, accountNymID, accountID, transaction);
+			string senderAcctID = OTAPI_Wrap::Transaction_GetSenderAcctID(accountServerID, accountNymID, accountID, transaction);
+			string recipientNymID = OTAPI_Wrap::Transaction_GetRecipientUserID(accountServerID, accountNymID, accountID, transaction);
+			string recipientAcctID = OTAPI_Wrap::Transaction_GetRecipientAcctID(accountServerID, accountNymID, accountID, transaction);
+
+			//TODO Check if Transaction information needs to be verified!!!
+
+			nUtils::DisplayStringEndl(cout, to_string(index) + "    " + to_string(amount) + "    " + transactionType + "    " + to_string(transactionID) + "    " + to_string(refNum)
+																											 + "    " + "U:" + NymGetName(senderNymID) + "(" + senderNymID + ")" + "    "
+																											 + "A:" + AccountGetName( senderAcctID ) + "(" + senderAcctID + ")");
+		}
+	  return true;
+	} else {
+		_info("There is no transactions in outbox for account "  << AccountGetName(accountID)<< "(" << accountID << ")");
+		return true;
+	}
 	return false;
 }
 
