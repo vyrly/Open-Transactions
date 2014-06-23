@@ -289,8 +289,8 @@ void cCmdParser::Init() {
 //	AddFormat("account", {}, {}, {},
 //		LAMBDA { auto &D=*d; return U.DisplayDefaultSubject(nUtils::eSubjectType::Account, D.has("--dryrun") ); } );
 
-	AddFormat("account new", {pAsset, pAccountNewName}, {}, { },
-		LAMBDA { auto &D=*d; return U.AccountCreate( D.V(1), D.V(2), D.has("--dryrun") ); } );
+	AddFormat("account new", {pNymMy, pAsset, pAccountNewName}, {}, {},
+		LAMBDA { auto &D=*d; return U.AccountCreate( D.V(1), D.V(2), D.V(3), D.has("--dryrun") ); } );
 
 	AddFormat("account refresh", {}, {pAccount}, { {"--all", pBool } },
 		LAMBDA { auto &D=*d; return U.AccountRefresh( D.v(1, U.AccountGetName(U.AccountGetDefault())), D.has("--all"), D.has("--dryrun") ); } );

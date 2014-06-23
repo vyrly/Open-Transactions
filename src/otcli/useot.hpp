@@ -72,7 +72,7 @@ namespace nUse {
 
 		HINT const vector<string> AccountGetAllNames();
 
-		EXEC bool AccountCreate(const string & assetName, const string & newAccountName, bool dryrun);
+		EXEC bool AccountCreate(const string & nym, const string & asset, const string & newAccountName, bool dryrun);
 		EXEC bool AccountDisplay(const string & account, bool dryrun);
 		EXEC bool AccountDisplayAll(bool dryrun);
 		EXEC bool AccountRefresh(const string & accountName, bool all, bool dryrun);
