@@ -34,6 +34,8 @@ namespace nUse {
 
 		string mDbgName;
 
+		OT_ME mMadeEasy;
+
 		map<nUtils::eSubjectType, ID> mDefaultIDs;
 		const string mDataFolder;
 		const string mDefaultIDsFile;

@@ -245,8 +245,6 @@ bool cUseOT::AccountRefresh(const string & accountName, bool all, bool dryrun) {
 	if(dryrun) return true;
 	if(!Init()) return false;
 
-	OT_ME madeEasy;
-
 	int32_t serverCount = OTAPI_Wrap::GetServerCount();
 
 	if (all) {
@@ -262,7 +260,7 @@ bool cUseOT::AccountRefresh(const string & accountName, bool all, bool dryrun) {
 			ID accountID = OTAPI_Wrap::GetAccountWallet_ID(accountIndex);
 			ID accountServerID = OTAPI_Wrap::GetAccountWallet_ServerID(accountID);
 			ID accountNymID = OTAPI_Wrap::GetAccountWallet_NymID(accountID);
-			if ( madeEasy.retrieve_account(accountServerID, accountNymID, accountID, true) ) { // forcing download
+			if ( mMadeEasy.retrieve_account(accountServerID, accountNymID, accountID, true) ) { // forcing download
 				_info("Account " + AccountGetName(accountID) + "(" + accountID +  ")" + " retrieval success from server " + ServerGetName(accountServerID) + "(" + accountServerID +  ")");
 				++accountsRetrieved;
 			}else
@@ -284,7 +282,7 @@ bool cUseOT::AccountRefresh(const string & accountName, bool all, bool dryrun) {
 		ID accountID = AccountGetId(accountName);
 		ID accountServerID = OTAPI_Wrap::GetAccountWallet_ServerID(accountID);
 		ID accountNymID = OTAPI_Wrap::GetAccountWallet_NymID(accountID);
-		if ( madeEasy.retrieve_account(accountServerID, accountNymID, accountID, true) ) { // forcing download
+		if ( mMadeEasy.retrieve_account(accountServerID, accountNymID, accountID, true) ) { // forcing download
 			_info("Account " + accountName + "(" + accountID +  ")" + " retrieval success from server " + ServerGetName(accountServerID) + "(" + accountServerID +  ")");
 			return true;
 		}
@@ -326,12 +324,11 @@ bool cUseOT::AccountCreate(const string & nym, const string & asset, const strin
 	ID nymID = NymGetId(nym);
 	ID assetID = AssetGetId(asset);
 
-	OT_ME madeEasy;
 	string response;
-	response = madeEasy.create_asset_acct(mDefaultIDs.at(nUtils::eSubjectType::Server), nymID, assetID); //TODO server as argument
+	response = mMadeEasy.create_asset_acct(mDefaultIDs.at(nUtils::eSubjectType::Server), nymID, assetID); //TODO server as argument
 
 	// -1 error, 0 failure, 1 success.
-	if (1 != madeEasy.VerifyMessageSuccess(response))
+	if (1 != mMadeEasy.VerifyMessageSuccess(response))
 	{
 		_erro("Failed trying to create Account at Server.");
 		return false;
@@ -369,10 +366,10 @@ bool cUseOT::AccountDisplay(const string & account, bool dryrun) {
 	if(dryrun) return true;
 	if(!Init()) return false;
 
-	OT_ME madeEasy;
+
 
 	ID accountID = AccountGetId(account);
-	string stat = madeEasy.stat_asset_account(accountID);
+	string stat = mMadeEasy.stat_asset_account(accountID);
 	if ( !stat.empty() ) {
 			nUtils::DisplayStringEndl(cout, stat);
 			return true;
@@ -410,17 +407,15 @@ bool cUseOT::AccountTransfer(const string & accountFrom, const string & accountT
 	if(dryrun) return true;
 	if(!Init()) return false;
 
-	OT_ME madeEasy;
-
 	ID accountFromID = AccountGetId(accountFrom);
 	ID accountToID = AccountGetId(accountTo);
 	ID accountServerID = OTAPI_Wrap::GetAccountWallet_ServerID(accountFromID);
 	ID accountNymID = OTAPI_Wrap::GetAccountWallet_NymID(accountFromID);
 
-	string response = madeEasy.send_transfer(accountServerID, accountNymID, accountFromID, accountToID, amount, note);
+	string response = mMadeEasy.send_transfer(accountServerID, accountNymID, accountFromID, accountToID, amount, note);
 
 	// -1 error, 0 failure, 1 success.
-	if (1 != madeEasy.VerifyMessageSuccess(response)) {
+	if (1 != mMadeEasy.VerifyMessageSuccess(response)) {
 		_erro("Failed to send transfer from " << accountFrom << " to " << accountTo);
 		return false;
 	}
@@ -482,9 +477,7 @@ bool cUseOT::AccountInAccept(const string & account, const int index, bool all, 
 	ID accountID = AccountGetId(account);
 	int32_t nItemType = 0; // TODO pass it as an argument
 
-	OT_ME madeEasy;
-
-	if ( madeEasy.accept_inbox_items( accountID, nItemType, to_string(index) ) ) {
+	if ( mMadeEasy.accept_inbox_items( accountID, nItemType, to_string(index) ) ) {
 		_info("Successfully accepted inbox transaction: " << index);
 		return true;
 	}
@@ -501,8 +494,7 @@ bool cUseOT::AccountOutCancel(const string & account, const int index, bool all,
 	ID accountNymID = OTAPI_Wrap::GetAccountWallet_NymID(accountID);
 	int32_t nItemType = 0; // TODO pass it as an argument
 
-	OT_ME madeEasy;
-	if ( madeEasy.cancel_outgoing_payments( accountNymID, accountID, to_string(index) ) ) { //TODO cancel_outgoing_payments is not for account outbox
+	if ( mMadeEasy.cancel_outgoing_payments( accountNymID, accountID, to_string(index) ) ) { //TODO cancel_outgoing_payments is not for account outbox
 		_info("Successfully cancelled outbox transaction: " << index);
 		return true;
 	}
@@ -622,12 +614,10 @@ bool cUseOT::AssetIssue(const string & serverID, const string & nymID, bool dryr
 	nUtils::cEnvUtils envUtils;
 	signedContract = envUtils.Compose();
 
-	OT_ME madeEasy;
-	//std::string OT_ME::issue_asset_type(const std::string  & SERVER_ID, const std::string  & NYM_ID, const std::string  & THE_CONTRACT)
-	string strResponse = madeEasy.issue_asset_type(serverID, nymID, signedContract);
+	string strResponse = mMadeEasy.issue_asset_type(serverID, nymID, signedContract);
 
 	// -1 error, 0 failure, 1 success.
-	if (1 != madeEasy.VerifyMessageSuccess(strResponse))
+	if (1 != mMadeEasy.VerifyMessageSuccess(strResponse))
 	{
 		_erro("Failed trying to issue asset at Server.");
 		return false;
@@ -677,9 +667,8 @@ bool cUseOT::CashWithdraw(const string & account, int64_t amount, bool dryrun) {
 	ID accountID = AccountGetId(account);
 	ID accountNymID = OTAPI_Wrap::GetAccountWallet_NymID(accountID);
 
-	OT_ME madeEasy;
-	string response = madeEasy.withdraw_cash ( mDefaultIDs.at(nUtils::eSubjectType::Server), accountNymID, accountID, amount);//TODO pass server as an argument
-	if (1 != madeEasy.VerifyMessageSuccess(response) ) {
+	string response = mMadeEasy.withdraw_cash ( mDefaultIDs.at(nUtils::eSubjectType::Server), accountNymID, accountID, amount);//TODO pass server as an argument
+	if (1 != mMadeEasy.VerifyMessageSuccess(response) ) {
 		_erro("Failed trying to withdraw cash from account: " << AccountGetName(accountID) );
 		return false;
 	}
@@ -744,8 +733,6 @@ bool cUseOT::MsgSend(const string & nymSender, vector<string> nymRecipient, cons
 		return false;
 	}
 
-	OT_ME madeEasy;
-
 	ID senderID = NymGetId(nymSender);
 	vector<ID> recipientID;
 	for (auto varName : nymRecipient)
@@ -754,10 +741,10 @@ bool cUseOT::MsgSend(const string & nymSender, vector<string> nymRecipient, cons
 	for (auto varID : recipientID) {
 		_dbg1("Sending message from " + senderID + " to " + varID + "using server " + nUtils::SubjectType2String(nUtils::eSubjectType::Server) );
 
-		string strResponse = madeEasy.send_user_msg ( mDefaultIDs.at(nUtils::eSubjectType::Server), senderID, varID, outMsg);
+		string strResponse = mMadeEasy.send_user_msg ( mDefaultIDs.at(nUtils::eSubjectType::Server), senderID, varID, outMsg);
 
 		// -1 error, 0 failure, 1 success.
-		if (1 != madeEasy.VerifyMessageSuccess(strResponse)) {
+		if (1 != mMadeEasy.VerifyMessageSuccess(strResponse)) {
 			_erro("Failed trying to send the message");
 			return false;
 		}
@@ -766,18 +753,6 @@ bool cUseOT::MsgSend(const string & nymSender, vector<string> nymRecipient, cons
 	_info("All messages were sent successfully.");
 	return true;
 }
-
-//bool cUseOT::MsgSend(const string & nymSender, const string & nymRecipient, const string & msg) { ///< Send message from Nym1 to Nym2
-//	_note("MsgSend " << nymSender << " to " << nymRecipient << " msg=" << msg);
-//
-//	if(!Init())
-//		return false;
-//
-//	string subject = "";
-//	int prio = 0;
-//	bool dryrun = false;
-//	return MsgSend(nymSender, vector<string> {nymRecipient}, msg, subject, prio, dryrun);
-//}
 
 bool cUseOT::MsgInCheckIndex(const string & nymName, const int32_t & nIndex) {
 	if(!Init())
@@ -825,10 +800,10 @@ bool cUseOT::NymCheck(const string & nymName, bool dryrun) { // wip
 	if(!Init()) return false;
 
 	ID nymID = NymGetId(nymName);
-	OT_ME madeEasy;
-	string strResponse = madeEasy.check_user( mDefaultIDs.at(nUtils::eSubjectType::Server), mDefaultIDs.at(nUtils::eSubjectType::User), nymID );
+
+	string strResponse = mMadeEasy.check_user( mDefaultIDs.at(nUtils::eSubjectType::Server), mDefaultIDs.at(nUtils::eSubjectType::User), nymID );
 	// -1 error, 0 failure, 1 success.
-	if (1 != madeEasy.VerifyMessageSuccess(strResponse)) {
+	if (1 != mMadeEasy.VerifyMessageSuccess(strResponse)) {
 		_erro("Failed trying to download public key for nym: " << nymName << "(" << nymID << ")" );
 		return false;
 	}
@@ -841,11 +816,10 @@ bool cUseOT::NymCreate(const string & nymName, bool registerOnServer, bool dryru
 	if (dryrun) return false;
 	if(!Init()) return false;
 
-	OT_ME madeEasy;
 	int32_t nKeybits = 1024;
 	string NYM_ID_SOURCE = ""; //TODO: check
 	string ALT_LOCATION = "";
-	string nymID = madeEasy.create_pseudonym(nKeybits, NYM_ID_SOURCE, ALT_LOCATION);
+	string nymID = mMadeEasy.create_pseudonym(nKeybits, NYM_ID_SOURCE, ALT_LOCATION);
 
 	if (nymID.empty()) {
 		_erro("Failed trying to create new Nym: " << nymName);
@@ -956,7 +930,6 @@ bool cUseOT::NymRefresh(const string & nymName, bool all, bool dryrun) { //TODO 
 	if(dryrun) return true;
 	if(!Init()) return false;
 
-	OT_ME madeEasy;
 	int32_t serverCount = OTAPI_Wrap::GetServerCount();
 	if (all) {
 		int32_t nymsRetrieved = 0;
@@ -971,7 +944,7 @@ bool cUseOT::NymRefresh(const string & nymName, bool all, bool dryrun) { //TODO 
 				ID nymID = OTAPI_Wrap::GetNym_ID(nymIndex);
 				ID serverID = OTAPI_Wrap::GetServer_ID(serverIndex);
 				if (OTAPI_Wrap::IsNym_RegisteredAtServer(nymID, serverID)) {
-					if ( madeEasy.retrieve_nym(serverID, nymID, true) ){ // forcing download
+					if ( mMadeEasy.retrieve_nym(serverID, nymID, true) ){ // forcing download
 						_info("Nym " + NymGetName(nymID) + "(" + nymID +  ")" + " retrieval success from server " + ServerGetName(serverID) + "(" + serverID +  ")");
 						++nymsRetrieved;
 					} else
@@ -996,7 +969,7 @@ bool cUseOT::NymRefresh(const string & nymName, bool all, bool dryrun) { //TODO 
 		for (int32_t serverIndex = 0; serverIndex < serverCount; ++serverIndex) { // Working for all available servers!
 			ID serverID = OTAPI_Wrap::GetServer_ID(serverIndex);
 			if (OTAPI_Wrap::IsNym_RegisteredAtServer(nymID, serverID)) {
-				if ( madeEasy.retrieve_nym(serverID,nymID, true) ) { // forcing download
+				if ( mMadeEasy.retrieve_nym(serverID,nymID, true) ) { // forcing download
 					_info("Nym " + nymName + "(" + nymID +  ")" + " retrieval success from server " + ServerGetName(serverID) + "(" + serverID +  ")");
 					return true;
 				}
@@ -1013,13 +986,11 @@ bool cUseOT::NymRegister(const string & nymName, const string & serverName, bool
 	if(dryrun) return true;
 	if(!Init()) return false;
 
-	OT_ME madeEasy;
-
 	ID nymID = NymGetId(nymName);
 	ID serverID = ServerGetId(serverName);
 
 	if (!OTAPI_Wrap::IsNym_RegisteredAtServer(nymID, serverID)) {
-		string response = madeEasy.register_nym(serverID, nymID);
+		string response = mMadeEasy.register_nym(serverID, nymID);
 		nOT::nUtils::DisplayStringEndl(cout, response);
 		_info("Nym " << nymName << "(" << nymID << ")" << " was registered successfully on server");
 		return true;
@@ -1195,7 +1166,6 @@ bool cUseOT::ServerDisplayAll(bool dryrun) {
 	_fact("server ls");
 	if(dryrun) return true;
 	if(!Init()) return false;
-
 
 	for(std::int32_t i = 0 ; i < OTAPI_Wrap::GetServerCount();i++) {
 		ID serverID = OTAPI_Wrap::GetServer_ID(i);
