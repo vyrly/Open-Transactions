@@ -234,13 +234,19 @@ void cCmdProcessing::_Parse(bool allowBadCmdname) {
 			}
 		}
 		else if ( mParser->FindFormatExists(name_tmp2)) { // if the second word is CmdName
-			_mark("LOL " );
+			if (mCommandLine.size()>1) {  // take 2nd word as part of the name
+				namepart_words++;
+				name_tmp += " " + mCommandLine.at(1);
+			}
+		}
+		else if(name_tmp=="msg") {
 			if (mCommandLine.size()>1) {  // take 2nd word as part of the name
 				namepart_words++;
 				name_tmp += " " + mCommandLine.at(1);
 			}
 		}
 		}
+		
 		const string name = name_tmp;
 		_mark("command name = " << name);
 

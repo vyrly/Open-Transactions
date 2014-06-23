@@ -107,15 +107,15 @@ void cCmdParser::_cmd_test_tree( shared_ptr<cUseOT> use ) {
 	//ot msg --dryrun
 	,"ot help"
 /*	,"ot msg ls --dryrun"
-	,"ot msg ls alice --dryrun"*/
+	,"ot msg ls alice --dryrun"
 	,"ot msg send-from alice bob --prio 1 --dryrun"
-/*	,"ot msg send-from alice bob --cc eve --cc mark --bcc john --prio 4 --dryrun"
+	,"ot msg send-from alice bob --cc eve --cc mark --bcc john --prio 4 --dryrun"
 	,"ot msg send-from alice bob message subject --cc eve --cc mark --bcc john --prio 4 --dryrun"
 	,"ot msg send-to bob hello --cc eve --cc mark --bcc john --prio 4 --dryrun"
 	,"ot msg rm alice 0 --dryrun"
 	,"ot msg rm-out alice 0 --dryrun"
-	//ot msg
-//	"ot msg ls"
+*/	//ot msg
+	,"ot msg ls"
 //	,"ot msg ls alice"
 //	,"ot msg send-from alice bob --prio 1"
 //	,"ot msg send-from alice bob --cc eve --cc mark --bcc john --prio 4"
@@ -125,7 +125,7 @@ void cCmdParser::_cmd_test_tree( shared_ptr<cUseOT> use ) {
 //	,"ot msg rm-out alice 0"
 
 	//ot nym --dryrun
-	,"ot nym check alice --dryrun"
+/*	,"ot nym check alice --dryrun"
 	,"ot nym info alice --dryrun"
 	,"ot nym register alice --dryrun"
 	,"ot nym rm alice --dryrun"
@@ -134,7 +134,7 @@ void cCmdParser::_cmd_test_tree( shared_ptr<cUseOT> use ) {
 	,"ot nym refresh --dryrun"
 	,"ot nym refresh alice --dryrun"
 	,"ot nym ls --dryrun"
-	//ot nym
+*/	//ot nym
 //	,"ot nym check alice"
 //	,"ot nym info alice"
 //	,"ot nym register alice"
@@ -143,9 +143,9 @@ void cCmdParser::_cmd_test_tree( shared_ptr<cUseOT> use ) {
 //	,"ot nym set-default alice"
 //	,"ot nym refresh"
 //	,"ot nym refresh alice"
-//	,"ot nym ls"
+	,"ot nym ls"
 	//ot account --dryrun
-	,"ot account new assetname accountname --dryrun"
+/*	,"ot account new assetname accountname --dryrun"
 	,"ot account refresh --dryrun"
 	,"ot account refresh accountname --dryrun"
 	,"ot account set-default accountname --dryrun"
@@ -165,31 +165,31 @@ void cCmdParser::_cmd_test_tree( shared_ptr<cUseOT> use ) {
 	,"ot asset issue --dryrun"
 	,"ot asset ls --dryrun"
 	//ot asset
-//	,"ot asset new"
-//	,"ot asset issue"
-//	,"ot asset ls"
+*/	,"ot asset new"
+	,"ot asset issue"
+	,"ot asset ls"
 	//ot server --dryrun
-	,"ot server add --dryrun"
+/*	,"ot server add --dryrun"
 	,"ot server ls --dryrun"
 	,"ot server new --dryrun"
 	,"ot server rm servername --dryrun"
 	,"ot server set-default servername --dryrun"
-	//ot server
-//	,"ot server add"
-//	,"ot server ls"
-//	,"ot server new"
-//	,"ot server rm servername"
+*/	//ot server
+	,"ot server add"
+	,"ot server ls"
+	,"ot server new"
+	,"ot server rm servername"
 //	,"ot server set-default servername"
 	//ot text --dryrun
-	,"ot text encode texttoprocess --dryrun"
+/*	,"ot text encode texttoprocess --dryrun"
 	,"ot text decode text --dryrun"
 	,"ot text encrypt bob text --dryrun"
-	,"ot text decrypt text --dryrun"
+/	,"ot text decrypt text --dryrun"
 	//ot text
 //	,"ot text encode texttoprocess"
 //	,"ot text decode text"
 //	,"ot text encrypt bob text"
-//	,"ot text decrypt text"
+	,"ot text decrypt text"
 */
 	};
 	for (auto cmd : alltest) {
