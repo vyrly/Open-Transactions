@@ -669,6 +669,25 @@ void cUseOT::AssetSetDefault(const std::string & assetName){
 	mDefaultIDs.at(nUtils::eSubjectType::Asset) = AssetGetId(assetName);
 }
 
+bool cUseOT::CashWithdraw(const string & account, int64_t amount, bool dryrun) { ///< withdraw cash from account on server into local purse
+	_fact("cash withdraw " << account);
+	if (dryrun) return false;
+	if(!Init()) return false;
+
+	ID accountID = AccountGetId(account);
+	ID accountNymID = OTAPI_Wrap::GetAccountWallet_NymID(accountID);
+
+	OT_ME madeEasy;
+	string response = madeEasy.withdraw_cash ( mDefaultIDs.at(nUtils::eSubjectType::Server), accountNymID, accountID, amount);//TODO pass server as an argument
+	if (1 != madeEasy.VerifyMessageSuccess(response) ) {
+		_erro("Failed trying to withdraw cash from account: " << AccountGetName(accountID) );
+		return false;
+	}
+	_info("Successfully withdraw cash from account: " << AccountGetName(accountID));
+	return true;
+}
+
+
 const string cUseOT::ContractSign(const std::string & nymID, const std::string & contract){ // FIXME can't sign contract with this (assetNew() functionality)
 	if(!Init())
 		return "";
@@ -687,10 +706,8 @@ const vector<string> cUseOT::MsgGetAll() { ///< Get all messages from all Nyms.
 
 bool cUseOT::MsgDisplayForNym(const string & nymName, bool dryrun) { ///< Get all messages from Nym.
 	_fact("msg ls " << nymName);
-		if (dryrun) return false;
-
-	if(!Init())
-		return false;
+	if (dryrun) return false;
+	if(!Init())	return false;
 	string nymID = NymGetId(nymName);
 	cout << "===" << nymName << "(" << nymID << ")"  << "===" << endl;
 	cout << "INBOX" << endl;

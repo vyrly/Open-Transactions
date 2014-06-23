@@ -292,7 +292,7 @@ string SubjectType2String(const eSubjectType & type) {
 	case subject::Server:
 			return "Server";
 	case subject::Unknown:
-				return "";
+				return "Unknown";
 	}
 	return "";
 }

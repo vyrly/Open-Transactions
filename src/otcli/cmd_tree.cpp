@@ -331,6 +331,7 @@ void cCmdParser::Init() {
 
 	AddFormat("account-out ls", {}, {pAccountMy}, {},
 		LAMBDA { auto &D=*d; return U.AccountOutDisplay(D.v(1, U.AccountGetName(U.AccountGetDefault())), D.has("--dryrun") ); } );
+
 	//======== ot asset ========
 
 	//	AddFormat("asset", {}, {}, {},
@@ -351,6 +352,10 @@ void cCmdParser::Init() {
 	AddFormat("asset rm", {pNym}, {}, {},
 		LAMBDA { auto &D=*d; return U.AssetRemove(D.V(1), D.has("--dryrun") ); } );
 
+	//======== ot cash ========
+
+	AddFormat("cash withdraw", {pAccount, pAmount}, {}, {},
+			LAMBDA { auto &D=*d; return U.CashWithdraw( D.V(1), stoi(D.V(2)), D.has("--dryrun") ); } );
 
 	//======== ot msg ========
 

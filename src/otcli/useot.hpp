@@ -106,6 +106,10 @@ namespace nUse {
 		EXEC bool AssetNew(const string & nym, bool dryrun);
 		EXEC bool AssetRemove(const string & asset, bool dryrun);
 
+		//================= cash =================
+
+		EXEC bool CashWithdraw(const string & account, int64_t amount, bool dryrun);
+
 		//================= ?contract =================
 
 		const string ContractSign(const std::string & nymID, const std::string & contract);
