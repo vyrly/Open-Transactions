@@ -941,6 +941,8 @@ static char* CompletionReadlineWrapper(const char *sofar , int number) {
 	ASRT( !(gReadlineHandlerUseOT == nullptr) ); // must be set before calling this function
 	if (dbg||1) _mark("sofar="<<sofar<<" number="<<number<<" rl_line_buffer="<<rl_line_buffer<<endl);
 
+	// rl_line_buffer, rl_point not in WinEditLine API TODO should be possible to get this
+
 	string line_all;
 	if (rl_line_buffer) line_all = rl_line_buffer; // <<<
 	string line = line_all.substr(0, rl_point); // Complete from cursor position
@@ -1023,6 +1025,7 @@ void cInteractiveShell::_runEditline(shared_ptr<nUse::cUseOT> use) {
 
 		if (cmd.length()) {
 			add_history(cmd.c_str()); // TODO (leaks memory...) but why
+			write_history("otcli-history.txt"); // Save new history line to file
 
 			bool all_ok=false;
 			try {
@@ -1045,11 +1048,12 @@ void cInteractiveShell::_runEditline(shared_ptr<nUse::cUseOT> use) {
 			}
 		} // length
 	} // while
-	write_history("otcli-history.txt");
 	int maxHistory = 100; //TODO move this to settings
 	history_truncate_file("otcli-history.txt", maxHistory);
 	if (buf) { free(buf); buf=NULL; }
 	clear_history(); // http://cnswww.cns.cwru.edu/php/chet/readline/history.html#IDX11
+
+	gReadlineHandlerUseOT->CloseApi(); // Close OT_API at the end of shell runtime
 }
 
 }; // namespace nOTHint

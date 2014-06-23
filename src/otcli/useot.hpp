@@ -27,8 +27,8 @@ namespace nUse {
 		map<ID, name> mNyms; // TODO optimize/share memory? or convert on usage
 //		TODO make cache for accounts, assets etc
 		bool mNymsMy_loaded;
-		bool OTAPI_loaded;
-		bool OTAPI_error;
+		static bool OTAPI_loaded;
+		static bool OTAPI_error;
 
 	private:
 

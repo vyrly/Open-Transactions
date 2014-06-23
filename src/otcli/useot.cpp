@@ -28,8 +28,6 @@ cUseOT::cUseOT(const string &mDbgName)
 : 
 	mDbgName(mDbgName)
 , mNymsMy_loaded(false)
-, OTAPI_loaded(false)
-, OTAPI_error(false)
 , mDataFolder( OTPaths::AppDataFolder().Get() )
 , mDefaultIDsFile( mDataFolder + "defaults.opt" )
 {
@@ -55,7 +53,6 @@ void cUseOT::CloseApi() {
 }
 
 cUseOT::~cUseOT() {
-	CloseApi();
 }
 
 void cUseOT::LoadDefaults() {
@@ -106,7 +103,6 @@ bool cUseOT::DisplayAllDefaults(bool dryrun) {
 bool cUseOT::DisplayHistory(bool dryrun) {
 	_fact("ot history");
 	if(dryrun) return true;
-	if(!Init()) return false;
 
 	for (int i=1; i<history_length; i++) {
 		DisplayStringEndl( cout, history_get(i)->line );
@@ -1259,6 +1255,9 @@ bool cUseOT::TextDecrypt(const string & recipientNymName, const string & encrypt
 	nUtils::DisplayStringEndl(cout, plainText);
 	return true;
 }
+
+bool cUseOT::OTAPI_loaded = false;
+bool cUseOT::OTAPI_error = false;
 
 } // nUse
 }; // namespace OT
