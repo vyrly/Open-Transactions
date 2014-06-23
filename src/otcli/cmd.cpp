@@ -226,25 +226,25 @@ void cCmdProcessing::_Parse(bool allowBadCmdname) {
 	try {
 		string name_tmp = mCommandLine.at(0); // buld the name of command, start with 1st word like "msg" or "help"
 		if(mCommandLine.size()>1) {	// if NOT one-word command like "help", then:
-		string name_tmp2 = name_tmp+" " + mCommandLine.at(1);
-		if (	mParser->FindFormatExists(name_tmp) && mParser->FindFormatExists(name_tmp2)) { // if the second word is CmdName
-			if (mCommandLine.size()>1) {  // take 2nd word as part of the name
-				namepart_words++;
-				name_tmp += " " + mCommandLine.at(1);
+			string name_tmp2 = name_tmp+" " + mCommandLine.at(1);
+			if (	mParser->FindFormatExists(name_tmp) && mParser->FindFormatExists(name_tmp2)) { // if the second word is CmdName
+				if (mCommandLine.size()>1) {  // take 2nd word as part of the name
+					namepart_words++;
+					name_tmp += " " + mCommandLine.at(1);
+				}
 			}
-		}
-		else if ( mParser->FindFormatExists(name_tmp2)) { // if the second word is CmdName
-			if (mCommandLine.size()>1) {  // take 2nd word as part of the name
-				namepart_words++;
-				name_tmp += " " + mCommandLine.at(1);
+			else if ( mParser->FindFormatExists(name_tmp2)) { // if the second word is CmdName
+				if (mCommandLine.size()>1) {  // take 2nd word as part of the name
+					namepart_words++;
+					name_tmp += " " + mCommandLine.at(1);
+				}
 			}
-		}
-		else if(name_tmp=="msg") {
-			if (mCommandLine.size()>1) {  // take 2nd word as part of the name
-				namepart_words++;
-				name_tmp += " " + mCommandLine.at(1);
+			else if (! mParser->FindFormatExists(name_tmp) ) { // like "msg" - this can not be a 1word command
+				if (mCommandLine.size()>1) {  // take 2nd word as part of the name
+					namepart_words++;
+					name_tmp += " " + mCommandLine.at(1);
+				}
 			}
-		}
 		}
 		
 		const string name = name_tmp;
