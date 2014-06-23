@@ -15,20 +15,31 @@ vector<string> cCmdParser::EndingCmdNames (const string sofar) {
 	vector<string> CmdNames;
 	for(auto var : mI->mTree) {
 		bool Begin=nUtils::CheckIfBegins(sofar,std::string(var.first));
-		if(Begin==true) {     
+		if(Begin==true) {	// if our word begins some kind of command     
 			std:: string propose=var.first;  
 			size_t pos = sofar.find(" "); 
-			if(pos==std::string::npos ) {
-				_mark("nie pojawilo sie");
-				CmdNames.push_back(propose);
-				}
-		else if(pos!=std::string::npos){
-			size_t pos2 = propose.find(" "); 
-			std::string formated_propose = propose.substr (pos2);
-			CmdNames.push_back(formated_propose);
+			if(pos==std::string::npos ) {	// if we haven't " " in our word
+
+				string str=" ";
+				size_t found=propose.find_first_of(str);	// looking for first " " in command
+				propose.resize(found);
+				bool ifexists=false;
+				for(auto prop: CmdNames) {		// we must chcek that it not exists in vecor of proposals
+					if(prop==propose) {
+						ifexists=true;
+						}
+					}
+				if(ifexists==false) {	// if it not exists we can push back
+					CmdNames.push_back(propose);
+					}
+				}	
+			else if(pos!=std::string::npos) {	// if we have " " in our word
+				size_t pos2 = propose.find(" "); 
+				std::string formated_propose = propose.substr (pos2);
+				CmdNames.push_back(formated_propose);
 			}
-		}
-	}
+		}	//end if
+	}	//end for
 	for (auto str: CmdNames) {
 	_dbg1(str+" ");
 	}
