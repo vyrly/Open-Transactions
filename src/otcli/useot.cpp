@@ -68,9 +68,17 @@ void cUseOT::LoadDefaults() {
 		ID userID = OTAPI_Wrap::GetNym_ID(0);
 		ID serverID = OTAPI_Wrap::GetServer_ID(0);
 
+		if ( accountID.empty() )
+			_warn("There is no accounts in the wallet, can't set default account");
 		mDefaultIDs.insert(std::make_pair(nUtils::eSubjectType::Account, accountID));
+		if ( !assetID.empty() )
+			_warn("There is no assets in the wallet, can't set default asset");
 		mDefaultIDs.insert(std::make_pair(nUtils::eSubjectType::Asset, assetID));
+		if ( !userID.empty() )
+			_warn("There is no nyms in the wallet, can't set default nym");
 		mDefaultIDs.insert(std::make_pair(nUtils::eSubjectType::User, userID));
+		if ( !serverID.empty() )
+			_warn("There is no servers in the wallet, can't set default server");
 		mDefaultIDs.insert(std::make_pair(nUtils::eSubjectType::Server, serverID));
 	}
 }

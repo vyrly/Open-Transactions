@@ -6,7 +6,7 @@ Template for new files, replace word "template" and later delete this line here.
 #ifndef INCLUDE_OT_NEWCLI_USEOT
 #define INCLUDE_OT_NEWCLI_USEOT
 
-#include "lib_common2.hpp"
+#include "lib_common3.hpp"
 
 // Use this to mark methods
 #define	EXEC
