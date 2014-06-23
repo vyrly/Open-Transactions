@@ -282,6 +282,7 @@ void cCmdProcessing::_Parse(bool allowBadCmdname) {
 		_dbg2("Format: size of vars: " << var_size_normal << " normal, and all is: " << var_size_all);
 
 		int pos = 2; // number of currently parsed word "msg send"
+		if (name.find(" ") == string::npos) pos=1; // in case of 1-word name
 
 		phase=1;
 		const size_t offset_to_var = pos; // skip this many words before we have first var, to conver pos(word number) to var number
