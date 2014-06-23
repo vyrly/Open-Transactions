@@ -334,8 +334,8 @@ void cCmdParser::Init() {
 
 	//======== ot asset ========
 
-	//	AddFormat("asset", {}, {}, {},
-	//		LAMBDA { auto &D=*d; return U.DisplayDefaultSubject(nUtils::eSubjectType::Asset, D.has("--dryrun") ); } );
+	AddFormat("asset", {}, {}, {},
+		LAMBDA { auto &D=*d; return U.DisplayDefaultSubject(nUtils::eSubjectType::Asset, D.has("--dryrun") ); } );
 
 
 	AddFormat("asset ls", {}, {}, {},
@@ -376,8 +376,8 @@ void cCmdParser::Init() {
 
 	//======== ot nym ========
 
-	//	AddFormat("nym", {}, {}, {},
-	//		LAMBDA { auto &D=*d; return U.DisplayDefaultSubject(nUtils::eSubjectType::User, D.has("--dryrun") ); } );
+		AddFormat("nym", {}, {}, {},
+			LAMBDA { auto &D=*d; return U.DisplayDefaultSubject(nUtils::eSubjectType::User, D.has("--dryrun") ); } );
 
 	AddFormat("nym check", {pNym}, {}, {},
 		LAMBDA { auto &D=*d; return U.NymCheck( D.V(1), D.has("--dryrun") ); } );
@@ -409,8 +409,8 @@ void cCmdParser::Init() {
 
 	//======== ot server ========
 
-	//	AddFormat("server", {}, {}, {},
-	//		LAMBDA { auto &D=*d; return U.DisplayDefaultSubject(nUtils::eSubjectType::Server, D.has("--dryrun") ); } );
+		AddFormat("server", {}, {}, {},
+			LAMBDA { auto &D=*d; return U.DisplayDefaultSubject(nUtils::eSubjectType::Server, D.has("--dryrun") ); } );
 
 	AddFormat("server ls", {}, {}, {},
 		LAMBDA { auto &D=*d; return U.ServerDisplayAll(D.has("--dryrun") ); } );
