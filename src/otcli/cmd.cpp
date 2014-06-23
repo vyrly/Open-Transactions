@@ -61,6 +61,7 @@ shared_ptr<cCmdFormat> cCmdParser::FindFormat( const cCmdName &name )
 	if (it == mI->mTree.end()) {
 		throw cErrParseName("No such ot command="+(string)name);
 	}
+	
 	return it->second;
 }
 
@@ -224,9 +225,9 @@ void cCmdProcessing::_Parse(bool allowBadCmdname) {
 	int phase=0; // 0: cmd name  1:var, 2:varExt  3:opt   9:end
 	try {
 		string name_tmp = mCommandLine.at(0); // buld the name of command, start with 1st word like "msg" or "help"
-
-		if (!	mParser->FindFormatExists(name_tmp)) { // if NOT one-word command like "help", then:
-			if (mCommandLine.size()>=1) {  // take 2nd word as part of the name
+		if(mCommandLine.size()>1) {	// if NOT one-word command like "help", then:
+			string name_tmp2 = name_tmp+" " + mCommandLine.at(1);
+			if (	mParser->FindFormatExists(name_tmp) && mParser->FindFormatExists(name_tmp)) { //  take 2nd word as part of the name 
 				namepart_words++;
 				name_tmp += " " + mCommandLine.at(1);
 			}
