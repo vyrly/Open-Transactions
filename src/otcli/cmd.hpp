@@ -211,6 +211,7 @@ class cCmdFormat {  MAKE_CLASS_NAME("cCmdFormat");
 
 	public:
 		cCmdFormat(const cCmdExecutable &exec, const tVar &var, const tVar &varExt, const tOption &opt);
+		bool IsValid() const;
 
 		cCmdExecutable getExec() const;
 
@@ -422,6 +423,8 @@ class cParamInfo {  MAKE_CLASS_NAME("cParamInfo");
 		cParamInfo()=default;
 		cParamInfo(const string &name, const string &descr, tFuncValid valid, tFuncHint hint, tFlags mFlags = tFlags());
 		cParamInfo(const string &name, const string &descr); // to be used for renaming
+
+		bool IsValid() const;
 
 		operator string() const noexcept { return mName; }
 		std::string getName() const noexcept { return mName; }

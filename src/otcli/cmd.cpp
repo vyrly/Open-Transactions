@@ -513,6 +513,11 @@ cParamInfo cParamInfo::operator<<(const cParamInfo &B) const {
 	return A;
 }
 
+bool cParamInfo::IsValid() const {
+	if (mName.length()<1) { _warn("Invalid cParamInfo with empty name!"); return false; }
+	return true;
+}
+
 // ========================================================================================================================
 
 // cCmdFormat::cCmdFormat(cCmdExecutable exec, tVar var, tVar varExt, tOption opt) 
@@ -520,6 +525,15 @@ cCmdFormat::cCmdFormat(const cCmdExecutable &exec, const tVar &var, const tVar &
 	:	mExec(exec), mVar(var), mVarExt(varExt), mOption(opt)
 {
 	_dbg1("Created new format");
+}
+
+
+bool cCmdFormat::IsValid() const {
+	bool allok=true;
+	for(const auto & elem : mVar) if (!elem.IsValid()) allok=false;
+	for(const auto & elem : mVarExt) if (!elem.IsValid()) allok=false;
+	for(const auto & elem : mOption) if (!elem.second.IsValid()) allok=false;
+	return allok;
 }
 
 vector<string> cCmdFormat::GetPossibleOptionNames() const {
@@ -578,8 +592,7 @@ void cCmdFormat::PrintUsageShort(ostream &out) const {
 
 	for (int sort=0; sort<=1; ++sort) { 
 		size_t nr=0;
-		written=false; // options
-		for(auto opt : mOption) { if (nr) out<<" ";  
+		for(auto opt : mOption) { 
 			const string &name = opt.first;
 			const cParamInfo &info = opt.second;
 			bool boring = (info.getFlags().n.isBoring);
@@ -588,11 +601,8 @@ void cCmdFormat::PrintUsageShort(ostream &out) const {
 
 			out << color1 << "[" << name ; // --cc 
 			if (info.getTakesValue()) out << " " << cc::fore::lightcyan << info.getName() << color1 ; // username
-			out <<']';  
-			++nr; 
-			written=true;
-		}		
-		if (written) out<<" ";
+			out << "] ";
+		}
 	}
 	out << cc::fore::console;
 }

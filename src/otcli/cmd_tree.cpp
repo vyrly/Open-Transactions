@@ -13,6 +13,8 @@ INJECT_OT_COMMON_USING_NAMESPACE_COMMON_2; // <=== namespaces
 using namespace nUse;
 
 void cCmdParser::_AddFormat( const cCmdName &name, shared_ptr<cCmdFormat> format ) {
+	if (!format->IsValid()) { _erro("Can not add invalid format, named " << (string)(name) ) ; return ; } // <--- RET
+
 	mI->mTree.insert( cCmdParser_pimpl::tTreePair ( name , format ) );
 	_info("Add format for command name (" << (string)name << "), now size=" << mI->mTree.size() << " new format is: ");
 	// format->Debug();
@@ -168,11 +170,12 @@ void cCmdParser::Init() {
 		[] ( cUseOT & use, cCmdData & data, size_t curr_word_ix  ) -> vector<string> {
 			return vector<string> { "" }; // this should be empty option, let's continue
 		}
+		, 0  
 	);
 
 	cParamInfo pBoolBoring( "yes-no", "true-false",
 		pBool.funcValid , pBool.funcHint
-		, cParamInfo::eFlags::isBoring 
+		, cParamInfo::eFlags::isBoring
 	);
 
 	cParamInfo pText( "text", "text",
@@ -223,7 +226,8 @@ void cCmdParser::Init() {
 	// COMMON OPTIONS
 
 	mI->mCommonOpt.clear();
-	mI->mCommonOpt.insert( {"--dryrun", pBoolBoring} );
+	auto option_dryrun = std::make_pair( string("--dryrun"), pBoolBoring );
+	mI->mCommonOpt.insert( option_dryrun );
 
 	// ===========================================================================
 
@@ -266,13 +270,13 @@ void cCmdParser::Init() {
 	AddFormat("test tree", {}, {}, {},
 		LAMBDA { auto &D=*d; auto Utmp = make_shared<cUseOT>( U ); _cmd_test_tree(Utmp); return true; } );
 
-	AddFormat("history", {}, {}, { {"--dryrun", pBool} },
+	AddFormat("history", {}, {}, { },
 		LAMBDA { auto &D=*d; return U.DisplayHistory(D.has("--dryrun") ); } );
 
-	AddFormat("defaults", {}, {}, { {"--dryrun", pBool} },
+	AddFormat("defaults", {}, {}, { },
 		LAMBDA { auto &D=*d; return U.DisplayAllDefaults(D.has("--dryrun") ); } );
 		
-	AddFormat("refresh", {}, {} ,{ {"--dryrun", pBool} },
+	AddFormat("refresh", {}, {} ,{ },
 		LAMBDA { auto &D=*d; return	U.Refresh( D.has("--dryrun") ); } ) ;
 		
 	AddFormat("test complete", {}, {}, {},
@@ -285,7 +289,7 @@ void cCmdParser::Init() {
 //	AddFormat("account", {}, {}, {},
 //		LAMBDA { auto &D=*d; return U.DisplayDefaultSubject(nUtils::eSubjectType::Account, D.has("--dryrun") ); } );
 
-	AddFormat("account new", {pAsset, pAccountNewName}, {}, { {"--dryrun", pBool} },
+	AddFormat("account new", {pAsset, pAccountNewName}, {}, { },
 		LAMBDA { auto &D=*d; return U.AccountCreate( D.V(1), D.V(2), D.has("--dryrun") ); } );
 
 	AddFormat("account refresh", {}, {pAccount}, { {"--all", pBool } },
@@ -317,7 +321,7 @@ void cCmdParser::Init() {
 	AddFormat("account-in ls", {}, {pAccountMy}, {},
 		LAMBDA { auto &D=*d; return U.AccountInDisplay(D.v(1, U.AccountGetName(U.AccountGetDefault())), D.has("--dryrun") ); } );
 
-	AddFormat("account-in accept", {}, {pAccountMy, pInboxIndex}, { {"--all", pBool }, {"--dryrun", pBool} },
+	AddFormat("account-in accept", {}, {pAccountMy, pInboxIndex}, { {"--all", pBool } },
 		LAMBDA { auto &D=*d; return U.AccountInAccept(D.v(1, U.AccountGetName(U.AccountGetDefault())), stoi( D.v(2, "0") ), D.has("--all"), D.has("--dryrun") ); } ); //TODO index
 
 
@@ -373,16 +377,16 @@ void cCmdParser::Init() {
 	AddFormat("nym register", {pNym}, {pServer}, {} ,
 	LAMBDA { auto &D=*d; return U.NymRegister( D.V(1), D.v(2, U.ServerGetName(U.ServerGetDefault())), D.has("--dryrun") ); } );
 
-	AddFormat("nym rm", {pNym}, {}, { {} },
+	AddFormat("nym rm", {pNym}, {}, { },
 		LAMBDA { auto &D=*d; return U.NymRemove( D.V(1), D.has("--dryrun") ); } );
 
 	AddFormat("nym new", {pNymNewName}, {}, { {"--register", pBool} },
 		LAMBDA { auto &D=*d; return U.NymCreate( D.V(1), D.has("--register"), D.has("--dryrun") ); } );
 
-	AddFormat("nym set-default", {pNym}, {}, { {} },
+	AddFormat("nym set-default", {pNym}, {}, { },
 		LAMBDA { auto &D=*d; return U.NymSetDefault( D.V(1), D.has("--dryrun") ); } );
 
-	AddFormat("nym refresh", {}, {pNym}, { {}, {"--all", pBool}},
+	AddFormat("nym refresh", {}, {pNym}, { {"--all", pBool} },
 		LAMBDA { auto &D=*d; return U.NymRefresh( D.v(1, U.NymGetName( U.NymGetDefault() ) ), D.has("--all"), D.has("--dryrun") ); } );
 
 	AddFormat("nym ls", {}, {}, {},
