@@ -325,7 +325,7 @@ void cCmdParser::Init() {
 
 	//======== ot account-out ========
 
-	AddFormat("account-out cancel", {}, {pAccountMy, pInboxIndex}, { {"--all", pBool }, {"--dryrun", pBool} },
+	AddFormat("account-out cancel", {}, {pAccountMy, pInboxIndex}, { {"--all", pBool } },
 		LAMBDA { auto &D=*d; return U.AccountOutCancel(D.v(1, U.AccountGetName(U.AccountGetDefault())), stoi( D.v(2, "0") ), D.has("--all"), D.has("--dryrun") ); } ); //FIXME
 
 	AddFormat("account-out ls", {}, {pAccountMy}, {},
