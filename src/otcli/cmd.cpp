@@ -576,21 +576,24 @@ void cCmdFormat::PrintUsageShort(ostream &out) const {
 	}
 	if (written) out<<" ";
 
-	written=false; // options
-	{ 
-		size_t nr=0;  
+	for (int sort=0; sort<=1; ++sort) { 
+		size_t nr=0;
+		written=false; // options
 		for(auto opt : mOption) { if (nr) out<<" ";  
-			string name = opt.first;
-			const cParamInfo info = opt.second;
-			auto color1 = (info.getFlags().n.isBoring)  ?  cc::fore::lightblack  :  cc::fore::lightblue;
+			const string &name = opt.first;
+			const cParamInfo &info = opt.second;
+			bool boring = (info.getFlags().n.isBoring);
+			auto color1 = boring  ?  cc::fore::lightblack  :  cc::fore::lightblue;
+			if ((int)sort != boring) continue; // first 0 then 1
+
 			out << color1 << "[" << name ; // --cc 
 			if (info.getTakesValue()) out << " " << cc::fore::lightcyan << info.getName() << color1 ; // username
 			out <<']';  
 			++nr; 
 			written=true;
 		}		
+		if (written) out<<" ";
 	}
-	if (written) out<<" ";
 	out << cc::fore::console;
 }
 

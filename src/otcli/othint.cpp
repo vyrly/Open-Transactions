@@ -973,7 +973,6 @@ char ** completion(const char* text, int start, int end __attribute__((__unused_
 	char **matches;
 	matches = (char **)NULL;
 	matches = rl_completion_matches (text, CompletionReadlineWrapper);
-	_erro("Autocompletion refactoring - not working");
 	return (matches);
 
 }
