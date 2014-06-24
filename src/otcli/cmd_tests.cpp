@@ -46,8 +46,8 @@ vector<string> cCmdParser::EndingCmdNames (const string sofar) {
 	return CmdNames;
 }
 void cCmdParser::_cmd_test(  shared_ptr<cUseOT> use  ) {
-//	_cmd_test_completion( use );
-	_cmd_test_tree( use );
+	_cmd_test_completion( use );
+//	_cmd_test_tree( use );
 }
 
 void cCmdParser::_cmd_test_completion( shared_ptr<cUseOT> use ) {
@@ -60,8 +60,10 @@ void cCmdParser::_cmd_test_completion( shared_ptr<cUseOT> use ) {
 //	,"ot~"
 //	,"ot msg send~ ali"
 //	,"ot msg send ali~"
-  ,"msg send-from al~"
-  ,"ot msg send-from al~"
+	,"ot a~"
+	,"ot msg s~"
+//  ,"msg send-from al~"
+//  ,"ot msg sen~ alice"
 //	,"ot msg sen~ alice bob"
 //	,"ot msg send-from ali~ bo"
 //	,"ot msg send-from ali bo~"
@@ -176,8 +178,6 @@ void cCmdParser::cmd_test_EndingCmdNames(shared_ptr<cUseOT> use) {
 		// continue anyway
 	}
 }
-
-
 
 
 } // namespace 

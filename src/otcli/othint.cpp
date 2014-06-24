@@ -930,7 +930,7 @@ shared_ptr<nUse::cUseOT> gReadlineHandlerUseOT;
 Caller: before calling this function gReadlineHandleParser and gReadlineHandlerUseOT must be set!
 Caller: you must free the returned char* memory if not NULL! (this will be done by readline lib implementation that calls us)
 */
-static char* CompletionReadlineWrapper(const char *sofar , int number) { 
+static char* CompletionReadlineWrapper(const char *sofar , int number) {
 	// sofar - current word,  number - number of question / of word to be returned
 	// rl_line_buffer - current ENTIER line
 	// rl_point - current CURSOR position
@@ -1007,46 +1007,53 @@ void cInteractiveShell::_runEditline(shared_ptr<nUse::cUseOT> use) {
 	read_history("otcli-history.txt");
 
 	while ((buf = readline("ot command> "))!=NULL) { // <--- readline()
-		std::string word;
-		if (buf) word=buf; // if not-null buf, then assign
-		if (buf) { free(buf); buf=NULL; }
-		// do NOT use buf variable below.
+		try {
+			std::string word;
+			if (buf) word=buf; // if not-null buf, then assign
+			if (buf) { free(buf); buf=NULL; }
+			// do NOT use buf variable below.
 
-		if (dbg) cout << "Word was: " << word << endl;
-		std::string cmd;
-		if (rl_line_buffer) cmd = rl_line_buffer; // save the full command into string
-		cmd = cmd.substr(0, cmd.length()-1); // remove \n
+			if (dbg) cout << "Word was: " << word << endl;
+			std::string cmd;
+			if (rl_line_buffer) cmd = rl_line_buffer; // save the full command into string
+			cmd = cmd.substr(0, cmd.length()-1); // remove \n
 
-		if (dbg) cout << "Command was: " << cmd << endl;
-		auto cmd_trim = nOT::nUtils::trim(cmd);
-		if (cmd_trim=="exit") break;
-		if (cmd_trim=="quit") break;
-		if (cmd_trim=="q") break;
+			if (dbg) cout << "Command was: " << cmd << endl;
+			auto cmd_trim = nOT::nUtils::trim(cmd);
+			if (cmd_trim=="exit") break;
+			if (cmd_trim=="quit") break;
+			if (cmd_trim=="q") break;
 
-		if (cmd.length()) {
-			add_history(cmd.c_str()); // TODO (leaks memory...) but why
-			write_history("otcli-history.txt"); // Save new history line to file
+			if (cmd.length()) {
+				add_history(cmd.c_str()); // TODO (leaks memory...) but why
+				write_history("otcli-history.txt"); // Save new history line to file
 
-			bool all_ok=false;
-			try {
-				auto processing = parser->StartProcessing(cmd, use); // <---
-				processing.UseExecute(); // <--- ***
-				all_ok=true;
-			} 
-			catch (const myexception &e) { 
-				cerr<<"ERROR: Could not execute your command ("<<cmd<<")"<<endl;
-				cerr << e.what() << endl;
-				//e.Report();  
-				cerr<<endl;
-			} 
-			catch (const std::exception &e) { 
-				cerr<<"ERROR: Could not execute your command ("<<cmd<<") - it triggered internal error: " << e.what() << endl; 
-			} 
-			if (!all_ok) { // if there was a problem
-				if ((!said_help) || (!(help_needed % opt_repeat_help_each_nth_time))) { cerr<<"If lost, type command 'ot help'."<<endl; ++said_help; }
-				++help_needed;
-			}
-		} // length
+				bool all_ok=false;
+				try {
+					auto processing = parser->StartProcessing(cmd, use); // <---
+					processing.UseExecute(); // <--- ***
+					all_ok=true;
+				} 
+				catch (const myexception &e) { 
+					cerr<<"ERROR: Could not execute your command ("<<cmd<<")"<<endl;
+					cerr << e.what() << endl;
+					//e.Report();  
+					cerr<<endl;
+				} 
+				catch (const std::exception &e) { 
+					cerr<<"ERROR: Could not execute your command ("<<cmd<<") - it triggered internal error: " << e.what() << endl; 
+				} 
+				if (!all_ok) { // if there was a problem
+					if ((!said_help) || (!(help_needed % opt_repeat_help_each_nth_time))) { cerr<<"If lost, type command 'ot help'."<<endl; ++said_help; }
+					++help_needed;
+				}
+			} // length
+
+		} // try an editline turn
+		catch (const std::exception &e) { 
+			cerr << "Problem while reading your command: " << e.what() << endl;
+			_erro("Error while reading command: " << e.what() );
+		} 
 	} // while
 	int maxHistory = 100; //TODO move this to settings
 	history_truncate_file("otcli-history.txt", maxHistory);

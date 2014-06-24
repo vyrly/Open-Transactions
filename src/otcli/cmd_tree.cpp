@@ -462,6 +462,8 @@ void cCmdParser::Init() {
 	mI->tree[ cCmdName("msg send") ] = cCmdFormat( useOt::msgList, 
 		vpar{ ARG_STR, ARG_STR, ARG_STR },  vpar{},  vopt{{"subject",ARG_STR}},  mopt{{"cc",ARG_STR}, {"bcc",ARG_STR}} );
 */
+
+	mI->BuildCache_CmdNames();
 }
 
 

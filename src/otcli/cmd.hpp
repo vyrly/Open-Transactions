@@ -44,6 +44,7 @@ struct cErrArgMissing : public cErrArgNotFound {
 struct cErrArgIllegal : public cErrArgNotFound { 
 	cErrArgIllegal(const string &s) : cErrArgNotFound("Illegal! : " + s) { } }; // more specificaly, such arg is illegal, e.g. number -1 or option name ""
 
+struct cErrInternalParse : public std::runtime_error { cErrInternalParse(const string &s) : runtime_error("Assert related to parsing: " + s) { } }; // some assert/internal problem related to parsing
 
 // ============================================================================
 
@@ -134,6 +135,8 @@ class cCmdParser : public enable_shared_from_this<cCmdParser> { MAKE_CLASS_NAME(
 			const cCmdExecutable::tFunc &exec)
 			;
 
+		static const vector<string> mNoWords; // this vector represents lack of any words, e.g. for GetCmdNamesWord2
+
 	public:
 		cCmdParser();
 		~cCmdParser(); // let's instantize default destr in all TUs so compilation will fail (without this line) on unique_ptr on not-complete types trololo - B. Stroustrup
@@ -155,6 +158,9 @@ class cCmdParser : public enable_shared_from_this<cCmdParser> { MAKE_CLASS_NAME(
 		static void _cmd_test(  shared_ptr<nUse::cUseOT> use  );
 		static void cmd_test( shared_ptr<nUse::cUseOT> use );
 		static void cmd_test_EndingCmdNames(  shared_ptr<nUse::cUseOT> use  );
+
+		const vector<string> & GetCmdNamesWord1() const; // possible word1 in loaded command names
+		const vector<string> & GetCmdNamesWord2(const string &word1) const; // possible word2 for given word1 in loaded command names
 };
 
 /**

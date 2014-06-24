@@ -18,10 +18,18 @@ class cCmdParser_pimpl {
 	typedef map< cCmdName , shared_ptr<cCmdFormat> >::value_type tTreePair; // type of element (pair) in tree-map. TODO: will be not needed in C+11 map emplace
 	typedef	map< cCmdName , shared_ptr<cCmdFormat> > tTree;
 
-	map<string , cParamInfo> mCommonOpt; // will be added by default to all formats
 
 	private:
-		tTree mTree;
+		tTree mTree; // main tree of commands
+
+		map<string , cParamInfo> mCommonOpt; // common options that will be added by default to all formats
+
+		map<string, set<string> > mCache_CmdNames; // parse name is form of word1 -> set of word2, for fast completion/validation/etc
+		map<string, vector<string> > mCache_CmdNamesVect2; // word2 vectors
+		vector<string> mCache_CmdNamesVect1; // word1 vector
+
+		void BuildCache_CmdNames();
+
 };
 
 } // namespace 

@@ -23,6 +23,50 @@ ostream& operator<<(ostream &stream , const cParseEntity & obj) {
 
 // ========================================================================================================================
 
+
+void cCmdParser_pimpl::BuildCache_CmdNames() {
+	_dbg1("Caching CmdNames");
+	mCache_CmdNames.clear();
+
+	for(const auto &elem : mTree) {
+		const string & cmdName = elem.first; 
+		auto space_pos = cmdName.find(' ');
+
+		_dbg2("Caching cmdName="<<cmdName<<" space at: " << (long long int)space_pos);
+
+		const string word1 = cmdName.substr(0, space_pos);
+		_dbg3("word1="<<word1);
+		ASRT(word1.length());
+
+
+		if (space_pos == string::npos) { // 1word command
+			mCache_CmdNames[ word1 ].insert(""); // add 
+		} else { // 2word command
+			const string word2 = cmdName.substr(space_pos+1);
+			_dbg3("word2="<<word2);
+			mCache_CmdNames[ word1 ].insert( word2 );
+		}
+	}
+
+	for (const auto & elem : mCache_CmdNames) {
+		const string & word1 = elem.first; // "msg"	
+		mCache_CmdNamesVect1.push_back(word1); // write down possible word1
+		_dbg2("word1: " << word1);
+		for (const auto & elem2 : elem.second) {
+			const string & word2 = elem2; // "msg send"
+			_dbg3("word2 in " <<word1<< " is: " << word2);
+			mCache_CmdNamesVect2[word1].push_back(word2);
+		} 
+	}
+
+}
+
+// ------------------------------------------------------------------------------------------------------------------------
+
+// *** cCmdParser ***
+
+const vector<string> cCmdParser::mNoWords; 
+
 cCmdParser::cCmdParser() 
 : mI( new cCmdParser_pimpl )
 { }
@@ -72,6 +116,17 @@ bool cCmdParser::FindFormatExists( const cCmdName &name ) throw()
 		return true;
 	} catch(cErrParseName &e) { }
 	return false;
+}
+
+const vector<string> & cCmdParser::GetCmdNamesWord1() const { // possible word1 in loaded command names
+	return mI->mCache_CmdNamesVect1;
+}
+
+const vector<string> & cCmdParser::GetCmdNamesWord2(const string &word1) const { // possible word2 for given word1 in loaded command names
+	auto found = mI->mCache_CmdNamesVect2.find(word1);
+	if (found != mI->mCache_CmdNamesVect2.end()) {
+		return found->second;
+	} else return mNoWords;
 }
 
 // ========================================================================================================================
@@ -258,7 +313,7 @@ void cCmdProcessing::_Parse(bool allowBadCmdname) {
 
 		mData->mWordIx2Entity.at(0).SetKind( cParseEntity::tKind::pre );
 
-		for (int i=1; i<=namepart_words; ++i) mData->mWordIx2Entity.at(i).SetKind( cParseEntity::tKind::cmdname ); // mark this words as part of cmdname
+		for (int i=1; i<=namepart_words; ++i) mData->mWordIx2Entity.at(i).SetKind( cParseEntity::tKind::cmdname , i ); // mark this words as part of cmdname
 		_mark("Words position mWordIx2Entity=" << DbgVector(mData->mWordIx2Entity));
 		
 		try {
@@ -418,6 +473,8 @@ void cCmdProcessing::_Parse(bool allowBadCmdname) {
 	}
 }
 
+
+
 vector<string> cCmdProcessing::UseComplete(int char_pos) {
 	if (mStateParse == tState::never) Parse( true );
 	if (mStateParse != tState::succeeded) { 
@@ -434,7 +491,10 @@ vector<string> cCmdProcessing::UseComplete(int char_pos) {
 
 		_dbg1("mCommandLine=" << DbgVector(mCommandLine));
 		string word_sofar = mCommandLine.at(word_ix - mData->mFirstWord);  // the current word that we need to complete. e.g. "--dryr" (and we will complete "--dryrun")
-		_dbg1("word_sofar="<<word_sofar);
+		long int word_previous_ixtab = word_ix - mData->mFirstWord - 1;
+		const string word_previous = (word_previous_ixtab>=0) ? mCommandLine.at(word_previous_ixtab) : "";
+		_dbg1("word_sofar="<<word_sofar<<", and previous word="<<word_previous);
+
 		cParseEntity entity =  mData->mWordIx2Entity.at(word_ix);
 		_mark("Completion at pos="<<char_pos<<" word_ix="<<word_ix<<" arg_nr="<<arg_nr<<" entity="<<entity<<" word_sofar="<<word_sofar);
 
@@ -468,7 +528,17 @@ vector<string> cCmdProcessing::UseComplete(int char_pos) {
 			return matching;
 		} 
 		else if (entity.mKind == cParseEntity::tKind::cmdname) {
-			_erro("TODO");
+			const int cmd_word_nr = entity.mSub;
+			_mark("Completing command name, cmd_word_nr="<<cmd_word_nr);
+			if (cmd_word_nr==1) {
+				vector<string> matching = WordsThatMatch( word_sofar , mParser->GetCmdNamesWord1() );
+				return matching; // <---
+			} else if (cmd_word_nr==2) {
+				const string word1 = word_previous;
+				vector<string> matching = WordsThatMatch( word_sofar , mParser->GetCmdNamesWord2( word1 ) );
+				return matching; // <---
+			} else throw cErrInternalParse("Bad cmd_word_nr="+ToStr(cmd_word_nr)+" in completion");
+			return vector<string>{}; 
 		}
 		else if (entity.mKind == cParseEntity::tKind::pre) {
 			return vector<string>{"ot"}; // TODO
