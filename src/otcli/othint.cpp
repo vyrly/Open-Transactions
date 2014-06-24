@@ -972,11 +972,13 @@ static char* CompletionReadlineWrapper(const char *sofar , int number) {
 }
 
 char ** completion(const char* text, int start, int end __attribute__((__unused__))) {
+	rl_attempted_completion_over = 0;
 	char **matches;
 	matches = (char **)NULL;
 	matches = rl_completion_matches (text, CompletionReadlineWrapper);
+	if ( matches == (char **)NULL ) // Disable filename autocompletion
+		rl_attempted_completion_over = 1;
 	return (matches);
-
 }
 
 void cInteractiveShell::runEditline(shared_ptr<nUse::cUseOT> use) {

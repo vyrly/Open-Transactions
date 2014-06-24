@@ -91,6 +91,7 @@ bool cUseOT::DisplayDefaultSubject(const nUtils::eSubjectType type, bool dryrun)
 	if(!Init()) return false;
 	ID defaultID = mDefaultIDs.at(type);
 	string defaultName = (this->*cUseOT::subjectGetNameFunc.at(type))(defaultID);
+	nUtils::DisplayStringEndl(cout, "Defaut " + nUtils::SubjectType2String(type) + ":" );
 	nUtils::DisplayStringEndl(cout, defaultID + " " + defaultName );
 	return true;
 }
@@ -99,11 +100,12 @@ bool cUseOT::DisplayAllDefaults(bool dryrun) {
 	_fact("display all defaults" );
 	if(dryrun) return true;
 	if(!Init()) return false;
-	for (auto var : mDefaultIDs)
-		nUtils::DisplayStringEndl(cout, var.second + " " + SubjectType2String(var.first) );
+	for (auto var : mDefaultIDs) {
+		string defaultName = (this->*cUseOT::subjectGetNameFunc.at(var.first))(var.second);
+		nUtils::DisplayStringEndl( cout, SubjectType2String(var.first) + "\t" + var.second + " " + defaultName );
+	}
 	return true;
 }
-
 
 bool cUseOT::DisplayHistory(bool dryrun) {
 	_fact("ot history");
@@ -406,6 +408,8 @@ bool cUseOT::AccountSetDefault(const string & account, bool dryrun) {
 	if(!Init()) return false;
 
 	mDefaultIDs.at(nUtils::eSubjectType::Account) = AccountGetId(account);
+	// Save defaults to config file:
+	nUtils::configManager.Save(mDefaultIDsFile, mDefaultIDs);
 	return true;
 }
 
@@ -482,13 +486,55 @@ bool cUseOT::AccountInAccept(const string & account, const int index, bool all, 
 	if(!Init()) return false;
 
 	ID accountID = AccountGetId(account);
+
 	int32_t nItemType = 0; // TODO pass it as an argument
 
-	if ( mMadeEasy.accept_inbox_items( accountID, nItemType, to_string(index) ) ) {
-		_info("Successfully accepted inbox transaction: " << index);
-		return true;
+	if (all) {
+		int32_t transactionsAccepted = 0;
+
+		ID accountServerID = OTAPI_Wrap::GetAccountWallet_ServerID(accountID);
+		ID accountNymID = OTAPI_Wrap::GetAccountWallet_NymID(accountID);
+
+		string inbox = OTAPI_Wrap::LoadInbox(accountServerID, accountNymID, accountID); // Returns NULL, or an inbox.
+
+		if (inbox.empty()) {
+			_info("Unable to load inbox for account " << AccountGetName(accountID)<< "(" << accountID << "). Perhaps it doesn't exist yet?");
+			return false;
+		}
+		int32_t transactionCount = OTAPI_Wrap::Ledger_GetCount(accountServerID, accountNymID, accountID, inbox);
+		_dbg3("Transaction count in inbox: " << transactionCount);
+		if (transactionCount == 0){
+			_warn("No transactions in inbox");
+			return true;
+		}
+
+		for (int32_t index = 0; index < transactionCount; ++index) { //FIXME work successfully only for first transaction
+			if ( mMadeEasy.accept_inbox_items( accountID, nItemType, to_string(index) ) ) {
+				_info("Successfully accepted inbox transaction number: " << index);
+				++transactionsAccepted;
+			} else
+				_erro("Failed to accept inbox transaction for number: " << index);
+		}
+		string count = to_string(transactionsAccepted) + "/" + to_string(transactionCount);
+		if (transactionsAccepted == transactionCount) {
+			_info("All transactions were successfully accepted " << count);
+			return true;
+		} else if (transactionsAccepted == 0) {
+			_erro("Transactions cannot be accepted " << count);
+			return false;
+		} else {
+			_erro("Some transactions cannot be accepted " << count);
+			return true;
+		}
 	}
-	_erro("Failed to accept inbox transaction: " << index);
+	else {
+		if ( mMadeEasy.accept_inbox_items( accountID, nItemType, to_string(index) ) ) {
+			_info("Successfully accepted inbox transaction number: " << index);
+			return true;
+		}
+		_erro("Failed to accept inbox transaction for number: " << index);
+		return false;
+	}
 	return false;
 }
 
@@ -660,10 +706,15 @@ bool cUseOT::AssetRemove(const string & asset, bool dryrun) {
 	return false;
 }
 
-void cUseOT::AssetSetDefault(const std::string & assetName){
-	if(!Init())
-		return ;
-	mDefaultIDs.at(nUtils::eSubjectType::Asset) = AssetGetId(assetName);
+bool cUseOT::AssetSetDefault(const std::string & asset, bool dryrun){
+	_fact("asset set-default " << asset);
+	if(dryrun) return true;
+	if(!Init()) return false;
+
+	mDefaultIDs.at(nUtils::eSubjectType::Asset) = AssetGetId(asset);
+	// Save defaults to config file:
+	nUtils::configManager.Save(mDefaultIDsFile, mDefaultIDs);
+	return true;
 }
 
 bool cUseOT::CashWithdraw(const string & account, int64_t amount, bool dryrun) { ///< withdraw cash from account on server into local purse
@@ -1052,6 +1103,8 @@ bool cUseOT::NymSetDefault(const string & nymName, bool dryrun) {
 	if(!Init()) return false;
 
 	mDefaultIDs.at(nUtils::eSubjectType::User) = NymGetId(nymName);
+	// Save defaults to config file:
+	nUtils::configManager.Save(mDefaultIDsFile, mDefaultIDs);
 	return true;
 }
 
@@ -1154,6 +1207,8 @@ bool cUseOT::ServerSetDefault(const string & serverName, bool dryrun) {
 	if(!Init()) return false;
 
 	mDefaultIDs.at(nUtils::eSubjectType::Server) = ServerGetId(serverName);
+	// Save defaults to config file:
+	nUtils::configManager.Save(mDefaultIDsFile, mDefaultIDs);
 	return true;
 }
 

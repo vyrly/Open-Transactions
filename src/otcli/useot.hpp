@@ -100,10 +100,10 @@ namespace nUse {
 		const string AssetGetName(const ID & accountID);
 		const string AssetGetContract(const string & asset);
 		const string AssetGetDefault(); // Get default asset, also known as purse
-		void AssetSetDefault(const std::string & assetName); // Set default asset, also known as purse
 
 		HINT const vector<string> AssetGetAllNames();
 
+		EXEC bool AssetSetDefault(const std::string & asset, bool dryrun); // Set default asset, also known as purse
 		EXEC bool AssetDisplayAll(bool dryrun);
 		EXEC bool AssetIssue(const string & serverID, const string & nymID, bool dryrun) ;
 		EXEC bool AssetNew(const string & nym, bool dryrun);

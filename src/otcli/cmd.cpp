@@ -345,7 +345,6 @@ void cCmdProcessing::_Parse(bool allowBadCmdname) {
 		if (phase==1) { // phase: parse variable
 			while (true) { // parse var normal
 				const int var_nr = pos - offset_to_var - quotes_offset_to_var;
-
 				_dbg2("phase="<<phase<<" pos="<<pos<<" var_nr="<<var_nr);
 				if (pos >= words_count) { _dbg1("reached END, pos="<<pos);	phase=9; break;	}
 				if (var_nr >= var_size_normal) { _dbg1("reached end of var normal, var_nr="<<var_nr); phase=2;	break;	}

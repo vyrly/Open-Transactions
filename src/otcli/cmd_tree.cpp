@@ -351,6 +351,9 @@ void cCmdParser::Init() {
 	AddFormat("asset rm", {pNym}, {}, {},
 		LAMBDA { auto &D=*d; return U.AssetRemove(D.V(1), D.has("--dryrun") ); } );
 
+	AddFormat("asset set-default", {pAsset}, {}, {},
+		LAMBDA { auto &D=*d; return U.AssetSetDefault( D.V(1), D.has("--dryrun") ); } );
+
 	//======== ot cash ========
 
 	AddFormat("cash withdraw", {pAccount, pAmount}, {}, {},
