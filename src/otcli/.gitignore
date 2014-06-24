@@ -8,6 +8,7 @@ autostart*.local
 debuglog.txt
 log.txt
 otcli-history.txt
+*.swp
 
 # Eclipse files
 .cproject

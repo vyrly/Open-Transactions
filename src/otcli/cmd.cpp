@@ -286,10 +286,10 @@ void cCmdProcessing::_Parse(bool allowBadCmdname) {
 
 		phase=1;
 		const size_t offset_to_var = pos; // skip this many words before we have first var, to conver pos(word number) to var number
-
+		size_t quotes_offset_to_var = 0;
 		if (phase==1) { // phase: parse variable
 			while (true) { // parse var normal
-				const int var_nr = pos - offset_to_var;
+				const int var_nr = pos - offset_to_var - quotes_offset_to_var;
 
 				_dbg2("phase="<<phase<<" pos="<<pos<<" var_nr="<<var_nr);
 				if (pos >= words_count) { _dbg1("reached END, pos="<<pos);	phase=9; break;	}
@@ -306,6 +306,7 @@ void cCmdProcessing::_Parse(bool allowBadCmdname) {
 					while ( !nUtils::CheckIfEnds("\"", word) ) {
 						word += " " + mCommandLine.at(pos);
 						++pos;
+						++quotes_offset_to_var;
 					}
 					word.erase(word.end()-1, word.end()); // ease the closing " of last mCommandLine[..] that is not at end of word
 					_dbg1("Quoted word is:"<<word);
@@ -323,8 +324,8 @@ void cCmdProcessing::_Parse(bool allowBadCmdname) {
 		_mark("Words position mWordIx2Entity=" << DbgVector(mData->mWordIx2Entity));
 
 		if (phase==2) {
-			while (true) { // parse var normal
-				const int var_nr = pos - offset_to_var;
+			while (true) { // parse var extra
+				const int var_nr = pos - offset_to_var - quotes_offset_to_var;
 				_dbg2("phase="<<phase<<" pos="<<pos<<" var_nr="<<var_nr);
 				if (pos >= words_count) { _dbg1("reached END, pos="<<pos);	phase=9; break;	}
 				if (var_nr >= var_size_all) { _dbg1("reached end of var ALL, var_nr="<<var_nr); phase=3;	break;	}
@@ -340,6 +341,7 @@ void cCmdProcessing::_Parse(bool allowBadCmdname) {
 					while ( !nUtils::CheckIfEnds("\"", word) ) {
 						word += " " + mCommandLine.at(pos);
 						++pos;
+						++quotes_offset_to_var;
 					}
 					word.erase(word.end()-1, word.end()); // ease the closing " of last mCommandLine[..] that is not at end of word
 					_dbg1("Quoted word is:"<<word);

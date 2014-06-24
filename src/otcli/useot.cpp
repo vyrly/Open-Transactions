@@ -37,6 +37,11 @@ cUseOT::cUseOT(const string &mDbgName)
 	subjectGetIDFunc.insert(std::make_pair(nUtils::eSubjectType::Asset, fptr = &cUseOT::AssetGetId) );
 	subjectGetIDFunc.insert(std::make_pair(nUtils::eSubjectType::User, fptr = &cUseOT::NymGetId) );
 	subjectGetIDFunc.insert(std::make_pair(nUtils::eSubjectType::Server, fptr = &cUseOT::ServerGetId) );
+
+	subjectGetNameFunc.insert(std::make_pair(nUtils::eSubjectType::Account, fptr = &cUseOT::AccountGetName) );
+	subjectGetNameFunc.insert(std::make_pair(nUtils::eSubjectType::Asset, fptr = &cUseOT::AssetGetName) );
+	subjectGetNameFunc.insert(std::make_pair(nUtils::eSubjectType::User, fptr = &cUseOT::NymGetName) );
+	subjectGetNameFunc.insert(std::make_pair(nUtils::eSubjectType::Server, fptr = &cUseOT::ServerGetName) );
 }
 
 
@@ -68,13 +73,13 @@ void cUseOT::LoadDefaults() {
 		if ( accountID.empty() )
 			_warn("There is no accounts in the wallet, can't set default account");
 		mDefaultIDs.insert(std::make_pair(nUtils::eSubjectType::Account, accountID));
-		if ( !assetID.empty() )
+		if ( assetID.empty() )
 			_warn("There is no assets in the wallet, can't set default asset");
 		mDefaultIDs.insert(std::make_pair(nUtils::eSubjectType::Asset, assetID));
-		if ( !userID.empty() )
+		if ( userID.empty() )
 			_warn("There is no nyms in the wallet, can't set default nym");
 		mDefaultIDs.insert(std::make_pair(nUtils::eSubjectType::User, userID));
-		if ( !serverID.empty() )
+		if ( serverID.empty() )
 			_warn("There is no servers in the wallet, can't set default server");
 		mDefaultIDs.insert(std::make_pair(nUtils::eSubjectType::Server, serverID));
 	}
@@ -85,8 +90,8 @@ bool cUseOT::DisplayDefaultSubject(const nUtils::eSubjectType type, bool dryrun)
 	if(dryrun) return true;
 	if(!Init()) return false;
 	ID defaultID = mDefaultIDs.at(type);
-//	string defaultName = ;
-	nUtils::DisplayStringEndl(cout, defaultID );
+	string defaultName = (this->*cUseOT::subjectGetNameFunc.at(type))(defaultID);
+	nUtils::DisplayStringEndl(cout, defaultID + " " + defaultName );
 	return true;
 }
 
@@ -95,7 +100,7 @@ bool cUseOT::DisplayAllDefaults(bool dryrun) {
 	if(dryrun) return true;
 	if(!Init()) return false;
 	for (auto var : mDefaultIDs)
-		nUtils::DisplayStringEndl(cout, SubjectType2String(var.first) + " " + var.second );
+		nUtils::DisplayStringEndl(cout, var.second + " " + SubjectType2String(var.first) );
 	return true;
 }
 
@@ -369,8 +374,6 @@ bool cUseOT::AccountDisplay(const string & account, bool dryrun) {
 	_fact("account show account=" << account);
 	if(dryrun) return true;
 	if(!Init()) return false;
-
-
 
 	ID accountID = AccountGetId(account);
 	string stat = mMadeEasy.stat_asset_account(accountID);

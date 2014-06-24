@@ -43,6 +43,7 @@ namespace nUse {
 		typedef const ID ( cUseOT::*FPTR ) (const string &);
 
 		map<nUtils::eSubjectType, FPTR> subjectGetIDFunc; ///< Map to store pointers to GetID functions
+		map<nUtils::eSubjectType, FPTR> subjectGetNameFunc; ///< Map to store pointers to GetName functions
 
 	private:
 
