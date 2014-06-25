@@ -6,6 +6,9 @@
 #include <OTPaths.hpp>
 
 #include "lib_common3.hpp"
+
+#include "bprinter/table_printer.h"
+
 // Editline. Check 'git checkout linenoise' to see linenoise version.
 #ifndef CFG_USE_EDITLINE // should we use editline?
 	#define CFG_USE_EDITLINE 1 // default
@@ -392,13 +395,26 @@ bool cUseOT::AccountDisplayAll(bool dryrun) {
 	if(dryrun) return true;
 	if(!Init()) return false;
 
+	bprinter::TablePrinter tp(&std::cout);
+  tp.AddColumn("ID", 4);
+  tp.AddColumn("Type", 10);
+  tp.AddColumn("Account", 60);
+  tp.AddColumn("Asset", 60);
+  tp.AddColumn("Balance", 10);
+
+  tp.PrintHeader();
+
 	for(int32_t i = 0 ; i < OTAPI_Wrap::GetAccountCount();i++) {
 		ID accountID = OTAPI_Wrap::GetAccountWallet_ID(i);
 		int64_t balance = OTAPI_Wrap::GetAccountWallet_Balance(accountID);
 		ID assetID = OTAPI_Wrap::GetAccountWallet_AssetTypeID(accountID);
 		string accountType = OTAPI_Wrap::GetAccountWallet_Type(accountID);
-		nUtils::DisplayStringEndl(cout, std::to_string(i) + "(" + accountType + ")" + " : " + AccountGetName(accountID) + "(" + accountID + ")" + " : " + AssetGetName(assetID) + "(" + assetID + ")" + " : " + std::to_string(balance) );
+		//nUtils::DisplayStringEndl(cout, std::to_string(i) + "(" + accountType + ")" + " : " + AccountGetName(accountID) + "(" + accountID + ")" + " : " + AssetGetName(assetID) + "(" + assetID + ")" + " : " + std::to_string(balance) );
+		tp << std::to_string(i) << "(" + accountType + ")" << AccountGetName(accountID) + "(" + accountID + ")"  << AssetGetName(assetID) + "(" + assetID + ")" << std::to_string(balance);
 	}
+
+	tp.PrintFooter();
+
 	return true;
 }
 
@@ -741,7 +757,7 @@ const string cUseOT::ContractSign(const std::string & nymID, const std::string &
 	return OTAPI_Wrap::AddSignature(nymID, contract);
 }
 
-const vector<string> cUseOT::MsgGetAll() { ///< Get all messages from all Nyms.
+const vector<string> cUseOT::MsgGetAll() { ///< Get all messages from all Nyms. FIXME unused
 	if(!Init())
 	return vector<string> {};
 
@@ -751,23 +767,36 @@ const vector<string> cUseOT::MsgGetAll() { ///< Get all messages from all Nyms.
 	return vector<string> {};
 }
 
-bool cUseOT::MsgDisplayForNym(const string & nymName, bool dryrun) { ///< Get all messages from Nym.
-	_fact("msg ls " << nymName);
+bool cUseOT::MsgDisplayForNym(const string & nym, bool dryrun) { ///< Get all messages from Nym.
+	_fact("msg ls " << nym);
 	if (dryrun) return false;
 	if(!Init())	return false;
-	string nymID = NymGetId(nymName);
-	cout << "===" << nymName << "(" << nymID << ")"  << "===" << endl;
-	cout << "INBOX" << endl;
-	cout << "id\tfrom\t\tcontent:" << endl;
-	for(int i = 0 ; i < OTAPI_Wrap::GetNym_MailCount (nymID);i++) {
-		cout << i << "\t" << OTAPI_Wrap::GetNym_Name(OTAPI_Wrap::GetNym_MailSenderIDByIndex(nymID, i))  << "\t" << OTAPI_Wrap::GetNym_MailContentsByIndex (nymID,i) << endl;
-	}
-	cout << "OUTBOX" << endl;
-	cout << "id\tto\t\tcontent:" << endl;
-	for(int i = 0 ; i < OTAPI_Wrap::GetNym_OutmailCount (nymID);i++) {
-		cout << i << "\t" << OTAPI_Wrap::GetNym_Name(OTAPI_Wrap::GetNym_OutmailRecipientIDByIndex(nymID, i)) << "\t" << OTAPI_Wrap::GetNym_OutmailContentsByIndex (nymID,i) << endl;
-	}
+	string nymID = NymGetId(nym);
 
+	bprinter::TablePrinter tpIn(&std::cout);
+  tpIn.AddColumn("ID", 4);
+  tpIn.AddColumn("From", 20);
+  tpIn.AddColumn("Content", 50);
+
+  nUtils::DisplayStringEndl( cout, NymGetName(nymID) + "(" + nymID + ")" );
+	nUtils::DisplayStringEndl( cout, "INBOX" );
+	tpIn.PrintHeader();
+	for(int i = 0 ; i < OTAPI_Wrap::GetNym_MailCount (nymID);i++) {
+		tpIn << i << NymGetName(OTAPI_Wrap::GetNym_MailSenderIDByIndex(nymID, i)) << OTAPI_Wrap::GetNym_MailContentsByIndex(nymID,i);
+	}
+	tpIn.PrintFooter();
+
+  bprinter::TablePrinter tpOut(&std::cout);
+	tpOut.AddColumn("ID", 4);
+	tpOut.AddColumn("To", 20);
+	tpOut.AddColumn("Content", 50);
+
+	nUtils::DisplayStringEndl(cout, "OUTBOX");
+	tpOut.PrintHeader();
+	for(int i = 0 ; i < OTAPI_Wrap::GetNym_OutmailCount (nymID);i++) {
+		tpOut << i << NymGetName(OTAPI_Wrap::GetNym_OutmailRecipientIDByIndex(nymID, i)) << OTAPI_Wrap::GetNym_OutmailContentsByIndex(nymID,i);
+	}
+	tpOut.PrintFooter();
 	return true;
 }
 

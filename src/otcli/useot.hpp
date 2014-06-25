@@ -36,7 +36,7 @@ namespace nUse {
 
 		OT_ME mMadeEasy;
 
-		map<nUtils::eSubjectType, ID> mDefaultIDs;
+		map<nUtils::eSubjectType, ID> mDefaultIDs; ///< Default IDs are saved to file after changing any default ID
 		const string mDataFolder;
 		const string mDefaultIDsFile;
 
@@ -47,7 +47,7 @@ namespace nUse {
 
 	private:
 
-		void LoadDefaults();
+		void LoadDefaults(); ///< Defaults are loaded when initializing OTAPI
 
 	public:
 
