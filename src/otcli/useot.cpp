@@ -409,7 +409,6 @@ bool cUseOT::AccountDisplayAll(bool dryrun) {
 		int64_t balance = OTAPI_Wrap::GetAccountWallet_Balance(accountID);
 		ID assetID = OTAPI_Wrap::GetAccountWallet_AssetTypeID(accountID);
 		string accountType = OTAPI_Wrap::GetAccountWallet_Type(accountID);
-		//nUtils::DisplayStringEndl(cout, std::to_string(i) + "(" + accountType + ")" + " : " + AccountGetName(accountID) + "(" + accountID + ")" + " : " + AssetGetName(assetID) + "(" + assetID + ")" + " : " + std::to_string(balance) );
 		tp << std::to_string(i) << "(" + accountType + ")" << AccountGetName(accountID) + "(" + accountID + ")"  << AssetGetName(assetID) + "(" + assetID + ")" << std::to_string(balance);
 	}
 
@@ -468,10 +467,18 @@ bool cUseOT::AccountInDisplay(const string & account, bool dryrun) {
 	int32_t transactionCount = OTAPI_Wrap::Ledger_GetCount(accountServerID, accountNymID, accountID, inbox);
 
 	if (transactionCount > 0) {
-		nUtils::DisplayStringEndl(cout, "Inbox for an asset account " + AccountGetName(accountID) + "(" + accountID + "):");
-		nUtils::DisplayStringEndl(cout, "Idx  Amt  Type        Txn# InRef#|User / Acct");
-		nUtils::DisplayStringEndl(cout, "---------------------------------|(from or to)");
-	  for (int32_t index = 0; index < transactionCount; ++index) {
+		bprinter::TablePrinter tp(&std::cout);
+		tp.AddColumn("ID", 4);
+		tp.AddColumn("Amount", 10);
+		tp.AddColumn("Type", 10);
+		tp.AddColumn("TxN", 8);
+		tp.AddColumn("InRef", 8);
+		tp.AddColumn("From Nym", 60);
+		tp.AddColumn("From Account", 60);
+
+		tp.PrintHeader();
+
+		for (int32_t index = 0; index < transactionCount; ++index) {
 			string transaction = OTAPI_Wrap::Ledger_GetTransactionByIndex(accountServerID, accountNymID, accountID, inbox, index);
 			int64_t transactionID = OTAPI_Wrap::Ledger_GetTransactionIDByIndex(accountServerID, accountNymID, accountID, inbox, index);
 			int64_t refNum = OTAPI_Wrap::Transaction_GetDisplayReferenceToNum(accountServerID, accountNymID, accountID, transaction);
@@ -484,10 +491,10 @@ bool cUseOT::AccountInDisplay(const string & account, bool dryrun) {
 
 			//TODO Check if Transaction information needs to be verified!!!
 
-			nUtils::DisplayStringEndl(cout, to_string(index) + "    " + to_string(amount) + "    " + transactionType + "    " + to_string(transactionID) + "    " + to_string(refNum)
-																											 + "    " + "U:" + NymGetName(senderNymID) + "(" + senderNymID + ")" + "    "
-																											 + "A:" + AccountGetName( senderAcctID ) + "(" + senderAcctID + ")");
+		  tp << to_string(index) << to_string(amount) << transactionType << to_string(transactionID) << to_string(refNum)
+				 << NymGetName(senderNymID) + "(" + senderNymID + ")" <<  AccountGetName( senderAcctID ) + "(" + senderAcctID + ")";
 		}
+		tp.PrintFooter();
 	  return true;
 	} else {
 		_info("There is no transactions in inbox for account "  << AccountGetName(accountID)<< "(" << accountID << ")");
@@ -590,26 +597,30 @@ bool cUseOT::AccountOutDisplay(const string & account, bool dryrun) {
 	int32_t transactionCount = OTAPI_Wrap::Ledger_GetCount(accountServerID, accountNymID, accountID, outbox);
 
 	if (transactionCount > 0) {
-		nUtils::DisplayStringEndl(cout, "Outbox for an asset account " + AccountGetName(accountID) + "(" + accountID + "):");
-		nUtils::DisplayStringEndl(cout, "Idx  Amt  Type        Txn# InRef#|User / Acct");
-		nUtils::DisplayStringEndl(cout, "---------------------------------|(from or to)");
+		bprinter::TablePrinter tp(&std::cout);
+		tp.AddColumn("ID", 4);
+		tp.AddColumn("Amount", 10);
+		tp.AddColumn("Type", 10);
+		tp.AddColumn("TxN", 8);
+		tp.AddColumn("InRef", 8);
+		tp.AddColumn("To Nym", 60);
+		tp.AddColumn("To Account", 60);
+
+		tp.PrintHeader();
 	  for (int32_t index = 0; index < transactionCount; ++index) {
 			string transaction = OTAPI_Wrap::Ledger_GetTransactionByIndex(accountServerID, accountNymID, accountID, outbox, index);
 			int64_t transactionID = OTAPI_Wrap::Ledger_GetTransactionIDByIndex(accountServerID, accountNymID, accountID, outbox, index);
 			int64_t refNum = OTAPI_Wrap::Transaction_GetDisplayReferenceToNum(accountServerID, accountNymID, accountID, transaction);
 			int64_t amount = OTAPI_Wrap::Transaction_GetAmount(accountServerID, accountNymID, accountID, transaction);
 			string transactionType = OTAPI_Wrap::Transaction_GetType(accountServerID, accountNymID, accountID, transaction);
-			string senderNymID = OTAPI_Wrap::Transaction_GetSenderUserID(accountServerID, accountNymID, accountID, transaction);
-			string senderAcctID = OTAPI_Wrap::Transaction_GetSenderAcctID(accountServerID, accountNymID, accountID, transaction);
-			string recipientNymID = OTAPI_Wrap::Transaction_GetRecipientUserID(accountServerID, accountNymID, accountID, transaction);
+			string recipientNymID = OTAPI_Wrap::Transaction_GetRecipientUserID(accountServerID, accountNymID, accountID, transaction); //FIXME transaction recipientID=NULL
 			string recipientAcctID = OTAPI_Wrap::Transaction_GetRecipientAcctID(accountServerID, accountNymID, accountID, transaction);
 
 			//TODO Check if Transaction information needs to be verified!!!
-
-			nUtils::DisplayStringEndl(cout, to_string(index) + "    " + to_string(amount) + "    " + transactionType + "    " + to_string(transactionID) + "    " + to_string(refNum)
-																											 + "    " + "U:" + NymGetName(senderNymID) + "(" + senderNymID + ")" + "    "
-																											 + "A:" + AccountGetName( senderAcctID ) + "(" + senderAcctID + ")");
+		 tp << to_string(index) << to_string(amount) << transactionType << to_string(transactionID) << to_string(refNum) << "BUG - working on it" << "BUG - working on it" ;
+//			  << NymGetName(recipientNymID) + "(" + recipientNymID + ")" <<  AccountGetName( recipientAcctID ) + "(" + recipientAcctID + ")";
 		}
+		tp.PrintFooter();
 	  return true;
 	} else {
 		_info("There is no transactions in outbox for account "  << AccountGetName(accountID)<< "(" << accountID << ")");
