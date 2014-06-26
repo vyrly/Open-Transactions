@@ -40,45 +40,46 @@ and user-local build clang 3.3:
 
 Download sources:
 $execute:
-	wget http://www.llvm.org/releases/3.3/cfe-3.3.src.tar.gz
-	wget http://www.llvm.org/releases/3.3/cfe-3.3.src.tar.gz.sig
-	wget http://www.llvm.org/releases/3.3/llvm-3.3.src.tar.gz
-	wget http://www.llvm.org/releases/3.3/llvm-3.3.src.tar.gz.sig
+	wget http://www.llvm.org/releases/3.4.1/cfe-3.4.1.src.tar.gz
+	wget http://www.llvm.org/releases/3.4.1/cfe-3.4.1.src.tar.gz.sig
+	wget http://www.llvm.org/releases/3.4.1/llvm-3.4.1.src.tar.gz
+	wget http://www.llvm.org/releases/3.4.1/llvm-3.4.1.src.tar.gz.sig
 
 Verify downloads:
 $execute:
 	sha512sum *gz
 
 should give:
-	06773f43f7d3529f06edb029f7de398f06a700a0f2476e00c4727e70c291028221bfac23625dfd2c220d6ac91a21670848187a934b99a21801c695127371afcc  cfe-3.3.src.tar.gz
-	1b7f7c5e907a68f642dcbe48fdff9585cb1504022bc9d386f310ebe5d25103d0d5f7cf0abf19e0e3fd666970160a98c90033754e2b79b2fac0cf866c984f8038  llvm-3.3.src.tar.gz
+	3886d2e362aab52f29520150a81271ee24433118e0519dd5d1c58cfacc3b1c7da4cbab49c7e82d6b4a90c278b5028f5aa1f5d79478b13d0b11a15c491a6c00d5  cfe-3.4.1.src.tar.gz
+	a8d19f8560604cd1a62b9868aca8848c0675895c5354dfcbc81ef940d4a38f56f8239a49aec853dd7d432134fa0b5feb9b070579226400874b761dcf124f7a7b  llvm-3.4.1.src.tar.gz
+
 
 Packages should be signed with key with fingerprint: C135 49BB 82A1 7681 BF71  43C2 B446 8DF4 E95C 63DC
 $execute:
 	gpg --keyserver pgp.mit.edu --recv-keys E95C63DC
-	gpg --verify cfe-3.3.src.tar.gz.sig
-	gpg --verify llvm-3.3.src.tar.gz.sig
+	gpg --verify cfe-3.4.1.src.tar.gz.sig
+	gpg --verify llvm-3.4.1.src.tar.gz.sig
 
 Verification output should look like:
 $execute:
-	gpg: Signature made Thu 13 Jun 2013 10:01:48 CEST using RSA key ID E95C63DC
-	gpg: Good signature from "Bill Wendling <wendling@apple.com>"
+	gpg: Signature made Tue 06 May 2014 17:53:48 CEST using RSA key ID 02119294
+	gpg: Good signature from "Tom Stellard <tom@stellard.net>"
 	gpg: WARNING: This key is not certified with a trusted signature!
 	gpg:          There is no indication that the signature belongs to the owner.
-	Primary key fingerprint: C135 49BB 82A1 7681 BF71  43C2 B446 8DF4 E95C 63DC
+	Primary key fingerprint: 11E5 21D6 4698 2372 EB57  7A1F 8F08 71F2 0211 9294
 
 Unpack and prepare to build:
 $execute:
-	tar -xzf llvm-3.3.src.tar.gz
-	tar -xzf cfe-3.3.src.tar.gz
-	mv cfe-3.3.src llvm-3.3.src/tools/clang
+	tar -xzf llvm-3.4.1.src.tar.gz
+	tar -xzf cfe-3.4.1.src.tar.gz
+	mv cfe-3.4.1.src llvm-3.4.1.src/tools/clang
 	mkdir build
 	cd build
 
 Build:
-	If compiling with clang - must pass full path to compiler
-	CC=/usr/bin/clang CXX=/usr/bin/clang++ ../llvm-3.3.src/configure --prefix=$HOME/.local
-	make -j2
+If compiling with clang - must pass full path to compiler
+	CC=/usr/bin/clang CXX=/usr/bin/clang++ ../llvm-3.4.1.src/configure --prefix=$HOME/.local
+	ionice -c3 make -j2
 	make install
 
 --------------------------------------------------------------------------
