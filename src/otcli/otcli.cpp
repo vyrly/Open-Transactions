@@ -2,11 +2,15 @@
 /* See header file .hpp for info */
 
 #include "otcli.hpp"
-#include "othint.hpp"
 #include "cmd.hpp"
 
 #include "lib_common2.hpp"
 #include "useot.hpp"
+
+#ifdef __unix
+	#include <sys/types.h>
+	#include <sys/stat.h>
+#endif
 
 namespace nOT {
 namespace nNewcli {
@@ -64,15 +68,11 @@ int cOTCli::_Run(const vector<string> args_without_programname) {
 			}
 		}
 		else if (arg=="--complete-one") { // otcli "--complete-one" "ot msg sendfr"
-			string v;  bool ok=1;  try { v=args.at(nr+1); } catch(...) { ok=0; } //
-			if (ok) {
-				nOT::nOTHint::cInteractiveShell shell;
-				shell.CompleteOnce(v, useOT);
+			cDaemon completeDaemon;
+			if ( !completeDaemon.IsRunning() ) {
+				completeDaemon.ForkProcess();
 			}
-			else {
-				_erro("Missing variables for command line argument '"<<arg<<"'");
-				status = 1;
-			}
+			completeDaemon.DaemonMainLoop();
 		}
 		else if (arg=="--run-one") { // otcli "--run-one" "ot msg sendfr"
 			string v;  bool ok=1;  try { v=args.at(nr+1); } catch(...) { ok=0; } //
@@ -141,6 +141,55 @@ void cOTCli::LoadScript(const std::string &script_filename, const std::string &t
 	}
 }
 
+void cDaemon::ForkProcess() {
+	//-------------------
+	pid_t pid, sid;
+
+	//Fork the Parent Process
+	pid = fork();
+
+	if (pid < 0) { exit(EXIT_FAILURE); }
+
+	//We got a good pid, Close the Parent Process
+	if (pid > 0) { exit(EXIT_SUCCESS); }
+
+	//Change File Mask
+	//umask(0);
+
+	//Create a new Signature Id for our child
+	sid = setsid();
+	if (sid < 0) { exit(EXIT_FAILURE); }
+
+	//Change Directory
+	//If we cant find the directory we exit with failure.
+	//if ((chdir("/")) < 0) { exit(EXIT_FAILURE); }
+
+	//Close Standard File Descriptors
+	//close(STDIN_FILENO);
+	//close(STDOUT_FILENO);
+	//close(STDERR_FILENO);
+
+}
+
+bool cDaemon::IsRunning() {
+	//TODO
+	return true;
+}
+
+void cDaemon::DaemonMainLoop() {
+	while(1) {
+//		string v;  bool ok=1;  try { v=args.at(nr+1); } catch(...) { ok=0; } //
+//		if (ok) {
+//			nOT::nOTHint::cInteractiveShell shell;
+//			shell.CompleteOnce(v, useOT);
+//			}
+//		else {
+//			_erro("Missing variables for command line argument '"<<arg<<"'");
+//			status = 1;
+//		}
+		sleep(1);    //Sleep for 1
+	}
+}
 
 }; // namespace nNewcli
 }; // namespace OT

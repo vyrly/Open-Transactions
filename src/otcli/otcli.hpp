@@ -10,6 +10,7 @@ that runs either in mode:
 #define INCLUDE_OT_NEWCLI
 
 #include "lib_common2.hpp"
+#include "othint.hpp"
 
 namespace nOT {
 namespace nNewcli {
@@ -21,16 +22,23 @@ class cOTCli {
 		int _Run(const vector<string> args_without_programname);
 
 	public:
+
 		int Run(const vector<string> args_without_programname);
 
 		bool LoadScript_Main(const std::string &thefile_name);
 		void LoadScript(const std::string &script_filename, const std::string &title);
 };
 
+class cDaemon {
+	private:
+	public:
+		void ForkProcess();
+		bool IsRunning();
+		void DaemonMainLoop();
+};
 
 }; // namespace nNewcli
 }; // namespace nOT
-
 
 
 #endif
