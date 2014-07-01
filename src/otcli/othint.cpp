@@ -883,22 +883,85 @@ TODO - planned new tree of commands using lambda
 
 // ======================================================================================
 
+shared_ptr<nNewcli::cCmdParser> gReadlineHandleParser;
+shared_ptr<nUse::cUseOT> gReadlineHandlerUseOT;
+
 cInteractiveShell::cInteractiveShell()
 :dbg(false)
 { }
 
-void cInteractiveShell::_runOnce(const string line) { // used with bash autocompletion
-	gCurrentLogger.setDebugLevel(100);
-	nOT::nOTHint::cHintManager hint;
-	vector<string> out = hint.AutoCompleteEntire(line);
-	nOT::nUtils::DisplayVectorEndl(std::cout, out);
+
+bool cInteractiveShell::Execute(const string cmd) {
+	bool all_ok=false;
+	if (cmd.length()) {
+		add_history(cmd.c_str()); // TODO (leaks memory...) but why
+		write_history("otcli-history.txt"); // Save new history line to file
+		try {
+			_dbg1("Processing command");
+			auto processing = gReadlineHandleParser->StartProcessing(cmd, gReadlineHandlerUseOT); // <---
+			_info("Executing command");
+			processing.UseExecute(); // <--- ***
+			all_ok=true;
+			_info("Executed command.");
+		}
+		catch (const myexception &e) {
+			cerr<<"ERROR: Could not execute your command ("<<cmd<<")"<<endl;
+			cerr << e.what() << endl;
+			//e.Report();
+			cerr<<endl;
+		}
+		catch (const std::exception &e) {
+			cerr<<"ERROR: Could not execute your command ("<<cmd<<") - it triggered internal error: " << e.what() << endl;
+		}
+	} // length
+	return all_ok;
 }
 
-void cInteractiveShell::runOnce(const string line) { // used with bash autocompletion
+void cInteractiveShell::_CompleteOnce(const string line, shared_ptr<nUse::cUseOT> use) { // used with bash autocompletion
+	gCurrentLogger.setDebugLevel(100);
+
+	auto parser = make_shared<nNewcli::cCmdParser>();
+	gReadlineHandleParser = parser;
+	gReadlineHandlerUseOT = use;
+	parser->Init();
+	vector <string> completions;
+	auto processing = gReadlineHandleParser->StartProcessing(line, gReadlineHandlerUseOT);
+	completions = processing.UseComplete( line.size() ); // Function gets line before cursor, so we need to complete from the end
+
+	nOT::nUtils::DisplayVectorEndl(std::cout, completions);
+
+	gReadlineHandlerUseOT->CloseApi(); // Close OT_API at the end of shell runtime
+}
+
+void cInteractiveShell::CompleteOnce(const string line, shared_ptr<nUse::cUseOT> use) { // used with bash autocompletion
 	try {
-		runOnce(line);
+		_CompleteOnce(line, use);
 	} catch (const myexception &e) { e.Report(); throw ; } catch (const std::exception &e) { _erro("Exception " << e.what()); throw ; }
 }
+
+void cInteractiveShell::_RunOnce(const string cmd, shared_ptr<nUse::cUseOT> use) { // used with bash autocompletion
+	gCurrentLogger.setDebugLevel(100);
+
+	auto parser = make_shared<nNewcli::cCmdParser>();
+	gReadlineHandleParser = parser;
+	gReadlineHandlerUseOT = use;
+	parser->Init();
+
+	bool all_ok = Execute(cmd); // <---
+
+	if (!all_ok) { // if there was a problem
+//			if ((!said_help) || (!(help_needed % opt_repeat_help_each_nth_time))) { cerr<<"If lost, type command 'ot help'."<<endl; ++said_help; }
+//			++help_needed;
+	}
+	gReadlineHandlerUseOT->CloseApi(); // Close OT_API at the end of shell runtime
+}
+
+void cInteractiveShell::RunOnce(const string line, shared_ptr<nUse::cUseOT> use) { // used with bash autocompletion
+	try {
+		_RunOnce(line, use);
+	} catch (const myexception &e) { e.Report(); throw ; } catch (const std::exception &e) { _erro("Exception " << e.what()); throw ; }
+}
+
 
 extern bool my_rl_wrapper_debug; // external
 
@@ -922,9 +985,6 @@ bool my_rl_wrapper_debug; // external
 // ("ot m",0) then ("ot m",1) then ("ot x",0) and suddenly back to ("ot x",2) without reinitialization
 // (done with number=0) is an error (at least currently, in future we might cache various completion
 // arrays, or recalculate on change)
-
-shared_ptr<nNewcli::cCmdParser> gReadlineHandleParser;
-shared_ptr<nUse::cUseOT> gReadlineHandlerUseOT;
 
 /**
 Caller: before calling this function gReadlineHandleParser and gReadlineHandlerUseOT must be set!
@@ -983,14 +1043,14 @@ char ** completion(const char* text, int start, int end __attribute__((__unused_
 	return (matches);
 }
 
-void cInteractiveShell::runEditline(shared_ptr<nUse::cUseOT> use) {
+void cInteractiveShell::RunEditline(shared_ptr<nUse::cUseOT> use) {
 	try {
-		_runEditline(use);
+		_RunEditline(use);
 
 	} catch (const myexception &e) { e.Report(); throw ; } catch (const std::exception &e) { _erro("Exception " << e.what()); throw ; }
 }
 
-void cInteractiveShell::_runEditline(shared_ptr<nUse::cUseOT> use) {
+void cInteractiveShell::_RunEditline(shared_ptr<nUse::cUseOT> use) {
 	_mark("Running editline loop");
 	// nOT::nUse::useOT.Init(); // Init OT on the beginning // disabled to avoid some problems and delay (and valgrid complain)
 
@@ -1034,34 +1094,7 @@ void cInteractiveShell::_runEditline(shared_ptr<nUse::cUseOT> use) {
 			if (cmd_trim=="quit") break;
 			if (cmd_trim=="q") break;
 
-			if (cmd.length()) {
-				add_history(cmd.c_str()); // TODO (leaks memory...) but why
-				write_history("otcli-history.txt"); // Save new history line to file
-
-				bool all_ok=false;
-				try {
-					_dbg1("Processing command");
-					auto processing = parser->StartProcessing(cmd, use); // <---
-					_info("Executing command");
-					processing.UseExecute(); // <--- ***
-					all_ok=true;
-					_info("Executed command.");
-				}
-				catch (const myexception &e) {
-					cerr<<"ERROR: Could not execute your command ("<<cmd<<")"<<endl;
-					cerr << e.what() << endl;
-					//e.Report();
-					cerr<<endl;
-				}
-				catch (const std::exception &e) {
-					cerr<<"ERROR: Could not execute your command ("<<cmd<<") - it triggered internal error: " << e.what() << endl;
-				}
-
-				if (!all_ok) { // if there was a problem
-					if ((!said_help) || (!(help_needed % opt_repeat_help_each_nth_time))) { cerr<<"If lost, type command 'ot help'."<<endl; ++said_help; }
-					++help_needed;
-				}
-			} // length
+			bool all_ok = Execute(cmd); // <---
 
 		} // try an editline turn
 		catch (const std::exception &e) {

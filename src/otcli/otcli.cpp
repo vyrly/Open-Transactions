@@ -52,10 +52,10 @@ int cOTCli::_Run(const vector<string> args_without_programname) {
 
 			switch ( gRunOptions.getTRunMode() ){
 				case gRunOptions.eRunModeNormal :
-					shell.runEditline(useOT);
+					shell.RunEditline(useOT);
 					break;
 				case gRunOptions.eRunModeDemo :
-					shell.runEditline(useOT);
+					shell.RunEditline(useOT);
 					break;
 				case gRunOptions.eRunModeCurrent :
 					using namespace nOT::nNewcli;
@@ -67,7 +67,18 @@ int cOTCli::_Run(const vector<string> args_without_programname) {
 			string v;  bool ok=1;  try { v=args.at(nr+1); } catch(...) { ok=0; } //
 			if (ok) {
 				nOT::nOTHint::cInteractiveShell shell;
-				shell.runOnce(v);
+				shell.CompleteOnce(v, useOT);
+			}
+			else {
+				_erro("Missing variables for command line argument '"<<arg<<"'");
+				status = 1;
+			}
+		}
+		else if (arg=="--run-one") { // otcli "--run-one" "ot msg sendfr"
+			string v;  bool ok=1;  try { v=args.at(nr+1); } catch(...) { ok=0; } //
+			if (ok) {
+				nOT::nOTHint::cInteractiveShell shell;
+				shell.RunOnce(v, useOT);
 			}
 			else {
 				_erro("Missing variables for command line argument '"<<arg<<"'");
