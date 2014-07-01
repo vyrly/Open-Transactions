@@ -191,6 +191,20 @@ void cDaemon::DaemonMainLoop() {
 	}
 }
 
+#ifdef __unix
+
+void cDaemon::GetTmpFileIn() {
+	char filename[] = "/tmp/otshell.XXXXXX";
+	int fd = mkstemp(filename);
+	FILE * sfp;
+	if ( fd == -1 || (sfp = fdopen(fd, "w")) == NULL ) {
+		_erro("Can't create the file: " << filename);
+		return;
+	}
+}
+
+#endif
+
 }; // namespace nNewcli
 }; // namespace OT
 

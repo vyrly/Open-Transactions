@@ -374,7 +374,7 @@ void cEnvUtils::CloseFile() {
 }
 
 void  cEnvUtils::OpenEditor() {
-	char* editor = std::getenv("OT_EDITOR"); //TODO Read editor from configuration file
+	char* editor = std::getenv("OT_EDITOR"); //TODO Read editor from configuration file. Use secure_getenv
 	if (editor == NULL)
 		editor = std::getenv("VISUAL");
 	if (editor == NULL)

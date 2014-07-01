@@ -32,6 +32,7 @@ class cOTCli {
 class cDaemon {
 	private:
 	public:
+		void GetTmpFileIn();
 		void ForkProcess();
 		bool IsRunning();
 		void DaemonMainLoop();
