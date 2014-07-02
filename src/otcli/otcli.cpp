@@ -10,6 +10,8 @@
 #ifdef __unix
 	#include <sys/types.h>
 	#include <sys/stat.h>
+	#include <fcntl.h>
+	#include <signal.h>
 #endif
 
 namespace nOT {
@@ -68,11 +70,22 @@ int cOTCli::_Run(const vector<string> args_without_programname) {
 			}
 		}
 		else if (arg=="--complete-one") { // otcli "--complete-one" "ot msg sendfr"
-			cDaemon completeDaemon;
-			if ( !completeDaemon.IsRunning() ) {
-				completeDaemon.ForkProcess();
+			string v;  bool ok=1;  try { v=args.at(nr+1); } catch(...) { ok=0; } //
+			if (ok) {
+				GetTmpFileOut();
+
+				if ( !IsDaemonRunning() ) {
+//					nUtils::DisplayStringEndl(cerr, "Demon is not running");
+					nOT::nOTHint::cInteractiveShell shell;
+					shell.CompleteOnce(v, useOT);
+
+					cDaemon completeDaemon;
+				}
+				else {
+					OpenPipe(v);
+					ReadFromTmpFileOut();
+				}
 			}
-			completeDaemon.DaemonMainLoop();
 		}
 		else if (arg=="--run-one") { // otcli "--run-one" "ot msg sendfr"
 			string v;  bool ok=1;  try { v=args.at(nr+1); } catch(...) { ok=0; } //
@@ -141,12 +154,97 @@ void cOTCli::LoadScript(const std::string &script_filename, const std::string &t
 	}
 }
 
+#ifdef __unix
+
+void cOTCli::ReadFromTmpFileOut() {
+	//	std::ofstream ofs(mDaemonInFilename);
+	//	ofs << cmd;
+
+	close(mDaemonOutfd);
+	unlink( mDaemonOutFilename.c_str() );
+}
+
+void cOTCli::GetTmpFileOut() {
+	char filename[] = "/tmp/otshell-out.XXXXXX";
+	int mDaemonOutfd = mkstemp(filename);
+	if ( mDaemonOutfd == -1 ) {
+		_erro("Can't create the file: " << filename);
+		return;
+	}
+	mDaemonOutFilename = filename;
+}
+
+bool cOTCli::IsDaemonRunning() {
+	std::ifstream pidFile("daemon.pid");
+	string pid;
+	if (pidFile.good()) {
+		pidFile >> pid;
+
+//		nUtils::DisplayStringEndl(cerr, "Checking if pid exists");
+
+		if (0 == kill(stoi(pid), 0)) {
+//				nUtils::DisplayStringEndl(cerr, "Daemon is running");
+				return true;
+		}
+	}
+//	nUtils::DisplayStringEndl(cerr, "Daemon is not running");
+	return false;
+}
+
+void cOTCli::OpenPipe(const string & cmd) {
+	int fd;
+	char buf[4096];
+//	nUtils::DisplayStringEndl(cerr, "Creating Pipe... Waiting for receiver process...");
+	//TRY TO CRATE A NAMED PIPE
+	if (mkfifo("OT_DAEMON_IN_FIFO_PIPE",0600)<0)
+	{
+		nUtils::DisplayStringEndl(cerr, "FIFO (named pipe) could not be created.");
+		return;
+	}
+//	else nUtils::DisplayStringEndl(cerr, "Pipe has been created...");
+
+	//OPEN PIPE
+	if ((fd = open("OT_DAEMON_IN_FIFO_PIPE", O_WRONLY))<0)
+	{
+		nUtils::DisplayStringEndl(cerr, "Could not open named pipe.");
+		return;
+	}
+//	else nUtils::DisplayStringEndl(cerr, "Pipe has been opened.");
+
+	//WRITE TO PIPE
+	strcpy( buf, cmd.c_str() );
+
+	if( write (fd,buf, strlen(buf)+1) < 0 )
+	{
+		nUtils::DisplayStringEndl(cerr, "Error writing to named Pipe (FIFO)");
+		return;
+	}
+//	else nUtils::DisplayStringEndl(cerr, "Message has been written to pipe.");
+
+	//CLOSE FIFO
+	if (close(fd)<0)
+	{
+		nUtils::DisplayStringEndl(cerr, "Error closing FIFO");
+		return;
+	}
+}
+
+cDaemon::cDaemon() {
+	ForkProcess();
+	DaemonMainLoop();
+
+}
+
+pid_t cDaemon::GetDaemonPID() {
+	return mSID;
+}
+
 void cDaemon::ForkProcess() {
 	//-------------------
-	pid_t pid, sid;
+//	daemon(0, 0);
 
 	//Fork the Parent Process
-	pid = fork();
+	pid_t pid = fork();
 
 	if (pid < 0) { exit(EXIT_FAILURE); }
 
@@ -154,56 +252,82 @@ void cDaemon::ForkProcess() {
 	if (pid > 0) { exit(EXIT_SUCCESS); }
 
 	//Change File Mask
-	//umask(0);
+//	umask(0);
 
 	//Create a new Signature Id for our child
-	sid = setsid();
-	if (sid < 0) { exit(EXIT_FAILURE); }
+	mSID = setsid();
+	if (mSID < 0) { exit(EXIT_FAILURE); }
+
+	std::ofstream pidFile("daemon.pid");
+	pidFile << mSID;
+	nUtils::DisplayStringEndl(cerr, "Daemon PID:" + to_string(mSID) );
 
 	//Change Directory
 	//If we cant find the directory we exit with failure.
 	//if ((chdir("/")) < 0) { exit(EXIT_FAILURE); }
 
 	//Close Standard File Descriptors
-	//close(STDIN_FILENO);
-	//close(STDOUT_FILENO);
-	//close(STDERR_FILENO);
+//	close(STDIN_FILENO);
+//	close(STDOUT_FILENO);
+//	close(STDERR_FILENO);
 
-}
-
-bool cDaemon::IsRunning() {
-	//TODO
-	return true;
 }
 
 void cDaemon::DaemonMainLoop() {
+	auto useOT = std::make_shared<nUse::cUseOT>("Daemon");
+	nOT::nOTHint::cInteractiveShell shell;
 	while(1) {
-//		string v;  bool ok=1;  try { v=args.at(nr+1); } catch(...) { ok=0; } //
-//		if (ok) {
-//			nOT::nOTHint::cInteractiveShell shell;
-//			shell.CompleteOnce(v, useOT);
-//			}
-//		else {
-//			_erro("Missing variables for command line argument '"<<arg<<"'");
-//			status = 1;
-//		}
-		sleep(1);    //Sleep for 1
+		string command = ReadCmd();
+		if ( !command.empty() ) {
+			nUtils::DisplayStringEndl(cerr, "Execute");
+			shell.CompleteOnce(command, useOT);
+		}
+		sleep(1);    //Sleep for 2 seconds
 	}
 }
 
-#ifdef __unix
+string cDaemon::ReadCmd() {
+	const int max = 4096;
 
-void cDaemon::GetTmpFileIn() {
-	char filename[] = "/tmp/otshell.XXXXXX";
-	int fd = mkstemp(filename);
-	FILE * sfp;
-	if ( fd == -1 || (sfp = fdopen(fd, "w")) == NULL ) {
-		_erro("Can't create the file: " << filename);
-		return;
-	}
+  int fd;
+  char buf[4096];
+
+  string filename;
+
+  //OPEN PIPE WITH READ ONLY
+  if ((fd = open ("OT_DAEMON_IN_FIFO_PIPE", O_RDONLY ))<0)
+  {
+//  	nUtils::DisplayStringEndl(cerr, "Could not open named pipe for reading.");
+      return "";
+  }
+//  nUtils::DisplayStringEndl(cerr, "Pipe has been opened. Trying to read from...");
+
+  //READ FROM PIPE
+  if (read( fd,buf,max) < 0 )
+  {
+  	nUtils::DisplayStringEndl(cerr, "Error reading pipe.");
+      return "";
+  }
+  filename = buf;
+  nUtils::DisplayStringEndl(cerr,"Message I got from pipe - " + filename);
+
+  if (close(fd)<0)
+  {
+  	nUtils::DisplayStringEndl(cerr, "Error closing FIFO.");
+      return "";
+  }
+
+  if (unlink("OT_DAEMON_IN_FIFO_PIPE")<0)
+  {
+  	nUtils::DisplayStringEndl(cerr, "Error deleting pipe file.");
+      return "";
+  }
+  return filename;
 }
 
-#endif
+
+#endif //__unix
+
 
 }; // namespace nNewcli
 }; // namespace OT

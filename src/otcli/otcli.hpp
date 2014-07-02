@@ -21,6 +21,15 @@ class cOTCli {
 	private:
 		int _Run(const vector<string> args_without_programname);
 
+		int mDaemonOutfd;
+		string mDaemonOutFilename;
+
+		bool IsDaemonRunning();
+		void GetTmpFileOut();
+
+		void OpenPipe(const string & cmd);
+		void ReadFromTmpFileOut();
+
 	public:
 
 		int Run(const vector<string> args_without_programname);
@@ -31,11 +40,14 @@ class cOTCli {
 
 class cDaemon {
 	private:
-	public:
-		void GetTmpFileIn();
+		pid_t mSID;
+		shared_ptr<nUse::cUseOT> mUseOT;
 		void ForkProcess();
-		bool IsRunning();
 		void DaemonMainLoop();
+		string ReadCmd();
+	public:
+		cDaemon();
+		pid_t GetDaemonPID();
 };
 
 }; // namespace nNewcli
