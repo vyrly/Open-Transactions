@@ -21,17 +21,92 @@ namespace nUse {
 	using ID = string;
 	using name = string;
 
+	using IDCache = map<ID, name>;
+
 	class cUseCache { // TODO optimize/share memory? or convert on usage
-		friend class cUseOT;
 	public:
 		cUseCache();
+
+		enum class eType {Nyms, Accounts, Assets, Servers};
+
+		IDCache mNyms;
+		IDCache mAccounts;
+		IDCache mAssets;
+		IDCache mServers;
+
+		bool mNymsMy_loaded;  //TODO
+
+		IDCache & Get(const eType type) {
+			switch (type) {
+				case eType::Accounts:
+					return mAccounts;
+				case eType::Assets:
+						return mAssets;
+				case eType::Nyms:
+						return mNyms;
+				case eType::Servers:
+						return mServers;
+				}
+		}
+
+		void Reload(const eType type, bool force=false) { // Simplify this function
+			IDCache & cache = Get(type);
+			if (type == eType::Nyms) {
+				if (force || cache.size() != OTAPI_Wrap::GetNymCount()) { //TODO optimize?
+					cache.clear();
+					_dbg3("Reloading nyms cache");
+					for(int i = 0 ; i < OTAPI_Wrap::GetNymCount();i++) {
+						string nym_ID = OTAPI_Wrap::GetNym_ID (i);
+						string nym_Name = OTAPI_Wrap::GetNym_Name (nym_ID);
+
+						cache.insert( std::make_pair(nym_ID, nym_Name) );
+					}
+				}
+			}
+			else if (type == eType::Accounts) {
+				if (force || cache.size() != OTAPI_Wrap::GetAccountCount()) {
+					cache.clear();
+					_dbg3("Reloading accounts cache");
+					for(int i = 0 ; i < OTAPI_Wrap::GetAccountCount();i++) {
+						string ID = OTAPI_Wrap::GetAccountWallet_ID(i);
+						string Name = OTAPI_Wrap::GetAccountWallet_Name(ID);
+
+						cache.insert( std::make_pair(ID, Name) );
+					}
+				}
+			}
+			else if (type == eType::Assets) {
+				if (force || cache.size() != OTAPI_Wrap::GetAssetTypeCount()) {
+					cache.clear();
+					_dbg3("Reloading assets cache");
+					for(int i = 0 ; i < OTAPI_Wrap::GetAssetTypeCount();i++) {
+						string ID = OTAPI_Wrap::GetAssetType_ID(i);
+						string Name = OTAPI_Wrap::GetAssetType_Name(ID);
+
+						cache.insert( std::make_pair(ID, Name) );
+					}
+				}
+			}
+			else if (type == eType::Servers) {
+				if (force || cache.size() != OTAPI_Wrap::GetServerCount()) {
+					cache.clear();
+					_dbg3("Reloading servers cache");
+					for(int i = 0 ; i < OTAPI_Wrap::GetServerCount();i++) {
+						string ID = OTAPI_Wrap::GetServer_ID(i);
+						string Name = OTAPI_Wrap::GetServer_Name(ID);
+
+						cache.insert( std::make_pair(ID, Name) );
+					}
+				}
+			}
+		}
+
 	protected:
-		map<ID, name> mNyms;
-		map<ID, name> mAccounts;
-		map<ID, name> mAssets;
-		map<ID, name> mServers;
-		bool mNymsMy_loaded;
+
 	private:
+		typedef const int32_t ( OTAPI_Wrap::*FPTRGetCount ) ();
+		typedef const ID ( OTAPI_Wrap::*FPTRGetID ) (const int32_t &);
+		typedef const name ( OTAPI_Wrap::*FPTRGetName ) (const string &);
 	};
 
 	class cUseOT {
@@ -78,10 +153,10 @@ namespace nUse {
 
 		VALID bool CheckIfExists(const nUtils::eSubjectType type, const string & subject);
 		EXEC bool DisplayDefaultSubject(const nUtils::eSubjectType type, bool dryrun);
-		bool DisplayAllDefaults(bool dryrun);
+		EXEC bool DisplayAllDefaults(bool dryrun);
 		EXEC bool DisplayHistory(bool dryrun);
+		EXEC bool Refresh(bool dryrun);
 		string SubjectGetDescr(const nUtils::eSubjectType type, const string & subject);
-		bool Refresh(bool dryrun);
 		//================= account =================
 
 		const vector<ID> AccountGetAllIds();

@@ -782,22 +782,12 @@ bool cUseOT::CashWithdraw(const string & account, int64_t amount, bool dryrun) {
 	return true;
 }
 
-
+/* FIXME
 const string cUseOT::ContractSign(const std::string & nymID, const std::string & contract){ // FIXME can't sign contract with this (assetNew() functionality)
 	if(!Init())
 		return "";
 	return OTAPI_Wrap::AddSignature(nymID, contract);
-}
-
-const vector<string> cUseOT::MsgGetAll() { ///< Get all messages from all Nyms. FIXME unused
-	if(!Init())
-	return vector<string> {};
-
-	for(int i = 0 ; i < OTAPI_Wrap::GetNymCount ();i++) {
-		MsgDisplayForNym( NymGetName( OTAPI_Wrap::GetNym_ID(i) ), false );
-	}
-	return vector<string> {};
-}
+}*/
 
 bool cUseOT::MsgDisplayForNym(const string & nymName, bool dryrun) { ///< Get all messages from Nym.
 	_fact("msg ls " << nymName);
@@ -1002,20 +992,10 @@ bool cUseOT::NymCreate(const string & nymName, bool registerOnServer, bool dryru
 	return true;
 }
 
-void cUseOT::NymGetAll(bool force) {
+void cUseOT::NymGetAll(bool force) { // default: force == false
 	if(!Init())
 		return;
-
-	if (force || mCache.mNyms.size() != OTAPI_Wrap::GetNymCount()) { //TODO optimize?
-		mCache.mNyms.clear();
-		_dbg3("Reloading nyms cache");
-		for(int i = 0 ; i < OTAPI_Wrap::GetNymCount();i++) {
-			string nym_ID = OTAPI_Wrap::GetNym_ID (i);
-			string nym_Name = OTAPI_Wrap::GetNym_Name (nym_ID);
-
-			mCache.mNyms.insert( std::make_pair(nym_ID, nym_Name) );
-		}
-	}
+	mCache.Reload(cUseCache::eType::Nyms, force);
 }
 
 const vector<string> cUseOT::NymGetAllIDs() {
