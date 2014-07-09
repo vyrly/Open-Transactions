@@ -839,7 +839,7 @@ bool cUseOT::MsgDisplayForNymBox( tBoxType boxType, const string & nymName, int 
   nUtils::DisplayStringEndl( cout, NymGetName(nymID) + "(" + nymID + ")" );
 	nUtils::DisplayStringEndl( cout, "INBOX" ); // TODO
 	// for(int i = 0 ; i < OTAPI_Wrap::GetNym_MailCount (nymID);i++) {
-
+/*
 	string &data_msg;
   if (boxType == tBoxType::eInbox) {
 		data_msg = OTAPI_Wrap::GetNym_MailContentsByIndex(nymID,msg_index);
@@ -855,7 +855,7 @@ bool cUseOT::MsgDisplayForNymBox( tBoxType boxType, const string & nymName, int 
 	cout << "Msg size:" <<  data_from << endl; // color
 	cout << "Message : " <<  data_msg << endl; // color
 	cout << "--- end of message ---" << endl;
-
+*/
 	return true;
 }
 

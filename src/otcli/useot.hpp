@@ -51,52 +51,37 @@ namespace nUse {
 
 		void Reload(const eType type, bool force=false) { // Simplify this function
 			IDCache & cache = Get(type);
+			FPTRGetCount getCount;
+			FPTRGetID getID;
+			FPTRGetName getName;
 			if (type == eType::Nyms) {
-				if (force || cache.size() != OTAPI_Wrap::GetNymCount()) { //TODO optimize?
-					cache.clear();
-					_dbg3("Reloading nyms cache");
-					for(int i = 0 ; i < OTAPI_Wrap::GetNymCount();i++) {
-						string nym_ID = OTAPI_Wrap::GetNym_ID (i);
-						string nym_Name = OTAPI_Wrap::GetNym_Name (nym_ID);
-
-						cache.insert( std::make_pair(nym_ID, nym_Name) );
-					}
-				}
+				getCount = &OTAPI_Wrap::GetNymCount;
+				getID = &OTAPI_Wrap::GetNym_ID;
+				getName = &OTAPI_Wrap::GetNym_Name;
 			}
 			else if (type == eType::Accounts) {
-				if (force || cache.size() != OTAPI_Wrap::GetAccountCount()) {
-					cache.clear();
-					_dbg3("Reloading accounts cache");
-					for(int i = 0 ; i < OTAPI_Wrap::GetAccountCount();i++) {
-						string ID = OTAPI_Wrap::GetAccountWallet_ID(i);
-						string Name = OTAPI_Wrap::GetAccountWallet_Name(ID);
-
-						cache.insert( std::make_pair(ID, Name) );
-					}
-				}
+				getCount = &OTAPI_Wrap::GetAccountCount;
+				getID = &OTAPI_Wrap::GetAccountWallet_ID;
+				getName = &OTAPI_Wrap::GetAccountWallet_Name;
 			}
 			else if (type == eType::Assets) {
-				if (force || cache.size() != OTAPI_Wrap::GetAssetTypeCount()) {
-					cache.clear();
-					_dbg3("Reloading assets cache");
-					for(int i = 0 ; i < OTAPI_Wrap::GetAssetTypeCount();i++) {
-						string ID = OTAPI_Wrap::GetAssetType_ID(i);
-						string Name = OTAPI_Wrap::GetAssetType_Name(ID);
-
-						cache.insert( std::make_pair(ID, Name) );
-					}
-				}
+				getCount = &OTAPI_Wrap::GetAssetTypeCount;
+				getID = &OTAPI_Wrap::GetAssetType_ID;
+				getName = &OTAPI_Wrap::GetAssetType_Name;
 			}
 			else if (type == eType::Servers) {
-				if (force || cache.size() != OTAPI_Wrap::GetServerCount()) {
-					cache.clear();
-					_dbg3("Reloading servers cache");
-					for(int i = 0 ; i < OTAPI_Wrap::GetServerCount();i++) {
-						string ID = OTAPI_Wrap::GetServer_ID(i);
-						string Name = OTAPI_Wrap::GetServer_Name(ID);
+				getCount = &OTAPI_Wrap::GetServerCount;
+				getID = &OTAPI_Wrap::GetServer_ID;
+				getName = &OTAPI_Wrap::GetServer_Name;
+			}
+			if (force || cache.size() != (*getCount)()) { //TODO optimize?
+				cache.clear();
+				_dbg3("Reloading nyms cache");
+				for(int i = 0 ; i < (*getCount)();i++) {
+					string nym_ID = (*getID)(i);
+					string nym_Name = (*getName)(nym_ID);
 
-						cache.insert( std::make_pair(ID, Name) );
-					}
+					cache.insert( std::make_pair(nym_ID, nym_Name) );
 				}
 			}
 		}
@@ -104,9 +89,9 @@ namespace nUse {
 	protected:
 
 	private:
-		typedef const int32_t ( OTAPI_Wrap::*FPTRGetCount ) ();
-		typedef const ID ( OTAPI_Wrap::*FPTRGetID ) (const int32_t &);
-		typedef const name ( OTAPI_Wrap::*FPTRGetName ) (const string &);
+		typedef int32_t ( *FPTRGetCount ) ();
+		typedef ID ( *FPTRGetID ) (const int32_t &);
+		typedef name ( *FPTRGetName ) (const string &);
 	};
 
 	class cUseOT {
