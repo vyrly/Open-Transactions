@@ -29,7 +29,6 @@ if (CHECK_COMPILER_VERSION)
 					message(FATAL_ERROR "MSVC version must be at least 17! See README.txt section named FATAL_ERROR_COMPILE")
 			endif()
 	else ()
-			message("${CMAKE_CXX_COMPILER_ID}")
 			message(FATAL_ERROR "You are using an unsupported compiler! Compilation has only been tested with Clang, GCC and MSVC. See README.txt section name FATAL_ERROR_COMPILE")
 	endif ()
 endif ()
@@ -46,13 +45,14 @@ else ()
 	message(STATUS "Option was NOT set for wrapper. Using CMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}")
 endif (WITH_WRAPPER)
 
-set(CMAKE_CXX_FLAGS "-std=c++11 -g3 -O0 ")
 # -D_GNUCXX_DEBUG=1 seems to not work on llvm. TODO?
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/") # Add folder with cmake modules
 
 if (WITH_TERMCOLORS)
-	add_definitions( -DCFG_WITH_TERMCOLORS )
+	if (UNIX)
+		add_definitions( -DCFG_WITH_TERMCOLORS )
+	endif ()
 endif ()
 
 # Add executable
@@ -62,6 +62,16 @@ file(GLOB othint_SRC # All files in directory:
 	"*.hpp"
 	"*.cpp"
 )
+
+if (UNIX)
+	set(CMAKE_PREFIX_PATH "$ENV{HOME}/.local")
+	set(CMAKE_CXX_FLAGS "-std=c++11 -g3 -O0 ")
+
+endif(UNIX)
+
+if (WIN32)
+	set(CMAKE_PREFIX_PATH "C:/OT/Open-Transactions")
+endif(WIN32)
 
 add_executable(othint ${othint_SRC})
 

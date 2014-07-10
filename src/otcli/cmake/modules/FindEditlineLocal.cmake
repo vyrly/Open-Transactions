@@ -1,25 +1,34 @@
 # Find Editline/Ncurses lib and include directories
 message(STATUS "Looking for Editline locally.")
-set(CMAKE_PREFIX_PATH "$ENV{HOME}/.local")
-find_path(EDITLINE_INCLUDE_DIR editline/readline.h
-	 "$ENV{HOME}/.local/include"
+
+find_path(EDITLINE_INCLUDE_DIR
+	NAMES "editline/readline.h"
+	 "${CMAKE_PREFIX_PATH}/include"
 	)
 
 find_library(EDITLINE_LIBRARY
-	NAMES edit
-	PATHS "$ENV{HOME}/.local/lib"
+	NAMES "edit"
+	HINTS "${CMAKE_PREFIX_PATH}/lib" "${CMAKE_PREFIX_PATH}/lib/x64/Release"
 	)
+if (UNIX)
+	find_library(NCURSES_LIBRARY
+		NAMES "ncurses"
+		PATHS /opt/local/lib /usr/local/lib /usr/lib
+		)
 
-find_library(NCURSES_LIBRARY
-	NAMES ncurses
-	PATHS /opt/local/lib /usr/local/lib /usr/lib
-	)
-
-if (EDITLINE_LIBRARY AND EDITLINE_INCLUDE_DIR AND NCURSES_LIBRARY)
-	set(EDITLINE_LIBRARIES ${EDITLINE_LIBRARY} ${NCURSES_LIBRARY})
-	set(EDITLINE_FOUND "YES")
+	if (EDITLINE_LIBRARY AND EDITLINE_INCLUDE_DIR AND NCURSES_LIBRARY)
+		set(EDITLINE_LIBRARIES ${EDITLINE_LIBRARY} ${NCURSES_LIBRARY})
+		set(EDITLINE_FOUND "YES")
+	else ()
+		set(EDITLINE_FOUND "NO")
+	endif ()
 else ()
-	set(EDITLINE_FOUND "NO")
+	if (EDITLINE_LIBRARY AND EDITLINE_INCLUDE_DIR)
+		set(EDITLINE_LIBRARIES ${EDITLINE_LIBRARY})
+		set(EDITLINE_FOUND "YES")
+	else ()
+		set(EDITLINE_FOUND "NO")
+	endif ()
 endif ()
 
 if (EDITLINE_FOUND)
