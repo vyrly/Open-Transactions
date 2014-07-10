@@ -6,7 +6,7 @@ find_path(EDITLINE_INCLUDE_DIR
 	)
 
 find_library(EDITLINE_LIBRARY
-	NAMES edit_static
+	NAMES edit
 	HINTS "${CMAKE_PREFIX_PATH}/lib" "${CMAKE_PREFIX_PATH}/lib/x64/Release"
 	)
 if (UNIX)

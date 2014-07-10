@@ -199,9 +199,9 @@ File format of sources: identation with \t char, which we assume is 2 spaces wid
 #include <sstream>
 #include <iterator>
 #include <stdexcept>
+#include <algorithm>
 
 //for the super advanced trim ;) TODO remove? - trim not in use
-//#include <algorithm>
 //#include <functional>
 //#include <cctype>
 //#include <locale>
@@ -1098,12 +1098,12 @@ namespace nUse {
 
 				_info("Trying to load wallet: ");
 				//if not pWrap it means that AppInit is not successed
-				OTAPI_Wrap *pWrap = OTAPI_Wrap::It();
+				/*OTAPI_Wrap *pWrap = OTAPI_Wrap::It();
 				if (!pWrap) {
 					OTAPI_error = true;
 					_erro("Error while init OTAPI (1)");
 					return false;
-				}
+				}*/
 
 				if(OTAPI_Wrap::LoadWallet()) {
 					_info("wallet was loaded.");
@@ -1492,8 +1492,8 @@ OT_COMMON_USING_NAMESPACE
 using namespace nOT::nUtil;
 
 std::string StreamName(std::ostream &str) {
-	if (str == std::cout) return "cout";
-	if (str == std::cout) return "cin";
+	//if (str == std::cout) return "cout"; //MSVC can't take this error C2678: binary '==' : no operator found which takes a left-hand operand of type 'std::ostream' (or there is no acceptable conversion)
+	//if (str == std::cout) return "cin";
 	return "other-stream";
 }
 
@@ -2167,7 +2167,7 @@ static char* completionReadlineWrapper(const char *sofar , int number) {
 	return strdup( completions.at(number).c_str() ); // caller must free() this memory
 }
 
-char ** completion(const char* text, int start, int end __attribute__((__unused__))){
+char ** completion(const char* text, int start, int end){ //__attribute__((__unused__)) is gcc compatible
 	char **matches;
 	matches = (char **)NULL;
 	matches = rl_completion_matches (text, completionReadlineWrapper);
@@ -2175,11 +2175,13 @@ char ** completion(const char* text, int start, int end __attribute__((__unused_
 }
 
 void cInteractiveShell::runEditline() {
+	_info("runEditline() - start");
 	char *buf = NULL;
 	my_rl_wrapper_debug = dbg;
 	rl_attempted_completion_function = completion;
-	rl_bind_key('\t',rl_complete);
+	//rl_bind_key('\t',rl_complete); //wineditline: no rl_bind_key and rl_complete functions
 	while((buf = readline("commandline-part> "))!=NULL) { // <--- readline()
+		_info("readline - start");
 		std::string word;
 		if (buf) word=buf; // if not-null buf, then assign
 		if (buf) { free(buf); buf=NULL; }
@@ -2194,7 +2196,7 @@ void cInteractiveShell::runEditline() {
 		if (cmd=="q") break;
 
 		if (cmd.length()) {
-		add_history(cmd.c_str()); // TODO (leaks memory...) but why
+		add_history(const_cast<char *>(cmd.c_str())); // TODO (leaks memory...) but why
 
 		//Execute in BuildTreeOfCommandlines:
 		nOT::nOTHint::cHintManager hint;
@@ -2266,7 +2268,7 @@ void LoadScript(const std::string &script_filename, const std::string &title) {
 // ====================================================================
 
 int main(int argc, char **argv) {
-	LoadScript("autostart-dev.local", "autostart script");
+	//LoadScript("autostart-dev.local", "autostart script");
 
 	// demo of OT
 	/*try {
@@ -2308,6 +2310,7 @@ int main(int argc, char **argv) {
 
 
 int nOT::nTests::main_main(int argc, char **argv) {
+	_info("main_main");
 	vector<string> args;
 	int status = 0;
 	if (! (argc>=1)) {
@@ -2319,6 +2322,7 @@ int nOT::nTests::main_main(int argc, char **argv) {
 	for(auto arg: args) {
 		if (arg=="--complete-shell") {
 			nOT::nOTHint::cInteractiveShell shell;
+			_info("shell.runEditline()");
 			shell.runEditline();
 		}
 		else if (arg=="--complete-one") {
