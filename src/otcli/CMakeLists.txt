@@ -50,9 +50,7 @@ endif (WITH_WRAPPER)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/") # Add folder with cmake modules
 
 if (WITH_TERMCOLORS)
-	if (UNIX)
 		add_definitions( -DCFG_WITH_TERMCOLORS )
-	endif ()
 endif ()
 
 # Add executable

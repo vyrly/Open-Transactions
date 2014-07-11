@@ -51,8 +51,6 @@ std::string & trim(std::string &s) {
 	return ltrim(rtrim(s));
 }
 
-cNullstream::cNullstream() { } 
-
 cNullstream g_nullstream; // extern a stream that does nothing (eats/discards data)
 
 // ====================================================================
