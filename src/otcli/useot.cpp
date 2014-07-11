@@ -17,8 +17,8 @@
 #if CFG_USE_EDITLINE
 	#ifdef __unix__
 		#include <editline/readline.h> // to display history, TODO move that functionality somewhere else
-	#else // not unix
-		// TODO: do support MinGWEditline for windows)
+	#elif _WIN32
+		#include <editline/readline.h>
 	#endif // not unix
 #endif // not use editline
 
@@ -48,7 +48,7 @@ cUseOT::cUseOT(const string &mDbgName)
 }
 
 
-string cUseOT::DbgName() const noexcept {
+string cUseOT::DbgName() const NOEXCEPT {
 	return "cUseOT-" + ToStr((void*)this) + "-" + mDbgName;
 }
 

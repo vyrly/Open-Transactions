@@ -432,11 +432,11 @@ class cParamInfo {  MAKE_CLASS_NAME("cParamInfo");
 
 		bool IsValid() const;
 
-		operator string() const noexcept { return mName; }
-		std::string getName() const noexcept { return mName; }
-		std::string getName2() const noexcept { return mName+"("+mDescr+")"; }
-		bool getTakesValue() const noexcept { return mFlags.n.takesValue; }
-		tFlags getFlags() const noexcept { return mFlags; }
+		operator string() const NOEXCEPT { return mName; }
+		std::string getName() const NOEXCEPT { return mName; }
+		std::string getName2() const NOEXCEPT { return mName+"("+mDescr+")"; }
+		bool getTakesValue() const NOEXCEPT { return mFlags.n.takesValue; }
+		tFlags getFlags() const NOEXCEPT { return mFlags; }
 
 		cParamInfo operator<<(const cParamInfo &B) const;
 

@@ -54,7 +54,7 @@ namespace nUse {
 		cUseOT(const string &mDbgName);
 		~cUseOT();
 
-		string DbgName() const noexcept;
+		string DbgName() const NOEXCEPT;
 
 		bool Init();
 		void CloseApi();

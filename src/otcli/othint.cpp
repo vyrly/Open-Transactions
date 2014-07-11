@@ -53,10 +53,10 @@ File format of sources: identation with \t char, which we assume is 2 spaces wid
 #endif
 
 #if CFG_USE_EDITLINE
-	#ifdef __unix__
+	#ifdef __unix
 		#include <editline/readline.h>
-	#else // not unix
-		// TODO: do support MinGWEditline for windows)
+	#elif _WIN32
+		#include <editline/readline.h>
 	#endif // not unix
 #endif // not use editline
 
@@ -994,7 +994,7 @@ void cInteractiveShell::_runEditline(shared_ptr<nUse::cUseOT> use) {
 	char *buf = NULL;
 	my_rl_wrapper_debug = dbg;
 	rl_attempted_completion_function = completion;
-	rl_bind_key('\t',rl_complete);
+	//rl_bind_key('\t',rl_complete); //not availavible in wineditline
 
 	auto parser = make_shared<nNewcli::cCmdParser>();
 	gReadlineHandleParser = parser;
@@ -1058,7 +1058,7 @@ void cInteractiveShell::_runEditline(shared_ptr<nUse::cUseOT> use) {
 		} 
 	} // while
 	int maxHistory = 100; //TODO move this to settings
-	history_truncate_file("otcli-history.txt", maxHistory);
+	//history_truncate_file("otcli-history.txt", maxHistory); //not availavible in WinEditLine
 	if (buf) { free(buf); buf=NULL; }
 	clear_history(); // http://cnswww.cns.cwru.edu/php/chet/readline/history.html#IDX11
 
