@@ -1,8 +1,13 @@
 # Find OT lib and include directories
 message(STATUS "Looking for OT locally.")
-find_path(OTLocal_INCLUDE_DIR
-	NAMES OTAPI.hpp OTLib.hpp
-	HINTS "${CMAKE_PREFIX_PATH}/include" "${CMAKE_PREFIX_PATH}/include/otapi" "${CMAKE_PREFIX_PATH}/include/otlib"
+find_path(OTLocal_INCLUDE_DIR_otapi
+	NAMES OTAPI.hpp
+	HINTS "${CMAKE_PREFIX_PATH}/include" "${CMAKE_PREFIX_PATH}/include/otapi"
+	)
+
+find_path(OTLocal_INCLUDE_DIR_otlib
+	NAMES OTLib.hpp
+	HINTS "${CMAKE_PREFIX_PATH}/include" "${CMAKE_PREFIX_PATH}/include/otlib"
 	)
 
 find_library(OTLocal_LIBRARY_otapi
@@ -22,8 +27,9 @@ else ()
 		)
 endif ()
 
-if (OTLocal_LIBRARY_otapi AND OTLocal_LIBRARY_otlib AND OTLocal_INCLUDE_DIR )
+if (OTLocal_LIBRARY_otapi AND OTLocal_LIBRARY_otlib AND OTLocal_INCLUDE_DIR_otapi AND OTLocal_INCLUDE_DIR_otlib)
 	set(OTLocal_LIBRARIES ${OTLocal_LIBRARY_otapi} ${OTLocal_LIBRARY_otlib})
+	set(OTLocal_INCLUDE_DIR ${OTLocal_INCLUDE_DIR_otapi} ${OTLocal_INCLUDE_DIR_otlib})
 	set(OTLocal_FOUND "YES")
 else ()
 	set(OTLocal_FOUND "NO")
