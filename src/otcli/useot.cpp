@@ -114,7 +114,7 @@ bool cUseOT::DisplayHistory(bool dryrun) {
 	_fact("ot history");
 	if(dryrun) return true;
 
-	for (int i=1; i<history_length; i++) {
+	for (int i=1; i<history_length(); i++) { // TODO check if history_length() will work with editline
 		DisplayStringEndl( cout, history_get(i)->line );
 	}
 	return true;

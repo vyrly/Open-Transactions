@@ -402,7 +402,30 @@ const string cEnvUtils::Compose() {
 	return input;
 }
 
-#endif
+#else
+// TODO: implement for Windows
+void cEnvUtils::GetTmpTextFile() {
+}
+
+void cEnvUtils::CloseFile() {
+}
+
+void  cEnvUtils::OpenEditor() {
+}
+
+const string cEnvUtils::ReadFromTmpFile() {
+	return " ";
+}
+
+const string cEnvUtils::Compose() {
+	GetTmpTextFile();
+	OpenEditor();
+	string input = ReadFromTmpFile();
+	CloseFile();
+	return input;
+}
+
+#endif // __unix
 
 const string cEnvUtils::ReadFromFile(const string path) {
 	std::ifstream ifs(path);

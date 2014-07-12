@@ -971,7 +971,7 @@ static char* CompletionReadlineWrapper(const char *sofar , int number) {
 	return strdup( completions.at(number).c_str() ); // caller must free() this memory
 }
 
-char ** completion(const char* text, int start, int end __attribute__((__unused__))) {
+char ** completion(const char* text, int start, int end ){ // __attribute__((__unused__))  is gcc compatible
 	rl_attempted_completion_over = 0;
 	char **matches;
 	matches = (char **)NULL;
@@ -1027,7 +1027,7 @@ void cInteractiveShell::_runEditline(shared_ptr<nUse::cUseOT> use) {
 			if (cmd_trim=="q") break;
 
 			if (cmd.length()) {
-				add_history(cmd.c_str()); // TODO (leaks memory...) but why
+				add_history( const_cast<char *>(cmd.c_str()) ); // TODO (leaks memory...) but why
 				write_history("otcli-history.txt"); // Save new history line to file
 
 				bool all_ok=false;
