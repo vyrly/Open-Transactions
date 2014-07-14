@@ -2,12 +2,12 @@
 message(STATUS "Looking for OT locally.")
 find_path(OTLocal_INCLUDE_DIR_otapi
 	NAMES OTAPI.hpp
-	HINTS "${CMAKE_PREFIX_PATH}/include" "${CMAKE_PREFIX_PATH}/include/otapi"
+	HINTS "${CMAKE_PREFIX_PATH}/include/opentxs" "${CMAKE_PREFIX_PATH}/include/otapi"
 	)
 
 find_path(OTLocal_INCLUDE_DIR_otlib
 	NAMES OTLib.hpp
-	HINTS "${CMAKE_PREFIX_PATH}/include" "${CMAKE_PREFIX_PATH}/include/otlib"
+	HINTS "${CMAKE_PREFIX_PATH}/include/opentxs" "${CMAKE_PREFIX_PATH}/include/otlib"
 	)
 
 find_library(OTLocal_LIBRARY_otapi

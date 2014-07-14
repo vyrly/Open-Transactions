@@ -9,9 +9,11 @@ option(LOCAL_OT "Build with locally installed ot" ON)
 option(CHECK_COMPILER_VERSION "Check if current compiler version is suported" ON)
 option(WITH_TERMCOLORS "Build with support for unix terminal console colors VT100" ON)
 
+
+# TODO Set folder for ot and editline installation
+
 # Check compiler version
 
-# TODO Check MSVC
 if (CHECK_COMPILER_VERSION)
 	if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 			# require at least gcc 4.8

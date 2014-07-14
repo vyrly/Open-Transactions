@@ -28,7 +28,7 @@ namespace nUse {
 INJECT_OT_COMMON_USING_NAMESPACE_COMMON_3; // <=== namespaces
 
 cUseOT::cUseOT(const string &mDbgName)
-: 
+:
 	mDbgName(mDbgName)
 , mNymsMy_loaded(false)
 , mDataFolder( OTPaths::AppDataFolder().Get() )
@@ -114,7 +114,14 @@ bool cUseOT::DisplayHistory(bool dryrun) {
 	_fact("ot history");
 	if(dryrun) return true;
 
-	for (int i=1; i<history_length(); i++) { // TODO check if history_length() will work with editline
+	int32_t histLen = 0;
+#ifdef _WIN32
+	histLen = history_length();
+#else
+	histLen = history_length;
+#endif
+
+	for (int i=1; i<histLen; i++) { // TODO check if history_length() will work with editline
 		DisplayStringEndl( cout, history_get(i)->line );
 	}
 	return true;
@@ -123,7 +130,7 @@ bool cUseOT::Refresh(bool dryrun){
 	_fact("refresh all");
 	if(dryrun) return true;
 	if(!Init()) return false;
-	bool StatusAccountRefresh=AccountRefresh(AccountGetName(AccountGetDefault()), true, false  ); 
+	bool StatusAccountRefresh=AccountRefresh(AccountGetName(AccountGetDefault()), true, false  );
 	bool StatusNymRefresh=NymRefresh("^" + NymGetDefault(), true, false  );
 	if( StatusAccountRefresh==true &&  StatusNymRefresh==true) {
 		_info("Succesfull refresh");
