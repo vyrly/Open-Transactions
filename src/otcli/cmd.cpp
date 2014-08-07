@@ -11,7 +11,7 @@
 namespace nOT {
 namespace nNewcli {
 
-INJECT_OT_COMMON_USING_NAMESPACE_COMMON_2; // <=== namespaces
+INJECT_OT_COMMON_USING_NAMESPACE_COMMON_2 // <=== namespaces
 
 using namespace nUse;
 
@@ -33,7 +33,7 @@ void cCmdParser_pimpl::BuildCache_CmdNames() {
 		const string & cmdName = elem.first;
 		auto space_pos = cmdName.find(' ');
 
-		_dbg2("Caching cmdName="<<cmdName<<" space at: " << (long long int)space_pos);
+		_dbg2("Caching cmdName="<<cmdName<<" space at: " << static_cast<long long int>(space_pos) );
 
 		const string word1 = cmdName.substr(0, space_pos);
 		_dbg3("word1="<<word1);
@@ -265,9 +265,18 @@ void cCmdProcessing::_Parse(bool allowBadCmdname) {
 		// mWordIx2CharIx [0]=2, [1]=6, [2]=11 (or so)
 		string curr_word="";
 		size_t curr_word_pos=0; // at which pos(at which char) that current word had started
+		bool quotedText = false;
+		bool escaped = false;
+		size_t escapedPos = 0;
 		for (size_t pos=0; pos<mCommandLineString.size(); ++pos) { // each character
 			char c = mCommandLineString.at(pos);
-			if (c==' ') { // white char
+			if (c=='\"') quotedText = !quotedText;
+			if (c=='\\') {
+				escapedPos = pos;
+				escaped = true;
+			}
+
+			if (c==' ' && !quotedText && !escaped ) { // white char
 				if (curr_word.size()) {  // if there was a previous word
 					mCommandLine.push_back(curr_word);
 					mData->mWordIx2Entity.push_back( cParseEntity( cParseEntity::tKind::unknown, curr_word_pos) );
@@ -278,6 +287,7 @@ void cCmdProcessing::_Parse(bool allowBadCmdname) {
 				if (curr_word.size()==0) curr_word_pos = pos; // this is the first character of current (new) word
 				curr_word += c;
 			}
+			if (escaped && (escapedPos+1 == pos) ) escaped = false;
 		} // for each char
 
 		if (curr_word.size()) {
@@ -396,7 +406,7 @@ void cCmdProcessing::_Parse(bool allowBadCmdname) {
 				if ( nUtils::CheckIfBegins("\"", word) ) { // TODO review memory access
 					_dbg1("Quotes detected in: " + word);
 					word.erase(0,1);
-					while ( !nUtils::CheckIfEnds("\"", word) ) {
+					while ( !nUtils::CheckIfEnds("\"", word) && pos < mCommandLine.size() ) {
 						word += " " + mCommandLine.at(pos);
 						++pos;
 						++quotes_offset_to_var;
@@ -431,7 +441,7 @@ void cCmdProcessing::_Parse(bool allowBadCmdname) {
 				if ( nUtils::CheckIfBegins("\"", word) ) { // TODO review memory access
 					_dbg1("Quotes detected in: " + word);
 					word.erase(0,1);
-					while ( !nUtils::CheckIfEnds("\"", word) ) {
+					while ( !nUtils::CheckIfEnds("\"", word) && pos < mCommandLine.size() ) {
 						word += " " + mCommandLine.at(pos);
 						++pos;
 						++quotes_offset_to_var;
@@ -713,7 +723,7 @@ vector<string> cCmdProcessing::UseComplete(int char_pos) {
 		}
 		else if (entity.mKind == cParseEntity::tKind::variable) { _info("Completing variable as arg_nr="<<arg_nr);
 			ASRT( mFormat );
-			if (!fake_empty) ASRT( mData->V(arg_nr) == word_sofar ); // the current work == current arg. (unless this is new word)
+			//if (!fake_empty) ASRT( mData->V(arg_nr) == word_sofar ); // TODO vyrly: I disable this line because word_sofar may be bigger than arg_nr (because of quotes). the current work == current arg. (unless this is new word)
 			cParamInfo param_info = mFormat->GetParamInfo( arg_nr );  // eg. pNymFrom  <--- info about kind (completion function etc) of argument that we now are tab-completing
 			auto completions = param_info.GetFuncHint()  ( *mUse , *mData , arg_nr );
 			_info("Var completions: " << DbgVector(completions));
