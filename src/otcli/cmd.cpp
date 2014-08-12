@@ -278,7 +278,7 @@ void cCmdProcessing::_Parse(bool allowBadCmdname) {
 
 			if (c==' ' && !quotedText && !escaped ) { // white char
 				if (curr_word.size()) {  // if there was a previous word
-					mCommandLine.push_back(curr_word);
+					mCommandLine.push_back(nUtils::SpaceFromEscape(curr_word) );
 					mData->mWordIx2Entity.push_back( cParseEntity( cParseEntity::tKind::unknown, curr_word_pos) );
 					curr_word="";
 				}
@@ -1024,7 +1024,7 @@ string cCmdData::VarDef(int nr, const string &def, bool doThrow) const throw(cEr
 
 string cCmdData::Var(int nr) const throw(cErrArgNotFound) { // nr: 1,2,3,4 including both arg and argExt
 	static string nothing;
-	return VarAccess(nr, nothing, true);
+	return VarAccess(nr, nothing, true );
 }
 
 vector<string> cCmdData::Opt(const string& name) const throw(cErrArgNotFound) {

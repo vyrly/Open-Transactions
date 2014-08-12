@@ -58,7 +58,7 @@ void cCmdParser::Init() {
 	cParamInfo pNym( "nym", [] () -> string { return Tr(eDictType::help, "nym") } ,
 		[] (cUseOT & use, cCmdData & data, size_t curr_word_ix ) -> bool {
 			_dbg3("Nym validation");
-			return use.CheckIfExists(nUtils::eSubjectType::User, data.Var(curr_word_ix + 1));
+			return use.CheckIfExists(nUtils::eSubjectType::User, data.Var(curr_word_ix + 1) );
 		} ,
 		[] ( cUseOT & use, cCmdData & data, size_t curr_word_ix  ) -> vector<string> {
 			_dbg3("Nym hinting");
@@ -553,13 +553,13 @@ void cCmdParser::Init() {
 
 	AddFormat("payment accept", {pAccountMy, pPaymetInboxIndex}, {}, {},
 		LAMBDA { auto &D=*d; return U.PaymentAccept( D.V(1), stoi(D.V(2)), D.has("--dryrun") ); } );
-		
+
 	AddFormat("payment discard", {}, {pNymMy, pPaymetInboxIndex}, {},
 		LAMBDA { auto &D=*d; return U.PaymentDiscard( D.v(1), D.v(2), D.has("--all"), D.has("--dryrun") ); } );
-			
+
 	AddFormat("payment discard-all", {}, {}, {},
 		LAMBDA { auto &D=*d; return U.PaymentDiscardAll( D.has("--dryrun") ); } );
-		
+
 	//======== ot purse ========
 
 	AddFormat("purse create", {pServer, pAsset, pNym, pNym}, {}, { },

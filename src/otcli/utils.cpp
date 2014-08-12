@@ -330,8 +330,8 @@ bool CheckIfEnds (std::string const & ending, std::string const & all){
 vector<string> WordsThatMatch(const std::string & sofar, const vector<string> & possib) {
 	vector<string> ret;
 	for ( auto rec : possib) { // check of possibilities
-		rec = EscapeFromSpace(rec);
 		if (CheckIfBegins(sofar,rec)) {
+			rec = EscapeFromSpace(rec);
 			ret.push_back(rec); // this record matches
 		}
 	}
